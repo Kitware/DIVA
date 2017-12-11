@@ -1,0 +1,3 @@
+cd @kwiver_DIR@
+source setup_KWIVER.sh
+cd @DIVA_BINARY_DIR@

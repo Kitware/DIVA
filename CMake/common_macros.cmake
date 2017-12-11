@@ -1,0 +1,17 @@
+
+function( RenameSubstr _fnRegex _inStr _outStr )
+  file( GLOB DIR_FILES ${_fnRegex} )
+  foreach( FN ${DIR_FILES} )
+    get_filename_component( FN_WO_DIR ${FN} NAME )
+    get_filename_component( FN_DIR ${FN} DIRECTORY )
+    string( REPLACE "${_inStr}" "${_outStr}" NEW_FN ${FN_WO_DIR} )
+    file( RENAME "${FN}" "${FN_DIR}/${NEW_FN}" )
+  endforeach( FN )
+endfunction()
+
+function( CopyFiles _inRegex _outDir )
+  file( GLOB FILES_TO_COPY ${_inRegex} )
+  if( FILES_TO_COPY )
+    file( COPY ${FILES_TO_COPY} DESTINATION ${_outDir} )
+  endif()
+endfunction()
