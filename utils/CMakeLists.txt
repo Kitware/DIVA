@@ -1,6 +1,6 @@
 if(fletch_ENABLED_YAMLCPP) #KWIVER_ENABLE_KPF)
   find_package( yaml-cpp REQUIRED )
-  find_package( boost REQUIRED )#Until yaml's next release..
+  find_package( Boost REQUIRED )#Until yaml's next release..
 else()
   message(FATAL_ERROR "DIVA requires the KWIVER KPF arrow, please enable it and rebuild kwiver")
 endif()
