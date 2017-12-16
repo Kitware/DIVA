@@ -2,6 +2,7 @@ API
 ===
 
 **NOTE The API is currently in an early alpha stage**
+
 **Email diva-te@kitware.com to provide comments and/or feedback**
 
 DIVA provides an Application Programming Interface (API) that provides the following funtionality :
@@ -13,7 +14,7 @@ DIVA provides an Application Programming Interface (API) that provides the follo
 Experiment Configuration
 ------------------------
 
-The experiment configuration is currently defined in `this class <https://github.com/Kitware/DIVA/blob/master/utils/diva_experiment.h>`_
+The experiment configuration schema is currently implemented via `this class <https://github.com/Kitware/DIVA/blob/master/utils/diva_experiment.h>`_
 
 KPF Evaluation
 --------------
@@ -21,17 +22,17 @@ KPF Evaluation
 Geometry Schema API
 ~~~~~~~~~~~~~~~~~~~
 
-The experiment configuration is currently defined in `this class <https://github.com/Kitware/DIVA/blob/master/utils/diva_geometry.h>`_
+The geometry schema is currently implemented via `this class <https://github.com/Kitware/DIVA/blob/master/utils/diva_geometry.h>`_
 
 Label Classification API
 ~~~~~~~~~~~~~~~~~~~~~~~~
 
-The experiment configuration is currently defined in `this class <https://github.com/Kitware/DIVA/blob/master/utils/diva_label.h>`_
+The label schema is currently implemented via this class <https://github.com/Kitware/DIVA/blob/master/utils/diva_label.h>`_
 
 Activity API
 ~~~~~~~~~~~~
 
-The experiment configuration is currently defined in `this class <https://github.com/Kitware/DIVA/blob/master/utils/diva_activity.h>`_
+The activity schema is currently implemented via `this class <https://github.com/Kitware/DIVA/blob/master/utils/diva_activity.h>`_
 
 Frame Provider
 --------------

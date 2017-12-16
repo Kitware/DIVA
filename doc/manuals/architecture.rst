@@ -10,7 +10,7 @@ One of the primary design goals of DIVA is to provide a standard evaluation form
   kpf
   api
 
-====================================== ====================================================
-:doc:`KPF</kpf>`                        A set of data types and algorithm interfaces      
-:doc:`DIVA API</api>`                   Various implementations of vital algorithms       
-====================================== ====================================================
+======================================= ====================================================
+:doc:`KPF</kpf>`                         KWIVER Packet Format for persistence                   
+:doc:`API</api>`                         DIVA scpefic structures for experimenmts and evaluation
+======================================= ====================================================

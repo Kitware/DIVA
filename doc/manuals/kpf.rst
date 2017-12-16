@@ -23,6 +23,7 @@ From a design perspective, KPF tries to **provide** :
 * compatibility (in text mode) with command-line tools such as awk, grep, and perl
 
 KPF tries to **avoid:** :
+
 * MAGIC NUMBERS
 * excessive redundancy and verbosity
 * obsessive removal of all possible ambiguity
@@ -38,10 +39,13 @@ YAML was chosen over a more lighter-weight ad-hoc text format based on the follo
 *   Its flexibility reduces risk that future, possibly more complex concepts will require major revisions to the underlying format
 *   It can still be represented as record-per-line text file, allowing rapid data analysis using standard tools such as awk, grep, and perl.
 
+YAML can be rendered as a python object via
+`http://yaml-online-parser.appspot.com/ <http://yaml-online-parser.appspot.com/>`_
+
 Concepts
 --------
 
-As stated above, KPF is **not**a single file format or set of formats. There is no single "track file format" or "event file format".
+As stated above, KPF is **not** a single file format or set of formats. There is no single "track file format" or "event file format".
 Instead, KPF aims to provide a unified representation of the fundamental concepts common to computer vision applications, and a principled way to add new concepts. A KPF parser should be able to process any KPF-compliant input; the decision whether a particular instance meets the requirements of an application is an application-level decision, rather than an output of the parser.
 
 
@@ -74,181 +78,129 @@ a custom domain, ensuring that it does not conflict with somebody else's domain,
 
 Roughly speaking, the packet tells you what something is; the domain grounds it in the units / coordinate frame / event vocabulary / etc.
 
-Anatomy of a packet
+Anatomy of a Packet
 ~~~~~~~~~~~~~~~~~~~
 
-A packet's
-format is
-**[packet-tag][domain]:[space][payload]**
-; for example, the packet
+A packet's format is **[packet-tag][domain]:[space][payload]**
 
+for example, the packet has the packet tag "g", domain "0", and payload "1080 229 1112 261" ::
 
-**g0: 1080 229 1112 261**
+  g0: 1080 229 1112 261
 
+An equivalent XML representation might be ::
 
-has the packet tag "g", domain "0", and payload "1080 229 1112 261".
-
-
-**The format of the payload is fixed by the tag. The interpretation of the payload is dictated by the domain.**
-
-
-An equivalent XML representation might be
-
-
-**<geometry domain="0">**
-
-**<payload> 1080 229 1112 261 </payload>**
-
-**</geometry>**
-
+  <geometry domain="0">
+    <payload> 1080 229 1112 261 </payload>
+  </geometry>
 
 Note that there is no subdivision of the payload into explicit corner points.
 
-Packet tags: conceptual extensibility
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+packet-tag
+^^^^^^^^^^
 
+The format of the payload is fixed by the tag. 
 The packet tag is a string; as we add more concepts, we add more tags.
 
-Domains: application extensibility
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-
-The domain is an integer specifying the context in which to interpret the packet and effectively acts as a namespace. The general idea is that as more efforts define their own interpretations of tags (for example, different programs with different definitions for "U-turn"), each effort gets its own domain.
+packet-domain
+^^^^^^^^^^^^^
 
 
-For most packet types, a few pre-defined domains will suffice.
+The interpretation of the payload is dictated by the domain.
+The domain is an integer specifying the context in which to interpret the packet and effectively acts as a namespace. 
+The general idea is that as more efforts define their own interpretations of tags (for example, different programs with different definitions for "U-turn"), 
+each effort gets its own domain. For most packet types, a few pre-defined domains will suffice.
+Inevitably, the problem of domain allocation and conflict resolution will arise. 
+Similar to the Well Known Ports in /etc/services, we propose the following policy:
 
+  * domains 0-9 are reserved and predefined as necessary.
+  * Application-specific domains start numbering at 10
+  
+    +  the mapping of the domain to a specific application should be provided via the **meta** tag. 
+    +  The meta tag has no domain, its payload is a string whose format is unspecified. 
+    +  For example:
 
-Inevitably, the problem of domain allocation and conflict resolution will arise. Similar to the Well Known Ports in
-/etc/services
-, we propose the following policy:
+ ::
+  
+  { meta: "loc13 coordinate system: see /projects/foo/refcoords.txt"}
 
+It may be that a different project was already using "loc13" without our knowledge.
+Handling such organizational conflicts is explicitly outside the scope of KPF.
 
-*   domains 0-9 are
-    **reserved**
-    and predefined as necessary.
-
-
-
-*   Application-specific domains start numbering at 10; the mapping of the domain to a specific application should be provided via the
-    **meta:**
-    tag. The meta tag has no domain; its payload is a string whose format is unspecified. For example:
-
-
-
-
-**-{ meta: "loc13 coordinate system: see /projects/foo/refcoords.txt"}**
-
-
-It may be that a different project was already using loc13 without our knowledge; handling such organizational conflicts is explicitly outside the scope of KPF.
-
-Packet types
+Packet Types
 ------------
 
-Generally, when a number is undefined, 'x' is used.
-Strings should be quoted when they contain spaces and use '\' as an escape character.
+Generally, when a number is undefined, "x" is used.
+
+Strings should be quoted when they contain spaces and use \\ as an escape character.
+
+Note the use of the elipsis '...' means multiple packets of the previous type may be provided.
+
+The use of N signals a domain integer
 
 
-+------------+------------------------+----------------------------+-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------+
-| **packet** | **YAML format**        | **definition**             | **pre-defined domains / notes**                                                                                                                                             |
-|            |                        |                            |                                                                                                                                                                             |
-+------------+------------------------+----------------------------+-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------+
-| **id**     | **id**                 | object identifier          | none; may start at 0 but should specify source via a meta packet.                                                                                                           |
-|            | **N**                  |                            |                                                                                                                                                                             |
-|            | **:**                  |                            |                                                                                                                                                                             |
-|            |                        |                            |                                                                                                                                                                             |
-|            | *int*                  |                            |                                                                                                                                                                             |
-|            |                        |                            |                                                                                                                                                                             |
-+------------+------------------------+----------------------------+-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------+
-| **ts**     | **ts**                 | timestamp                  | 0: frame number                                                                                                                                                             |
-|            | **N**                  |                            |                                                                                                                                                                             |
-|            | **:**                  |                            | 1: seconds since beginning of video                                                                                                                                         |
-|            | * double*              |                            | 2: usecs since unix Epoch (1 Jan 1970 UTC)                                                                                                                                  |
-|            |                        |                            |                                                                                                                                                                             |
-+------------+------------------------+----------------------------+-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------+
-| **tsr**    | **tsr**                | timestamp range            | (same as ts) (maybe use 'x x' to mean "all the time"?)                                                                                                                      |
-|            | **N**                  |                            |                                                                                                                                                                             |
-|            | **: [ **               |                            |                                                                                                                                                                             |
-|            | *double double*        |                            |                                                                                                                                                                             |
-|            | ** ]**                 |                            |                                                                                                                                                                             |
-|            |                        |                            |                                                                                                                                                                             |
-+------------+------------------------+----------------------------+-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------+
-| **loc**    | **loc**                | location                   | 0: pixel coordinates (z is undefined)                                                                                                                                       |
-|            | **N**                  |                            | 1: lon / lat / altitude-in-meters                                                                                                                                           |
-|            | **:**                  |                            | 2: UTM (e.g "17N 630084 4833438")                                                                                                                                           |
-|            |                        |                            |                                                                                                                                                                             |
-|            | *x y z*                |                            |                                                                                                                                                                             |
-|            |                        |                            | Locations in world coordinates (e.g. via homographies)                                                    |
-|            |                        |                            | should use a domain > 9 and specify the homography file used via a **meta ** packet.                                                                                                                                                                  |
-|            |                        |                            |                                                                                                                                                                      |
-|            |                        |                            |                                                                                                                                                                             |
-+------------+------------------------+----------------------------+-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------+
-| **g**      | **g**                  | bounding box               | 0: pixel coordinates                                                                                                                                                        |
-|            | **N**                  |                            |                                                                                                                                                                             |
-|            | **:**                  |                            |                                                                                                                                                                             |
-|            |                        |                            |                                                                                                                                                                             |
-|            | *x1 y1 x2 y2*          |                            |                                                                                                                                                                             |
-|            |                        |                            |                                                                                                                                                                             |
-+------------+------------------------+----------------------------+-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------+
-| **poly**   | **poly**               | polygon                    | 0: pixel coordinates                                                                                                                                                        |
-|            | **N**                  |                            |                                                                                                                                                                             |
-|            | **:**                  |                            |                                                                                                                                                                             |
-|            |                        |                            |                                                                                                                                                                             |
-|            | **[ [**                |                            |                                                                                                                                                                             |
-|            | *x1,y1*                |                            |                                                                                                                                                                             |
-|            | **] [**                |                            |                                                                                                                                                                             |
-|            | *x2,y2*                |                            |                                                                                                                                                                             |
-|            | **] ... ]**            |                            |                                                                                                                                                                             |
-|            |                        |                            |                                                                                                                                                                             |
-+------------+------------------------+----------------------------+-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------+
-| **conf**   | **conf**               | confidence or likelihood   | same protocol as id. (Ground-truth should be represented via a 'src: truth' kv packet, rather than a confidence of 1.0.)                                                    |
-|            | **N**                  |                            |                                                                                                                                                                             |
-|            | **:**                  |                            |                                                                                                                                                                             |
-|            |                        |                            |                                                                                                                                                                             |
-|            | *double *              |                            |                                                                                                                                                                             |
-|            |                        |                            |                                                                                                                                                                             |
-+------------+------------------------+----------------------------+-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------+
-| **act**    | **act**                | activity                   | 0: VIRAT                                                                                                                                                                    |
-|            | **N**                  |                            | 1: vidtk                                                                                                                                                                            |
-|            | **:**                  |                            | 2: DIVA                                                                                                                                                                     |
-|            | ** **                  |                            |                                                                                                                                                                             |
-|            | *activity-name, *      |                            |                                                                                                                                                                     |
-|            | *id packet, *          |                            |                                                                                                                                                                             |
-|            | **timespan:[{**        |                            |                                                                                                                                                                             |
-|            | * tsr-packets *        |                            | Activity names are spelled out. Participating objects should specify timestamp ranges in the same domains as the event itself.                                              |
-|            | **}], **               |                            |                                                                                                                                                                             |
-|            | *[opt: kv-packet...] * |                            |                                                                                                                                                                             |
-|            | **actors: [ { **       |                            | Timespans are represented as arrays of tsr packets to allow for future inclusion of synchronized world clocks.                                                              |
-|            | *id-packet, *          |                            |                                                                                                                                                                             |
-|            | **timespan:**          |                            |                                                                                                                                                                             |
-|            | * *                    |                            |                                                                                                                                                                             |
-|            | **[{**                 |                            |                                                                                                                                                                             |
-|            | * tsr packets *        |                            |                                                                                                                                                                             |
-|            | **}]}**                |                            |                                                                                                                                                                             |
-|            | *, (more actors) *     |                            |                                                                                                                                                                             |
-|            | **}]**                 |                            |                                                                                                                                                                             |
-|            |                        |                            |                                                                                                                                                                             |
-+------------+------------------------+----------------------------+-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------+
-| **eval**   | **eval**               | evaluation result          | same protocol as id. The result-string is e.g. 'tp' for true positives, 'fa' for false alarms, etc.                                                                         |
-|            | **N**                  |                            |                                                                                                                                                                             |
-|            | **:**                  |                            |                                                                                                                                                                             |
-|            | * result-string*       |                            |                                                                                                                                                                             |
-|            |                        |                            |                                                                                                                                                                             |
-+------------+------------------------+----------------------------+-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------+
-| **a**      | **aN:**                | attribute                  | same protocol as id. Specifies that the named attribute applies in the current scope.                                                                                       |
-|            | *attribute_string*     |                            |                                                                                                                                                                             |
-|            |                        |                            |                                                                                                                                                                             |
-+------------+------------------------+----------------------------+-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------+
-| **tag**    | **tag: **              | tag a packet / domain pair | Used to link multiple files, i.e. 'tag: id0 collect5' in file A and 'tag: id3 collect5' in file B essentially means file A's id0 domain is the same as file B's id3 domain. |
-|            | *packet string*        |                            |                                                                                                                                                                             |
-|            |                        |                            |                                                                                                                                                                             |
-+------------+------------------------+----------------------------+-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------+
-| **key**    | **key: **              | key / value                | Keys are distinguished from KPF packets as they have no domain integer before the colon, i.e. '                                                                             |
-|            | *value*                |                            | **src0:**                                                                                                                                                                   |
-|            |                        |                            | ' might be a KPF packet but '                                                                                                                                               |
-|            |                        |                            | **src:**                                                                                                                                                                    |
-|            |                        |                            | ' is not.                                                                                                                                                                   |
-|            |                        |                            |                                                                                                                                                                             |
-+------------+------------------------+----------------------------+-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------+
++------------+-------------------------------------------+----------------------------+----------------------------------------------------------------------------------------------------------------+
+| Packet     | YAML format                               | Definition                 | pre-defined domains / notes                                                                                    |
++------------+-------------------------------------------+----------------------------+----------------------------------------------------------------------------------------------------------------+
+| id         | ::                                        | object identifier          | none; may start at 0 but should specify source via a meta packet.                                              |
+|            |                                           |                            |                                                                                                                |
+|            |    idN: int                               |                            |                                                                                                                |
++------------+-------------------------------------------+----------------------------+----------------------------------------------------------------------------------------------------------------+
+| ts         | ::                                        | timestamp                  | 0: frame number |br|                                                                                           |
+|            |                                           |                            | 1: seconds since beginning of video  |br|                                                                      |
+|            |    tsN: double                            |                            | 2: usecs since unix Epoch (1 Jan 1970 UTC)                                                                     |
++------------+-------------------------------------------+----------------------------+----------------------------------------------------------------------------------------------------------------+
+| tsr        | ::                                        | timestamp range            | (same as ts) (maybe use 'x x' to mean "all the time"?)                                                         |
+|            |                                           |                            |                                                                                                                |
+|            |    tsrN: [ double double ]                |                            |                                                                                                                |
++------------+-------------------------------------------+----------------------------+----------------------------------------------------------------------------------------------------------------+
+| loc        | ::                                        | location                   | 0: pixel coordinates (z is undefined) |br|                                                                     |
+|            |                                           |                            | 1: lon / lat / altitude-in-meters |br|                                                                         |
+|            |    locN: x y z                            |                            | 2: UTM (e.g "17N 630084 4833438")                                                                              |
+|            |                                           |                            |                                                                                                                |
+|            |                                           |                            | Locations in world coordinates (e.g. via homographies) |br|                                                    |
+|            |                                           |                            | should use a domain > 9 and specify the homography file used via a **meta** packet.                            |
++------------+-------------------------------------------+----------------------------+----------------------------------------------------------------------------------------------------------------+
+| g          | ::                                        | bounding box               | 0: pixel coordinates                                                                                           |
+|            |                                           |                            |                                                                                                                |
+|            |    gN: x1 y1 x2 y2                        |                            |                                                                                                                |
++------------+-------------------------------------------+----------------------------+----------------------------------------------------------------------------------------------------------------+
+| poly       | ::                                        | polygon                    | 0: pixel coordinates                                                                                           |
+|            |                                           |                            |                                                                                                                |
+|            |   polyN: [ [x1,y1]                        |                            |                                                                                                                |
+|            |            [x2,y2]                        |                            |                                                                                                                |
+|            |              ...                          |                            |                                                                                                                |
+|            |            [xM,yM] ]                      |                            |                                                                                                                |
++------------+-------------------------------------------+----------------------------+----------------------------------------------------------------------------------------------------------------+
+| conf       | ::                                        | confidence or likelihood   | none; may start at 0 but should specify source via a meta packet. |br|                                         |
+|            |                                           |                            | Ground-truth should be represented via a 'src: truth' kv packet, rather than a confidence of 1.0.              |
+|            |    confN: double                          |                            |                                                                                                                |
++------------+-------------------------------------------+----------------------------+----------------------------------------------------------------------------------------------------------------+
+| act        | ::                                        | activity                   | 0: VIRAT |br|                                                                                                  |
+|            |                                           |                            | 1: vidtk |br|                                                                                                  |
+|            |  actN: activity-name,                     |                            | 2: DIVA                                                                                                        |
+|            |        id-packet,                         |                            |                                                                                                                |
+|            |        timespan: [ { tsr } ... ],         |                            |                                                                                                                |
+|            |        (*optional*) [kv] ...,             |                            |                                                                                                                |
+|            |        actors: [ { id-packet }            |                            | Activity names are spelled out.  |br|                                                                          |
+|            |                  timespan: [ { tsr } ... ]|                            | Participating objects should specify timestamp ranges in the same domains as the event itself. |br|            |
+|            |                ] ...                      |                            | Timespans are represented as arrays of tsr packets to allow for future inclusion of synchronized world clocks. |
++------------+-------------------------------------------+----------------------------+----------------------------------------------------------------------------------------------------------------+
+| eval       | ::                                        | evaluation result          | same protocol as id. The result-string is e.g. 'tp' for true positives, 'fa' for false alarms, etc.            |
+|            |                                           |                            |                                                                                                                |
+|            |    evalN: result-string                   |                            |                                                                                                                |
++------------+-------------------------------------------+----------------------------+----------------------------------------------------------------------------------------------------------------+
+| a          | ::                                        | attribute                  | same protocol as id. Specifies that the named attribute applies in the current scope.                          |
+|            |                                           |                            |                                                                                                                |
+|            |    aN: attribute_string                   |                            |                                                                                                                |
++------------+-------------------------------------------+----------------------------+----------------------------------------------------------------------------------------------------------------+
+| tag        | ::                                        | a packet / domain pair     | Used to link multiple files, i.e. 'tag: id0 collect5' in file A and 'tag: id3 collect5' in file B |br|         |
+|            |                                           |                            | essentially means file A's id0 domain is the same as file B's id3 domain.                                      |
+|            |    tag: packet string                     |                            |                                                                                                                |
++------------+-------------------------------------------+----------------------------+----------------------------------------------------------------------------------------------------------------+
+| kv         | ::                                        | key / value pair           | Keys are distinguished from KPF packets as they have no domain integer before the colon, i.e. '                |
+|            |                                           |                            |                                                                                                                |
+|            |    key: value                             |                            |                                                                                                                |
++------------+-------------------------------------------+----------------------------+----------------------------------------------------------------------------------------------------------------+
 
 
 Use Cases
@@ -257,390 +209,199 @@ Use Cases
 Here we show an example of how a KPF file might evolve through a pipeline of detection, tracking, and scoring. 
 The files are unrealistically short for brevity, but each line is meant to be complete.
 
-Step 1: Detection
-~~~~~~~~~~~~~~~~~
+Detection
+~~~~~~~~~
 
-A detector output might look like:
+A detector output might look like ::
 
-**- { meta: "cmdline0: run_detector param1 param2..." }**
-**- { meta: "conf0: yolo person detector" }**
-**- { meta: "id0 domain: yolo person detector" }**
-**- { id0: 0, ts0: 101, g0: 515 419 525 430, conf0: 0.8 }**
-**- { id0: 1, ts0: 101, g0: 413 303 423 313, conf0: 0.3 }**
-**- { id0: 2, ts0: 102, g0: 517 421 527 432, conf0: 0.7 }**
-**- { id0: 3, ts0: 102, g0: 416 304 421 315, conf0: 0.2 }**
-
+  { meta: "cmdline0: run_detector param1 param2..." }
+  { meta: "conf0: yolo person detector" }
+  { meta: "id0 domain: yolo person detector" }**
+  { id0: 0, ts0: 101, g0: 515 419 525 430, conf0: 0.8 }
+  { id0: 1, ts0: 101, g0: 413 303 423 313, conf0: 0.3 }
+  { id0: 2, ts0: 102, g0: 517 421 527 432, conf0: 0.7 }
+  { id0: 3, ts0: 102, g0: 416 304 421 315, conf0: 0.2 }
 
 Here the **id0** and **conf0** domains are specified to be the detections from yolo; 
 the timestamp **ts0** and geometry **g0** domains are predefined to be frame number and pixel coordinates, respectively.
 
-Step 2: Tracking
-~~~~~~~~~~~~~~~~
+Tracking
+~~~~~~~~
 
-A tracker (detection linker) could take the above and generate the following. New packets are highlighted.
+A tracker (detection linker) could take the above and generate the following. ::
 
-**- { meta: "cmdline0: run_detector param1 param2..." }**
-**- { meta: "conf0: yolo person detector" }**
-**- { meta: "id0 domain: yolo person detector" }**
-**- { meta: "cmdline1: run_linker param1 param2..." }**
-**- { meta: "id1 domain: track linker hash 0x85913" }**
-**- { id0: 0, ts0: 101, g0: 515 419 525 430, conf0: 0.8, ** **id1: 100** ** }**
-**- { id0: 1, ts0: 101, g0: 413 303 423 313, conf0: 0.3, ** **id1: 102** ** }**
-**- { id0: 2, ts0: 102, g0: 517 421 527 432, conf0: 0.7, ** **id1: 100** ** }**
-**- { id0: 3, ts0: 102, g0: 416 304 421 315, conf0: 0.2, ** **id1: 102** ** }**
+  { meta: "cmdline0: run_detector param1 param2..." }
+  { meta: "conf0: yolo person detector" }
+  { meta: "id0 domain: yolo person detector" }
+  { meta: "cmdline1: run_linker param1 param2..." }
+  { meta: "id1 domain: track linker hash 0x85913" }
+  { id0: 0, ts0: 101, g0: 515 419 525 430, conf0: 0.8, id1: 100 }
+  { id0: 1, ts0: 101, g0: 413 303 423 313, conf0: 0.3, id1: 102 }
+  { id0: 2, ts0: 102, g0: 517 421 527 432, conf0: 0.7, id1: 100 }
+  { id0: 3, ts0: 102, g0: 416 304 421 315, conf0: 0.2, id1: 102 }
 
 
 Here all the tracker has done is defined an additional domain for IDs (id1) which it uses to link detections into tracks.
 
 
-Step 3: Scoring
----------------
-An evaluation run could take the output from the tracker and produce the following. Again new packets are highlighted.
-**- { meta: "cmdline0: run_detector param1 param2..." }**
-**- { meta: "conf0: yolo person detector" }**
-**- { meta: "id0 domain: yolo person detector" }**
-**- { meta: "cmdline1: run_linker param1 param2..." }**
-**- { meta: "id1 domain: track linker hash 0x85913" }**
-**- { meta: "cmdline2: score_tracks param1 param2..." }**
-**- { meta: "overall track pd/fa count: 0.5 / 1" }**
-**- { meta: "eval0 domain against id0" }**
-**- { meta: "eval1 domain against id1" } **
-**- { meta: "id2 domain false negatives from official_ground_truth.kpf" }**
-**- { id0: 0, ts0: 101, g0: 515 419 525 430, conf0: 0.8, id1: 100, ** **eval0: tp, eval1: tp }**
-**- { id0: 1, ts0: 101, g0: 413 303 423 313, conf0: 0.3, id1: 102, ** **eval0: fa, eval1: fa }**
-**- { id0: 2, ts0: 102, g0: 517 421 527 432, conf0: 0.7, id1: 100, ** **eval0: fa, eval1: tp }**
-**- { id0: 3, ts0: 102, g0: 416 304 421 315, conf0: 0.2, id1: 102, ** **eval0: fa, eval1: tp }**
-**- { id2: 0, ts0: 101, g0: 600 550 605 610, eval0: fn, eval1: fn }**
-**- { id2: 1, ts0: 102, g0: 603 553 608 615, eval0: fn, eval1: fn }**
+Scoring
+~~~~~~~
+An evaluation run could take the output from the tracker and produce the following. ::
+
+  { meta: "cmdline0: run_detector param1 param2..." }
+  { meta: "conf0: yolo person detector" }
+  { meta: "id0 domain: yolo person detector" }
+  { meta: "cmdline1: run_linker param1 param2..." }
+  { meta: "id1 domain: track linker hash 0x85913" }
+  { meta: "cmdline2: score_tracks param1 param2..." }
+  { meta: "overall track pd/fa count: 0.5 / 1" }
+  { meta: "eval0 domain against id0" }
+  { meta: "eval1 domain against id1" }
+  { meta: "id2 domain false negatives from official_ground_truth.kpf" }
+  { id0: 0, ts0: 101, g0: 515 419 525 430, conf0: 0.8, id1: 100, eval0: tp, eval1: tp }
+  { id0: 1, ts0: 101, g0: 413 303 423 313, conf0: 0.3, id1: 102, eval0: fa, eval1: fa }
+  { id0: 2, ts0: 102, g0: 517 421 527 432, conf0: 0.7, id1: 100, eval0: fa, eval1: tp }
+  { id0: 3, ts0: 102, g0: 416 304 421 315, conf0: 0.2, id1: 102, eval0: fa, eval1: tp }
+  { id2: 0, ts0: 101, g0: 600 550 605 610, eval0: fn, eval1: fn }
+  { id2: 1, ts0: 102, g0: 603 553 608 615, eval0: fn, eval1: fn }
 
 Here, the scoring code has done several things:
 
 *   It has added a summary of its scoring results to the preamble via the **meta** packets.
-*   It has added two sets of eval packets to each detection; **eval0** is the detection-level result against **id0** , **eval1**
-    is the track-level result against **id1.**
-*   It has added a wholly new set of boxes in a new domain ( **id2** ); these are the false negatives (undetected boxes) from the ground-truth file named in the **meta** packet.
-    +   These new tracks have IDs which collide with those from domain 0, but they are still separated since they come from a different domain.
+*   It has added two sets of eval packets to each detection
 
+    +   **eval0** is the detection-level result against **id0** 
+    +   **eval1** is the track-level result against **id1.**
+    
+*   It has added a wholly new set of boxes in a new domain ( **id2** )
+*   These are the false negatives (undetected boxes) from the ground-truth file named in the **meta** packet.
 
-This KPF file could be used for visualizing results; 
-one could easily imagine a pull-down menu allowing selection of individual ID domains populated with the text from the corresponding **meta** packet.
+    +   These new tracks have IDs which collide with those from domain 0
+    +   They are still separated since they come from a different domain.
+
+This KPF file could be used for visualizing results.
+One could easily imagine a pull-down menu allowing selection of individual ID domains populated with the text from the corresponding **meta** packet.
 
 Diva Specific Schemas
 ---------------------
 
++------------+--------------------------------------------+---------------------------+
+| File       | Description                                | Size                      |
++------------+--------------------------------------------+---------------------------+
+| Geometry   | Frame level data for detections and tracks | n Detections * m Frames   |
++------------+--------------------------------------------+---------------------------+
+| Label      | Detection and Track Identification         | n Objects                 |
++------------+--------------------------------------------+---------------------------+
+| Activity   | Activity                                   | n Activities              |
++------------+--------------------------------------------+---------------------------+
+| Region     | TBD                                        | TBD                       |
++------------+--------------------------------------------+---------------------------+
 
-Annotation delivery:
---------------------
+Geometry 
+~~~~~~~~~
 
-#.  file for geometry + frame-level attributes + track IDs + polygons. Size: O( nDetections
-    x nFrames )
+Schema Specification, (Line breaks are for clarity) ::
 
+ { id0: detection-id, id1: track-id, ts0: frame-id, g0: geom-str, src: source
+    [occlusion: (medium | heavy )]
+    [confN: confidence...]
+    [evalN: eval-tag...]
+    [polyN: poly-str kv: keyframe [0|1] ] 
+  }
 
+Required Tags : id0, id1, tsN, g
 
-#.  file for object labels: size O( nObjects )
+**kv** Tags : src, occlusion
 
+Example (simple) ::
 
+  { id1: 0, id0: 37, ts0: 37, g0: 432 387 515 444, src: truth, occlusion: heavy }
 
-#.  file for events: size O( nEvents )
-
-
-
-#.  file for region polygons: size O( nStaticObjects * lenStaticObjectTracks)
-
-
-
-Geometry schema: (line breaks for clarity)
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-
--
-{
-**id0:**
-
-*detection-id,*
-
-**id1:**
-
-*track-id,*
-
-**ts0:**
-
-*frame-id,*
-
-**g0:**
-
-*geom-str,*
-
-**src: **
-*source*
-
-[
-**occlusion:**
-* (medium | heavy )*
-]
-
-[
-**confN:**
-
-*confidence*
-...]
-
-[
-**evalN:**
-
-*eval-tag*
-...]
-
-[
-**polyN:**
-
-*poly-str*
-
-**kv:**
-
-**keyframe**
-[
-*0|1*
-] ]
+Detection 37 is associated with track 0 on frame 37, and is a box from image coordinates (432, 387) to (515,444). 
+This detection is ground truth and an annotator has marked the object's occlusion level as "heavy".
 
 
-Example (simple) (line breaks for clarity):
+Example (slightly more complicated) ::
 
+  { id1: 0, id0: 37, ts0: 37, ts1: 18.5, g0: 432 387 515 444 , src: truth, occlusion: heavy, eval0: fn, eval1: tp }
 
-**- { id1: 0, id0: 37, ts0: 37, g0: 432 387 515 444 , **
+Same as previous example, but now with another timestamp (18.5 seconds since the beginning of the video) 
+and results from an evaluation run: **eval0** marked it as a miss (false negative) in the detection domain,
+while **eval1** found that it was a hit (true positive) in the track domain.
 
-**src: truth, occlusion: heavy }**
+Label
+~~~~~
 
+Schema Specification ::
 
-...Detection 37 is associated with track 0 on frame 37, and is a box from image coordinates (432, 387) to (515,444). This detection is ground truth and an annotator has marked the object's occlusion level as "heavy".
+  { id1: track-id, obj_type: object_type } 
 
+Required Tags : id1, obj_type
 
-Example (slightly more complicated) (line breaks for clarity)
+**kv** Tags : obj_type
 
+Examples ::
 
-**- { id1: 0, id0: 37, ts0: 37, ts1: 18.5, g0: 432 387 515 444 , **
-
-**src: truth, occlusion: heavy,**
-
-**eval0: fn, eval1: tp }**
-
-
-
-Same as previous example, but now with another timestamp (18.5 seconds since the beginning of the video) and results from an evaluation run:
-**eval0 **
-marked it as a miss (false negative) in the detection domain, while
-** eval1 **
-found that it was a hit (true positive) in the track domain.
-
-Object label schema:
-~~~~~~~~~~~~~~~~~~~~
-
-**- { id1: **
-*track-id*
-**, obj_type: **
-*object_type*
-** } **
-
-
-Examples:
-
-
-**- { id1: 35 , obj_type: Vehicle }**
-
-**- { id1: 36 , obj_type: Vehicle }**
-
-**- { id1: 5000 , obj_type: Parking_Meter }**
-
-**- { id1: 5001 , obj_type: Dumpster }**
+  { id1: 35 , obj_type: Vehicle }
+  { id1: 36 , obj_type: Vehicle }
+  { id1: 5000 , obj_type: Parking_Meter }
+  { id1: 5001 , obj_type: Dumpster }
 
 Activity schema:
 ~~~~~~~~~~~~~~~~
 
-**- { actN: **
-*activity name*
-**,**
-* *
-*id_packet*
-*, *
-**timespan: [{**
-*tsr_packet*
-**} **
-*(... *
-*tsr_packet*
-*)*
-**], src: **
-*source*
-**, actors: [ {**
-*id_packet*
-*, *
-**timespan: [{**
-*tsr_packet*
-**} **
-*(... *
-*tsr_packet*
-*)*
-**]} **
-*(, next actor identification... )*
-** ]}**
+Schema Specification, (Line breaks are for clarity) ::
 
+  { actN: activity name, id_packet, src: source, 
+          timespan: [ {tsr_packet} (...) ],
+          actors: [ {id_packet, timespan: [ {tsr_packet} (...) ]}
+                    (...) 
+                  ]
+  }
 
+Note the (...) indicates multiple specifications of the previous *{ packects }* may be provided
 
-Example (line breaks for clarity)
+Example (line breaks for clarity) ::
 
+  { act2: Talking, id2: 3, src: truth, 
+         timespan: [ { tsr0: [3293, 3314] } ],
+         actors: [ { id1: 9,  timespan: [ {tsr0: [3293, 3314] } ] } ,
+                   { id1: 12, timespan: [ {tsr0: [3293, 3314] } ] } , ]
+  }
 
-**- {act2: Talking, id2: 3, timespan: [{tsr0: [3293, 3314]}],**
+Here the activity is parsed as follows:
 
-**src: truth,**
+*   **act2:** this is an activity in domain 2 (notionally DIVA)
+*   **Talking** is the activity name
+*   **id2: 3** activity ID is 3 (explicitly also in domain 2, DIVA)
+*   **src truth** the activity is a ground-truth activity 
 
-**actors: [{id1: 9, timespan: [{tsr0: [3293, 3314]}]} ,**
+    +  i.e. sourced from "truth"; other detectors would substitute their own sources
 
-**{id1: 12, timespan: [{tsr0: [3293, 3314]}]} , **
-**]}**
+*   **timespan: [{tsr0: [3293, 3314]}]** The activity as a whole starts at frame 3293 and ends at 3314.
+    Timestammps are domain 0 for frame range.
+*   **actors:** Signals the start of the actor array
 
+    *   **id1: 9** First actor is track ID 9
+    *   **timespan: [{tsr0: [3293, 3314]}]** The first actor is participating in the activity from frames 3293 to 3314
+    *   **id1: 12** Second actor is track ID 12
+    *   **timespan: [{tsr0: [3293, 3314]}]** The second actor is also participating in the activity from frames 3293 to 3314
 
-This line of YAML can be rendered as a python object via
-** **
-`http://yaml-online-parser.appspot.com/ <http://yaml-online-parser.appspot.com/>`_
-** **
-as
+Timestamp ranges are stored as arrays in anticipation that multiple-camera activities.
+They will be accessible from multiple time reference points (e.g. frames-since-video-start as well as world-clock-time.)
 
+Regions
+~~~~~~~
 
-**[{'act2': 'Talking',**
-** **
-**'actors': [{'id1': 9, 'timespan': [{'tsr0': [3293, 3314]}]},**
-** **
-**{'id1': 12, 'timespan': [{'tsr0': [3293, 3314]}]}],**
-** **
-**'id2': 3,**
-** **
-**'src': 'truth',**
-** **
-**'timespan': [{'tsr0': [3293, 3314]}]}]**
-
-
-
-Here the event is parsed as follows:
-
-*   **act2:**
-    this is an event in domain 2 (notionally DIVA)
-
-
-
-*   **Talking **
-    event is 'walking'
-
-
-
-*   **id2: 3 **
-    event ID is 3 (explicitly also in domain 2, DIVA)
-
-
-
-*   **timespan: [{tsr0: [3293, 3314]}] **
-    The activity as a whole starts at frame 3293 and ends at 3314. Frame numbers are domain 0 for timestamp range.
-
-
-
-*   **actors:... **
-    This is an array of the actors participating in the event:
-
-    *   **id1: 9 **
-        First actor is track ID 9
-
-
-
-    *   **timespan: [{tsr0: [3293, 3314]}] **
-        The first actor is participating in the event from frames 3293 to 3314
-
-
-
-    *   **id1: 12 **
-        Second actor is track ID 12
-
-
-
-    *   **timespan: [{tsr0: [3293, 3314]}] **
-        The second actor is also participating in the event from frames 3293 to 3314
-
-
-
-
-
-*   **tsr0: 19 402 **
-    event takes place from frames 19 to 402 (in timestamp domain 0)
-
-
-
-*   **src truth **
-    the event is a ground-truth event (i.e. sourced from "truth"; other detectors would substitute their own sources)
-
-
-
-
-Timestamp ranges are stored as arrays in anticipation that multiple-camera events will be accessible from multiple time reference points (e.g. frames-since-video-start as well as world-clock-time.)
-
-Regions schema:
-~~~~~~~~~~~~~~~
-
-Some objects (static objects, scene segmentation) have been annotated as polygons; for example, to delineate "do-not-score" areas. The schema is
-
-
-**- { id**
-**N**
-**: **
-*id*
-**, ts**
-**N**
-**: **
-*timestamp*
-**, [ keyframe: (0|1) ], poly**
-**N**
-**: [[ **
-*x0, y0*
-** ], [ **
-*x1, y1*
-** ] **
-...
-** ]}**
-
-
-Example:
-
-
-**- { id1: 1, ts0: 9063, **
-**keyframe: 1, poly0: [[ 1435.88, 1 ], [ 1435.88, 68.76 ], [ 1456.88, 68.76 ], [ 1456.88, 1 ], ]}**
-
-
-This is parsed as:
-
-*   **id1: 1 **
-    This polygon pertains to track ID 1
-
-
-
-*   **ts0: 9063 **
-    This polygon is on frame 0
-
-
-
-*   **keyframe: 1 **
-    This particular polygon is marked as keyframe (for interpolation)
-
-
-
-*   **poly0: [[ 1435.88, 1 ] ... **
-    An array of (x,y) points in image coodinates (domain 0).
-
-
-
-
-##
+TBD
 
 Questions and comments
 ~~~~~~~~~~~~~~~~~~~~~~
 
 Please send any questions and/or comments to
 `roddy.collins@kitware.com <mailto:roddy.collins@kitware.com>`_
-.
 
 
+.. |br| raw:: html
+
+   <br />
