@@ -27,7 +27,7 @@ The geometry schema is currently implemented via `this class <https://github.com
 Label Classification API
 ~~~~~~~~~~~~~~~~~~~~~~~~
 
-The label schema is currently implemented via this class <https://github.com/Kitware/DIVA/blob/master/utils/diva_label.h>`_
+The label schema is currently implemented via `this class <https://github.com/Kitware/DIVA/blob/master/utils/diva_label.h>`_
 
 Activity API
 ~~~~~~~~~~~~
