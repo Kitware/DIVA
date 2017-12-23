@@ -36,7 +36,7 @@
 #include <arrows/kpf/yaml/kpf_canonical_io_adapter.h>
 namespace KPF = kwiver::vital::kpf;
 
-class diva_activity::pimpl
+class diva_activity_impl
 {
 public:
   std::string                                              activity_name;
@@ -57,12 +57,12 @@ const int TRACK_DOMAIN = 2;
 // The KPF activity object is complex, and requires an adapter.
 //
 
-struct diva_activity_adapter : public KPF::kpf_act_adapter< diva_activity::pimpl >
+struct diva_activity_adapter : public KPF::kpf_act_adapter< diva_activity_impl >
 {
   diva_activity_adapter() :
-    kpf_act_adapter< diva_activity::pimpl >(
+    kpf_act_adapter< diva_activity_impl >(
       // reads the canonical activity "a" into the user_activity "u"
-      [](const KPF::canonical::activity_t& a, diva_activity::pimpl& u) 
+      [](const KPF::canonical::activity_t& a, diva_activity_impl& u)
   {
     if(a.activity_id_domain != DIVA_DOMAIN)
       throw malformed_diva_packet_exception("activty domain must be " + DIVA_DOMAIN);
@@ -126,7 +126,7 @@ struct diva_activity_adapter : public KPF::kpf_act_adapter< diva_activity::pimpl
   },
 
       // converts a user_activity "a" into a canonical activity and returns it
-    [](const diva_activity::pimpl& u) 
+    [](const diva_activity_impl& u)
   {
     KPF::canonical::activity_t a;
     // set the name, ID, and domain
@@ -215,7 +215,7 @@ struct diva_activity_adapter : public KPF::kpf_act_adapter< diva_activity::pimpl
 
 diva_activity::diva_activity()
 {
-  _pimpl = new pimpl();
+  _pimpl = new diva_activity_impl();
 }
 diva_activity::~diva_activity()
 {

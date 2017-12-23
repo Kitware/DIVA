@@ -31,10 +31,11 @@
 #pragma once
 #include "diva_packet.h"
 
+
+class diva_geometry_impl;
+
 class DIVA_UTILS_EXPORT diva_geometry : public diva_packet
 {
-  friend struct diva_bbox_adapter;
-  friend struct diva_poly_adapter;
 public:
   struct bounding_box
   {
@@ -109,6 +110,5 @@ public:
 
   void write(std::ostream& os) const;
 private:
-  class pimpl;
-  pimpl* _pimpl;
+  diva_geometry_impl* _pimpl;
 };
