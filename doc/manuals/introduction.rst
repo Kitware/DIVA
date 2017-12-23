@@ -1,12 +1,12 @@
 Introduction
 ============
 
-The DIVA program intends to develop robust automated activity detection for a multi-camera streaming video environment. 
-As an essential aspect of DIVA, activities will be enriched by person and object detection, 
-as well as recognition at multiple levels of granularity.
-DIVA provides a common framework and software prototype for activity detection, 
-person/object detection and recognition across a multi-camera network. 
-This framework supports the development of tools for forensic analysis, 
-as well as real-time alerting for userdefined threat scenarios.
+The DIVA program is a research program funded by IARPA.  For more details on DIVA, visit
+`here <https://www.iarpa.gov/index.php/research-programs/diva>`_.
 
-Visit the `repository <https://github.com/Kitware/diva>`_ on how to get and build the DIVA code base
+The DIVA framework is a open software framework for deploying advanced analytics
+in a multi-camera environment.  It is the first framework to provide an open
+standard for reasoning across multiple video streams, and in a geographically
+or topologically diverse environment.
+
+Visit the `repository <https://github.com/Kitware/diva>`_ on how to get and build the DIVA framework code base.
