@@ -32,6 +32,8 @@
 #include "diva_packet.h"
 #include <map>
 
+class diva_activity_impl;
+
 class DIVA_UTILS_EXPORT diva_activity : public diva_packet
 {
   friend struct diva_activity_adapter;
@@ -89,6 +91,5 @@ public:
 
   void write(std::ostream& os) const;
 private:
-  class pimpl;
-  pimpl* _pimpl;
+  diva_activity_impl* _pimpl;
 };

@@ -37,16 +37,19 @@
 
 namespace KPF = kwiver::vital::kpf;
 
-class diva_geometry::pimpl
+class diva_geometry_impl
 {
-public:
+  friend class diva_geometry;
+  friend struct diva_bbox_adapter;
+  friend struct diva_poly_adapter;
+
   size_t          detection_id;
   size_t          track_id;
   size_t          frame_id;
   double          frame_time_s;
   double          frame_absolute_time_us;
   double          confidence;
-  bounding_box    bbox;
+  diva_geometry:: bounding_box    bbox;
   diva_source     source;
   diva_occlusion  occlusion;
   diva_evaluation evaluation;
@@ -54,38 +57,38 @@ public:
   std::vector<std::pair<size_t, size_t>> poly;
 };
 
-struct diva_bbox_adapter : public KPF::kpf_box_adapter< diva_geometry::pimpl >
+struct diva_bbox_adapter : public KPF::kpf_box_adapter< diva_geometry_impl >
 {
   diva_bbox_adapter() :
-    kpf_box_adapter< diva_geometry::pimpl >(
+    kpf_box_adapter< diva_geometry_impl >(
       // reads the canonical box "b" into the user_detection "d"
-      [](const KPF::canonical::bbox_t& b, diva_geometry::pimpl& d) {
+      [](const KPF::canonical::bbox_t& b, diva_geometry_impl& d) {
     d.bbox.x1 = b.x1;
     d.bbox.y1 = b.y1;
     d.bbox.x2 = b.x2;
     d.bbox.y2 = b.y2; },
 
       // converts a user_detection "d" into a canonical box and returns it
-      [](const diva_geometry::pimpl& d) {
+      [](const diva_geometry_impl& d) {
       return KPF::canonical::bbox_t(
         d.bbox.x1,d.bbox.y1,
         d.bbox.x2,d.bbox.y2); })
   {}
 };
 
-struct diva_poly_adapter : public KPF::kpf_poly_adapter< diva_geometry::pimpl >
+struct diva_poly_adapter : public KPF::kpf_poly_adapter< diva_geometry_impl >
 {
   diva_poly_adapter() :
-    kpf_poly_adapter< diva_geometry::pimpl >(
+    kpf_poly_adapter< diva_geometry_impl >(
       // reads the canonical box "b" into the user_detection "d"
-      [](const KPF::canonical::poly_t& b, diva_geometry::pimpl& d) {
+      [](const KPF::canonical::poly_t& b, diva_geometry_impl& d) {
       d.poly.clear();
       for (auto p : b.xy) 
       {
         d.poly.push_back(std::pair<double,double>(p.first,p.second));
       }},
       // converts a user_detection "d" into a canonical box and returns it
-      [](const diva_geometry::pimpl& d) {
+      [](const diva_geometry_impl& d) {
         KPF::canonical::poly_t p;
         // should check that d's vectors are the same length
         for (auto pair : d.poly) 
@@ -98,7 +101,7 @@ struct diva_poly_adapter : public KPF::kpf_poly_adapter< diva_geometry::pimpl >
 
 diva_geometry::diva_geometry()
 {
-  _pimpl = new pimpl();
+  _pimpl = new diva_geometry_impl();
 }
 diva_geometry::~diva_geometry()
 {
