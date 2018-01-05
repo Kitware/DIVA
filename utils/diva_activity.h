@@ -60,8 +60,8 @@ public:
   void remove_source();
 
   bool has_frame_id_span() const;
-  std::vector<std::pair<size_t, size_t>>& get_frame_id_span();
-  const std::vector<std::pair<size_t, size_t>>& get_frame_id_span() const;
+  std::vector<std::pair<double, double>>& get_frame_id_span();
+  const std::vector<std::pair<double, double>>& get_frame_id_span() const;
   void remove_frame_id_span();
 
   bool has_frame_time_span() const;
@@ -75,8 +75,8 @@ public:
   void remove_frame_absolute_time_span();
 
   bool has_actor_frame_id_span() const;
-  std::map<size_t,std::vector<std::pair<size_t, size_t>>>& get_actor_frame_id_span();
-  const std::map<size_t, std::vector<std::pair<size_t, size_t>>>& get_actor_frame_id_span() const;
+  std::map<size_t,std::vector<std::pair<double, double>>>& get_actor_frame_id_span();
+  const std::map<size_t, std::vector<std::pair<double, double>>>& get_actor_frame_id_span() const;
   void remove_actor_frame_id_span();
 
   bool has_actor_frame_time_span() const;

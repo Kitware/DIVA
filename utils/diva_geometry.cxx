@@ -55,6 +55,7 @@ class diva_geometry_impl
   diva_evaluation evaluation;
   diva_keyframe   keyframe;
   std::vector<std::pair<size_t, size_t>> poly;
+  std::map<std::string, double> classification;
 };
 
 struct diva_bbox_adapter : public KPF::kpf_box_adapter< diva_geometry_impl >
@@ -123,6 +124,7 @@ void diva_geometry::clear()
   _pimpl->occlusion  = (diva_occlusion)-1;
   _pimpl->evaluation = (diva_evaluation)-1;
   _pimpl->keyframe   = (diva_keyframe)-1;
+  _pimpl->classification.clear();
 }
 
 bool diva_geometry::is_valid() const
@@ -340,6 +342,23 @@ void diva_geometry::remove_polygon()
   _pimpl->poly.clear();
 }
 
+bool diva_geometry::has_classification() const
+{
+  return _pimpl->classification.size() > 0;
+}
+std::map<std::string,double>& diva_geometry::get_classification()
+{
+  return _pimpl->classification;
+}
+const std::map<std::string, double>& diva_geometry::get_classification() const
+{
+  return _pimpl->classification;
+}
+void diva_geometry::remove_classification()
+{
+  _pimpl->classification.clear();
+}
+
 void diva_geometry::write(std::ostream& os) const
 {
   if (!is_valid())
@@ -351,6 +370,8 @@ void diva_geometry::write(std::ostream& os) const
   diva_poly_adapter pa;
 
   const int DETECTOR_DOMAIN = 17;
+
+  w.set_schema(KPF::schema_style::GEOM);
   w << KPF::writer< KPFC::id_t >(_pimpl->detection_id, KPFC::id_t::DETECTION_ID)
     << KPF::writer< KPFC::id_t >(_pimpl->track_id, KPFC::id_t::TRACK_ID);
   if(_pimpl->frame_id != -1)
@@ -376,7 +397,7 @@ void diva_geometry::write(std::ostream& os) const
     switch (_pimpl->evaluation)
     {
     case diva_evaluation::true_positive:
-      w << KPF::writer< KPFC::kv_t >("eval", "tp");
+      w << KPF::writer< KPFC::kv_t >("eval_type", "tp");
       break;
     }
   }
@@ -403,6 +424,13 @@ void diva_geometry::write(std::ostream& os) const
   }
   if (!_pimpl->poly.empty())
     w << KPF::writer< KPFC::poly_t>(pa(*_pimpl), KPFC::poly_t::IMAGE_COORDS);
+  if (!_pimpl->classification.empty())
+  {
+    KPFC::cset_t conf_map;
+    for (auto i : _pimpl->classification)
+      conf_map.d.insert(std::make_pair(i.first, i.second));
+    w << KPF::writer< KPFC::cset_t>(conf_map, DETECTOR_DOMAIN);
+  }
   w << KPF::record_yaml_writer::endl;
 }
 

@@ -42,10 +42,10 @@ public:
   std::string                                              activity_name;
   size_t                                                   activity_id;
   diva_source                                              source;
-  std::vector<std::pair<size_t, size_t>>                   frame_id_span;
+  std::vector<std::pair<double, double>>                   frame_id_span;
   std::vector<std::pair<double, double>>                   frame_time_span;
   std::vector<std::pair<double, double>>                   frame_absolute_time_span;
-  std::map<size_t, std::vector<std::pair<size_t, size_t>>> actor_frame_id_span;
+  std::map<size_t, std::vector<std::pair<double, double>>> actor_frame_id_span;
   std::map<size_t, std::vector<std::pair<double, double>>> actor_frame_time_span;
   std::map<size_t, std::vector<std::pair<double, double>>> actor_frame_absolute_time_span;
 };
@@ -64,31 +64,31 @@ struct diva_activity_adapter : public KPF::kpf_act_adapter< diva_activity_impl >
       // reads the canonical activity "a" into the user_activity "u"
       [](const KPF::canonical::activity_t& a, diva_activity_impl& u)
   {
-    if(a.activity_id_domain != DIVA_DOMAIN)
+    if(a.activity_id.domain != DIVA_DOMAIN)
       throw malformed_diva_packet_exception("activty domain must be " + DIVA_DOMAIN);
     // load the activity ID, name, and start and stop frames
-    u.activity_id = a.activity_id.d;
-    u.activity_name = a.activity_name;
+    u.activity_id = a.activity_id.t.d;
+    u.activity_name = a.activity_label;
     // load in our overall activity time spans
     for (const auto& ts : a.timespan)
     {
       switch (ts.domain)
       {
       case 0:
-        u.frame_id_span.push_back(std::pair<size_t, size_t>(ts.tsr.start, ts.tsr.stop));
+        u.frame_id_span.push_back(std::pair<double, double>(ts.t.start, ts.t.stop));
         break;
       case 1:
-        u.frame_time_span.push_back(std::pair<double, double>(ts.tsr.start, ts.tsr.stop));
+        u.frame_time_span.push_back(std::pair<double, double>(ts.t.start, ts.t.stop));
         break;
       case 2:
-        u.frame_absolute_time_span.push_back(std::pair<double, double>(ts.tsr.start, ts.tsr.stop));
+        u.frame_absolute_time_span.push_back(std::pair<double, double>(ts.t.start, ts.t.stop));
         break;
       }
     }
     // load in our actor ID/time spans
     for (const auto& actor : a.actors)
     {
-      if (actor.id_domain != TRACK_DOMAIN)
+      if (actor.actor_id.domain != TRACK_DOMAIN)
         throw malformed_diva_packet_exception("activty actor domain must be "+ TRACK_DOMAIN);
       for (const auto& ts : actor.actor_timespan)
       {
@@ -96,20 +96,20 @@ struct diva_activity_adapter : public KPF::kpf_act_adapter< diva_activity_impl >
         {
           case 0:
           {
-            std::vector<std::pair<size_t, size_t>>& track_times = u.actor_frame_id_span[actor.id.d];
-            track_times.push_back(std::pair<size_t, size_t>(ts.tsr.start, ts.tsr.stop));
+            std::vector<std::pair<double, double>>& track_times = u.actor_frame_id_span[actor.actor_id.t.d];
+            track_times.push_back(std::pair<double, double>(ts.t.start, ts.t.stop));
             break;
           }
           case 1:
           {
-            std::vector<std::pair<double, double>>& track_times = u.actor_frame_time_span[actor.id.d];
-            track_times.push_back(std::pair<double, double>(ts.tsr.start, ts.tsr.stop));
+            std::vector<std::pair<double, double>>& track_times = u.actor_frame_time_span[actor.actor_id.t.d];
+            track_times.push_back(std::pair<double, double>(ts.t.start, ts.t.stop));
             break;
           }
           case 2:
           {
-            std::vector<std::pair<double, double>>& track_times = u.actor_frame_absolute_time_span[actor.id.d];
-            track_times.push_back(std::pair<double, double>(ts.tsr.start, ts.tsr.stop));
+            std::vector<std::pair<double, double>>& track_times = u.actor_frame_absolute_time_span[actor.actor_id.t.d];
+            track_times.push_back(std::pair<double, double>(ts.t.start, ts.t.stop));
             break;
           }
         }
@@ -130,33 +130,33 @@ struct diva_activity_adapter : public KPF::kpf_act_adapter< diva_activity_impl >
   {
     KPF::canonical::activity_t a;
     // set the name, ID, and domain
-    a.activity_name = u.activity_name;
-    a.activity_id.d = u.activity_id;
-    a.activity_id_domain = DIVA_DOMAIN;
+    a.activity_label = u.activity_name;
+    a.activity_id.t.d = u.activity_id;
+    a.activity_id.domain = DIVA_DOMAIN;
 
     // set the start / stop time (as frame numbers)
     for (const auto& ts : u.frame_id_span)
     {
-      KPF::canonical::activity_t::scoped_tsr_t tsr;
+      KPF::canonical::scoped< KPF::canonical::timestamp_range_t > tsr;
       tsr.domain = KPF::canonical::timestamp_t::FRAME_NUMBER;
-      tsr.tsr.start = ts.first;
-      tsr.tsr.stop = ts.second;
+      tsr.t.start = ts.first;
+      tsr.t.stop = ts.second;
       a.timespan.push_back(tsr);
     }
     /*for (const auto& ts : u.frame_time_span)
     {
-      KPF::canonical::activity_t::scoped_tsr_t tsr;
+      KPF::canonical::scoped< KPF::canonical::timestamp_range_t > tsr;
       tsr.domain = KPF::canonical::timestamp_t::FRAME_TIME;
-      tsr.tsr.start = ts.first;
-      tsr.tsr.stop = ts.second;
+      tsr.t.start = ts.first;
+      tsr.t.stop = ts.second;
       a.timespan.push_back(tsr);
     }
     for (const auto& ts : u.frame_absolute_time_span)
     {
-      KPF::canonical::activity_t::scoped_tsr_t tsr;
+      KKPF::canonical::scoped< KPF::canonical::timestamp_range_t > tsr;
       tsr.domain = KPF::canonical::timestamp_t::FRAME_ABSOLUTE_TIME;
-      tsr.tsr.start = ts.first;
-      tsr.tsr.stop = ts.second;
+      tsr.t.start = ts.first;
+      tsr.t.stop = ts.second;
       a.timespan.push_back(tsr);
     }*/
 
@@ -164,44 +164,44 @@ struct diva_activity_adapter : public KPF::kpf_act_adapter< diva_activity_impl >
     for (const auto& map : u.actor_frame_id_span)
     {
       KPF::canonical::activity_t::actor_t act;
-      act.id.d = map.first;
-      act.id_domain = TRACK_DOMAIN;
+      act.actor_id.t.d = map.first;
+      act.actor_id.domain = TRACK_DOMAIN;
       for (const auto& ts : map.second)
       {
-        KPF::canonical::activity_t::scoped_tsr_t tsr;
+        KPF::canonical::scoped< KPF::canonical::timestamp_range_t > tsr;
         tsr.domain = KPF::canonical::timestamp_t::FRAME_NUMBER;
-        tsr.tsr.start = ts.first;
-        tsr.tsr.stop = ts.second;
+        tsr.t.start = ts.first;
+        tsr.t.stop = ts.second;
         act.actor_timespan.push_back(tsr);
       }
       a.actors.push_back(act);
     }
     /*for (const auto& map : u.actor_frame_id_span)
     {
-      KPF::canonical::activity_t::actor_t act;
+      KPF::canonical::scoped< KPF::canonical::timestamp_range_t > tsr;
       act.id.d = map.first;
       act.id_domain = TRACK_DOMAIN;
       for (const auto& ts : map.second)
       {
         KPF::canonical::activity_t::scoped_tsr_t tsr;
         tsr.domain = KPF::canonical::timestamp_t::FRAME_TIME;
-        tsr.tsr.start = ts.first;
-        tsr.tsr.stop = ts.second;
+        tsr.t.start = ts.first;
+        tsr.t.stop = ts.second;
         act.actor_timespan.push_back(tsr);
       }
       a.actors.push_back(act);
     }
     for (const auto& map : u.actor_frame_id_span)
     {
-      KPF::canonical::activity_t::actor_t act;
+      KPF::canonical::scoped< KPF::canonical::timestamp_range_t > tsr;
       act.id.d = map.first;
       act.id_domain = TRACK_DOMAIN;
       for (const auto& ts : map.second)
       {
         KPF::canonical::activity_t::scoped_tsr_t tsr;
         tsr.domain = KPF::canonical::timestamp_t::FRAME_ABSOLUTE_TIME;
-        tsr.tsr.start = ts.first;
-        tsr.tsr.stop = ts.second;
+        tsr.t.start = ts.first;
+        tsr.t.stop = ts.second;
         act.actor_timespan.push_back(tsr);
       }
       a.actors.push_back(act);
@@ -295,11 +295,11 @@ bool diva_activity::has_frame_id_span() const
 {
   return _pimpl->frame_id_span.size() > 0;
 }
-std::vector<std::pair<size_t, size_t>>& diva_activity::get_frame_id_span()
+std::vector<std::pair<double, double>>& diva_activity::get_frame_id_span()
 {
   return _pimpl->frame_id_span;
 }
-const std::vector<std::pair<size_t, size_t>>& diva_activity::get_frame_id_span() const
+const std::vector<std::pair<double, double>>& diva_activity::get_frame_id_span() const
 {
   return _pimpl->frame_id_span;
 }
@@ -346,11 +346,11 @@ bool diva_activity::has_actor_frame_id_span() const
 {
   return _pimpl->actor_frame_id_span.size() > 0;
 }
-std::map<size_t, std::vector<std::pair<size_t, size_t>>>& diva_activity::get_actor_frame_id_span()
+std::map<size_t, std::vector<std::pair<double, double>>>& diva_activity::get_actor_frame_id_span()
 {
   return _pimpl->actor_frame_id_span;
 }
-const std::map<size_t, std::vector<std::pair<size_t, size_t>>>& diva_activity::get_actor_frame_id_span() const
+const std::map<size_t, std::vector<std::pair<double, double>>>& diva_activity::get_actor_frame_id_span() const
 {
   return _pimpl->actor_frame_id_span;
 }
@@ -399,8 +399,10 @@ void diva_activity::write(std::ostream& os) const
     throw malformed_diva_packet_exception("activity packet is invalid");
 
   namespace KPFC = KPF::canonical;
-  KPF::record_yaml_writer w(os);
   diva_activity_adapter act_adapter;
+
+  KPF::record_yaml_writer w(os);
+  w.set_schema(KPF::schema_style::ACT);
   w << KPF::writer< KPFC::activity_t >(act_adapter(*_pimpl), DIVA_DOMAIN)
     << KPF::record_yaml_writer::endl;
 }

@@ -108,6 +108,8 @@ void diva_label::write(std::ostream& os) const
 
   namespace KPFC = KPF::canonical;
   KPF::record_yaml_writer w(os);
+
+  w.set_schema(KPF::schema_style::TYPES);
   w << KPF::writer< KPFC::id_t >(_pimpl->track_id, KPFC::id_t::TRACK_ID)
     << KPF::writer< KPFC::kv_t >("obj_type", _pimpl->obj_type)
     << KPF::record_yaml_writer::endl;

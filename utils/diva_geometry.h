@@ -102,6 +102,11 @@ public:
   diva_keyframe get_keyframe() const;
   void set_keyframe(diva_keyframe kf);
   void remove_keyframe();
+
+  bool has_classification() const;
+  std::map<std::string,double>& get_classification();
+  const std::map<std::string, double>& get_classification() const;
+  void remove_classification();
   
   bool has_polygon() const;
   std::vector<std::pair<size_t, size_t>>& get_polygon();

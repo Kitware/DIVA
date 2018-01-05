@@ -30,6 +30,7 @@
 
 #pragma once
 #include <iostream>
+#include <map>
 #include <vector>
 #include <utils/diva_utils_export.h>
 
