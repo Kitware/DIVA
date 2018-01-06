@@ -1,0 +1,3 @@
+
+add_subdirectory(darknet_detections)
+add_subdirectory(schema_examples)

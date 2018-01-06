@@ -29,16 +29,24 @@
 */
 
 #pragma once
+#include "diva_experiment.h"
 #include <utils/diva_utils_export.h>
-#include <vital/exceptions/base.h>
-
-class DIVA_UTILS_EXPORT malformed_diva_data_exception : public kwiver::vital::vital_core_base_exception
+#include <vital/types/image_container.h>
+class DIVA_UTILS_EXPORT diva_input
 {
 public:
-  /** param message     Description of the parsing circumstances */
-  malformed_diva_data_exception(std::string const& message) VITAL_NOTHROW;
-  virtual ~malformed_diva_data_exception() VITAL_NOTHROW;
-  /// Given error message string
-  std::string m_message;
+  diva_input();
+  virtual ~diva_input();
+
+  bool load_experiment(const diva_experiment& exp);
+
+  bool has_next_frame();
+  kwiver::vital::image_container_sptr get_next_frame();
+  kwiver::vital::timestamp get_next_frame_timestamp() const;
+  kwiver::vital::metadata_vector get_next_frame_metadata() const;
+
+private:
+  class pimpl;
+  pimpl* _pimpl;
 };
 

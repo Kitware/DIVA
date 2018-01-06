@@ -362,7 +362,7 @@ void diva_geometry::remove_classification()
 void diva_geometry::write(std::ostream& os) const
 {
   if (!is_valid())
-    throw malformed_diva_packet_exception("geometry packet is invalid");
+    throw malformed_diva_data_exception("geometry packet is invalid");
 
   namespace KPFC = KPF::canonical;
   KPF::record_yaml_writer w(os);

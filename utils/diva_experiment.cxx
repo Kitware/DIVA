@@ -30,18 +30,32 @@
 
 #include "diva_experiment.h"
 #include <yaml-cpp/yaml.h>
+#include "vital/config/config_block.h"
+#include "vital/config/config_block_io.h"
 
 class diva_experiment::pimpl
 {
 public:
-  size_t      frame_rate_Hz = 0;
-  std::string source = "";
-  std::string output = "";
+  diva_experiment_type type;
+  diva_input_type      input_type;
+  diva_transport_type  transport_type;
+  std::string          dataset_id;
+  std::string          input_source;
+  std::string          input_root_dir;
+  diva_output_type     output_type;
+  std::string          output_root_dir;
+
+  size_t               frame_rate_Hz = 30;
+  std::string          source_filepath = "";
+  std::string          output_filename = "";
+
+  kwiver::vital::config_block_sptr config;
 };
 
 diva_experiment::diva_experiment()
 {
   _pimpl = new pimpl();
+  _pimpl->config = kwiver::vital::config_block::empty_config("diva_experiment");
 }
 
 diva_experiment::~diva_experiment()
@@ -49,60 +63,317 @@ diva_experiment::~diva_experiment()
   delete _pimpl;
 }
 
+void diva_experiment::clear()
+{
+  remove_type();
+  remove_input_type();
+  remove_transport_type();
+  remove_dataset_id();
+  remove_input_source();
+  remove_input_root_dir();
+  remove_frame_rate_Hz();
+  remove_output_type();
+  remove_output_root_dir();
+}
+
 bool diva_experiment::is_valid()
 {
-  // Make sure source and output are defined and point to something that exists?
+  if (!has_type())
+    return false;
+  if (!has_input_type())
+    return false;
+  if (!has_transport_type())
+    return false;
+  if (!has_dataset_id())
+    return false;
+  if (!has_input_source())
+    return false;
+  if (!has_input_root_dir())
+    return false;
+  if (!has_frame_rate_Hz())
+    return false;
+  if (!has_output_type())
+    return false;
+  if (!has_output_root_dir())
+    return false;
+  if (_pimpl->transport_type == diva_transport_type::rstp && _pimpl->input_type != diva_input_type::video)
+    return false;
+  // TODO more checks for directories and files exist... 
   return true;
 }
 
-bool diva_experiment::has_next_frame()
+bool diva_experiment::read_experiment(const std::string& filename)
 {
-  return true;
-}
+  clear();
+  _pimpl->config = kwiver::vital::read_config_file(filename);
+  if (_pimpl->config->has_value("type"))
+  {
+    std::string t = _pimpl->config->get_value<std::string>("type");
+    if (t == "activity_detection")
+      set_type(diva_experiment_type::activity_detection);
+    else if (t == "object_detection")
+      set_type(diva_experiment_type::object_detection);
+  }
 
-kwiver::vital::image_container_sptr diva_experiment::get_next_frame()
-{
-  return kwiver::vital::image_container_sptr(nullptr);
-}
+  if (_pimpl->config->has_value("input:dataset_id"))
+    set_dataset_id(_pimpl->config->get_value<std::string>("input:dataset_id"));
+  if (_pimpl->config->has_value("input:type"))
+  {
+    std::string t = _pimpl->config->get_value<std::string>("input:type");
+    if (t == "file_list")
+      set_input_type(diva_input_type::file_list);
+    else if (t == "video")
+      set_input_type(diva_input_type::video);
+  }
+  if (_pimpl->config->has_value("input:transport_type"))
+  {
+    std::string t = _pimpl->config->get_value<std::string>("input:transport_type");
+    if (t == "disk")
+      set_transport_type(diva_transport_type::disk);
+    else if (t == "girder")
+      set_transport_type(diva_transport_type::girder);
+    else if (t == "rstp")
+      set_transport_type(diva_transport_type::rstp);
+  }
+  if (_pimpl->config->has_value("input:source"))
+    set_input_source(_pimpl->config->get_value<std::string>("input:source"));
+  if (_pimpl->config->has_value("input:root_dir"))
+    set_input_root_dir(_pimpl->config->get_value<std::string>("input:root_dir"));
+  if (_pimpl->config->has_value("input:frame_rate_Hz"))
+    set_frame_rate_Hz(_pimpl->config->get_value<size_t>("input:frame_rate_Hz"));
 
-bool diva_experiment::read_experiment(const std::string& file_name)
-{
-  YAML::Node config = YAML::LoadFile(file_name);
-  _pimpl->frame_rate_Hz = config["frame_rate_Hz"].as<size_t>();
-  _pimpl->source = config["source"].as<std::string>();
-  _pimpl->output = config["output"].as<std::string>();
+  if (_pimpl->config->has_value("output:type"))
+  {
+    std::string t = _pimpl->config->get_value<std::string>("output:type");
+    if (t == "file")
+      set_output_type(diva_output_type::file);
+  }
+  if (_pimpl->config->has_value("output:root_dir"))
+    set_output_root_dir(_pimpl->config->get_value<std::string>("output:root_dir"));
 
   return is_valid();
 }
-void diva_experiment::write_experiment(const std::string& file_name)
+bool diva_experiment::write_experiment(const std::string& filename)
 {
-
+  if (!is_valid())
+    return false;
+  kwiver::vital::write_config_file(_pimpl->config, filename);
+  return true;
 }
 
+bool diva_experiment::has_type() const
+{
+  return _pimpl->type != (diva_experiment_type)-1;
+}
+diva_experiment_type diva_experiment::get_type() const
+{
+  return _pimpl->type;
+}
+void diva_experiment::set_type(diva_experiment_type e)
+{
+  _pimpl->type = e;
+  switch (e)
+  {
+  case diva_experiment_type::activity_detection:
+    _pimpl->config->set_value<std::string>("type","activity_detection");
+    return;
+  case diva_experiment_type::object_detection:
+    _pimpl->config->set_value<std::string>("type","object_detection");
+    return;
+  }
+}
+void diva_experiment::remove_type()
+{
+  _pimpl->type = (diva_experiment_type)-1;
+  if(_pimpl->config->has_value("type"))
+    _pimpl->config->unset_value("type");
+}
+
+bool diva_experiment::has_input_type() const
+{
+  return _pimpl->input_type != (diva_input_type)-1;
+}
+diva_input_type diva_experiment::get_input_type() const
+{
+  return _pimpl->input_type;
+}
+void diva_experiment::set_input_type(diva_input_type e)
+{
+  _pimpl->input_type = e;
+  switch (e)
+  {
+  case diva_input_type::file_list:
+    _pimpl->config->set_value<std::string>("input:type", "file_list");
+    return;
+  case diva_input_type::video:
+    _pimpl->config->set_value<std::string>("input:type", "video");
+    return;
+  }
+}
+void diva_experiment::remove_input_type()
+{
+  _pimpl->input_type = (diva_input_type)-1;
+  if (_pimpl->config->has_value("input:type"))
+    _pimpl->config->unset_value("input:type");
+}
+
+bool diva_experiment::has_transport_type() const
+{
+  return _pimpl->transport_type != (diva_transport_type)-1;
+}
+diva_transport_type diva_experiment::get_transport_type() const
+{
+  return _pimpl->transport_type;
+}
+void diva_experiment::set_transport_type(diva_transport_type e)
+{
+  _pimpl->transport_type = e;
+  switch (e)
+  {
+  case diva_transport_type::disk:
+    _pimpl->config->set_value<std::string>("input:transport_type", "disk");
+    return;
+  case diva_transport_type::girder:
+    _pimpl->config->set_value<std::string>("input:transport_type", "girder");
+    return;
+  case diva_transport_type::rstp:
+    _pimpl->config->set_value<std::string>("input:transport_type", "rstp");
+    return;
+  }
+}
+void diva_experiment::remove_transport_type()
+{
+  _pimpl->transport_type = (diva_transport_type)-1;
+  if (_pimpl->config->has_value("input:transport_type"))
+    _pimpl->config->unset_value("input:transport_type");
+}
+
+bool diva_experiment::has_dataset_id() const
+{
+  return !_pimpl->dataset_id.empty();
+}
+void diva_experiment::set_dataset_id(const std::string& src)
+{
+  _pimpl->dataset_id = src;
+  _pimpl->config->set_value<std::string>("input:dataset_id", src);
+}
+std::string diva_experiment::get_dataset_id() const
+{
+  return _pimpl->dataset_id;
+}
+void diva_experiment::remove_dataset_id()
+{
+  _pimpl->dataset_id = "";
+  if (_pimpl->config->has_value("input:dataset_id"))
+    _pimpl->config->unset_value("input:dataset_id");
+}
+
+bool diva_experiment::has_frame_rate_Hz() const
+{
+  return _pimpl->frame_rate_Hz > 0;
+}
 void diva_experiment::set_frame_rate_Hz(size_t hz)
 {
   _pimpl->frame_rate_Hz = hz;
+  _pimpl->config->set_value<size_t>("input:frame_rate_Hz", hz);
 }
-size_t diva_experiment::get_frame_rate_Hz()
+size_t diva_experiment::get_frame_rate_Hz() const
 {
   return _pimpl->frame_rate_Hz;
 }
-
-void diva_experiment::set_source(const std::string& src)
+void diva_experiment::remove_frame_rate_Hz()
 {
-  _pimpl->source = src;
-}
-std::string& diva_experiment::get_source()
-{
-  return _pimpl->source;
+  _pimpl->frame_rate_Hz = 0;
+  if (_pimpl->config->has_value("input:frame_rate_Hz"))
+    _pimpl->config->unset_value("input:frame_rate_Hz");
 }
 
-void diva_experiment::set_kpf_output(const std::string& dst)
+bool diva_experiment::has_input_source() const
 {
-  _pimpl->output = dst;
+  return !_pimpl->input_source.empty();
 }
-std::string& diva_experiment::get_kpf_output()
+void diva_experiment::set_input_source(const std::string& src)
 {
-  return _pimpl->output;
+  _pimpl->input_source = src;
+  _pimpl->config->set_value<std::string>("input:source", src);
+}
+std::string diva_experiment::get_input_source() const
+{
+  return _pimpl->input_source;
+}
+void diva_experiment::remove_input_source()
+{
+  _pimpl->input_source = "";
+  if (_pimpl->config->has_value("input:source"))
+    _pimpl->config->unset_value("input:source");
 }
 
+bool diva_experiment::has_input_root_dir() const
+{
+  return !_pimpl->input_root_dir.empty();
+}
+void diva_experiment::set_input_root_dir(const std::string& src)
+{
+  _pimpl->input_root_dir = src;
+  _pimpl->config->set_value<std::string>("input:root_dir", src);
+}
+std::string diva_experiment::get_input_root_dir() const
+{
+  return _pimpl->input_root_dir;
+}
+void diva_experiment::remove_input_root_dir()
+{
+  _pimpl->input_root_dir = "";
+  if (_pimpl->config->has_value("input:root_dir"))
+    _pimpl->config->unset_value("input:root_dir");
+}
+
+bool diva_experiment::has_output_type() const
+{
+  return _pimpl->output_type != (diva_output_type)-1;
+}
+diva_output_type diva_experiment::get_output_type() const
+{
+  return _pimpl->output_type;
+}
+void diva_experiment::set_output_type(diva_output_type e) 
+{
+  _pimpl->output_type = e;
+  switch (e)
+  {
+  case diva_output_type::file:
+    _pimpl->config->set_value<std::string>("output:type", "file");
+    return;
+  }
+}
+void diva_experiment::remove_output_type()
+{
+  _pimpl->output_type = (diva_output_type)-1;
+  if (_pimpl->config->has_value("output:type"))
+    _pimpl->config->unset_value("output:type");
+}
+
+bool diva_experiment::has_output_root_dir() const
+{
+  return !_pimpl->output_root_dir.empty();
+}
+void diva_experiment::set_output_root_dir(const std::string& src)
+{
+  _pimpl->output_root_dir = src;
+  _pimpl->config->set_value<std::string>("output:root_dir", src);
+}
+std::string diva_experiment::get_output_root_dir() const
+{
+  return _pimpl->output_root_dir;
+}
+void diva_experiment::remove_output_root_dir()
+{
+  _pimpl->output_root_dir = "";
+  if (_pimpl->config->has_value("output:root_dir"))
+    _pimpl->config->unset_value("output:root_dir");
+}
+
+std::string diva_experiment::get_output_filename() const
+{
+  return _pimpl->output_root_dir + "/" + _pimpl->dataset_id;
+}

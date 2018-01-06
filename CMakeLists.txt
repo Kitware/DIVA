@@ -40,7 +40,7 @@ include(kwiver-configcheck)
 find_package(fletch REQUIRED)
 # DIVA specific code (inner build)
 add_subdirectory(utils)
-add_subdirectory(driver)
+add_subdirectory(drivers)
 
 configure_file(${DIVA_CMAKE_DIR}/setup_DIVA.sh.in  ${DIVA_BINARY_DIR}/setup_DIVA.sh @ONLY)
 configure_file(${DIVA_CMAKE_DIR}/setup_DIVA.bat.in ${DIVA_BINARY_DIR}/setup_DIVA.bat @ONLY)

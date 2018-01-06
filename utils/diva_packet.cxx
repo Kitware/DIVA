@@ -79,7 +79,7 @@ void diva_meta::remove_msg()
 void diva_meta::write(std::ostream& os) const
 {
   if (!is_valid())
-    throw malformed_diva_packet_exception("meta packet is invalid");
+    throw malformed_diva_data_exception("meta packet is invalid");
 
   KPF::record_yaml_writer w(os);
   w << KPF::writer< KPF::canonical::meta_t >(_msg)

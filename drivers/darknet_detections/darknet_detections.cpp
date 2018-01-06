@@ -31,6 +31,9 @@
 #include <ostream>
 #include "diva_geometry.h"
 #include "diva_label.h"
+#include "diva_experiment.h"
+#include "diva_input.h"
+#include "diva_exceptions.h"
 
 // KWIVER Spcecific files to run darknet
 #include "vital/exceptions.h"
@@ -38,15 +41,13 @@
 #include "vital/types/image_container.h"
 #include "vital/types/detected_object.h"
 #include "vital/types/detected_object_set.h"
-
-#include "vital/algo/image_io.h"
-#include <vital/algo/video_input.h>
 #include "vital/algo/image_object_detector.h"
-
+#include "vital/config/config_block.h"
+#include "vital/config/config_block_io.h"
 #include "vital/plugin_loader/plugin_manager.h"
 
 //Uncomment this macro to draw detections on each frame and display it
-//#define DISPLAY_FRAME
+#define DISPLAY_FRAME
 
 #ifdef DISPLAY_FRAME
 #include <kwiversys/SystemTools.hxx>
@@ -55,111 +56,75 @@
 #include "vital/algo/draw_detected_object_set.h"
 #endif
 
-void darknet_geometry()
+int main(int argc, const char* argv[])
 {
-  // Create a stream/file to write to
+  diva_experiment exp;
+  if (argc == 1)
+  {// For this example driver, make the experiment in code if its not provided
+    exp.set_type(diva_experiment_type::object_detection);
+    exp.set_dataset_id("VIRAT_S_000206_06_001421_001458");
+    if (true)
+    {
+      exp.set_input_type(diva_input_type::video);
+      exp.set_input_source("VIRAT_S_000206_06_001421_001458.mp4");
+    }
+    else
+    {
+      exp.set_input_type(diva_input_type::file_list);
+      exp.set_input_source("VIRAT_S_000206_06_001421_001458.txt");
+    }
+    exp.set_transport_type(diva_transport_type::disk);
+    exp.set_frame_rate_Hz(30);
+    exp.set_input_root_dir("C:/Programming/DIVA/src/data/darknet_detections");
+    exp.set_output_type(diva_output_type::file);
+    exp.set_output_root_dir("C:/Programming/DIVA/src/data/darknet_detections/outputs");
+  }
+  else if (argc == 2)
+  {
+    if (!exp.read_experiment(argv[1]))
+      throw malformed_diva_data_exception("Invalid experiment configuration");
+  }
+
+  // Examine the experiment configuration and make sure we can run what it wants
+  if(exp.get_type() != diva_experiment_type::object_detection)
+    throw malformed_diva_data_exception("The calculator can only process object_detection experiments");
+
+  // Create a stream/file to write our dectections to
   std::filebuf fb;
-  fb.open("./darknet_geometry.kpf", std::ios::out | std::ofstream::trunc);
+  fb.open(exp.get_output_filename() +"_geom.kpf", std::ios::out | std::ofstream::trunc);
   std::ostream os(&fb);
 
-  //  Instantiate KWIVER
+  // Initialize KWIVER
   kwiver::vital::plugin_manager::instance().load_all_plugins();
-
-  // Create a geometry kfp packet we will reuse for each frame
-  diva_geometry geom;
   // Instantiate Darknet KWIVER arrow
   kwiver::vital::algo::image_object_detector_sptr detector = kwiver::vital::algo::image_object_detector::create("darknet");
-  kwiver::vital::config_block_sptr config = detector->get_configuration();
-  config->set_value("net_config",  std::string("C:/Programming/KWIVER/darknet/models/virat.cfg"));
-  config->set_value("weight_file", std::string("C:/Programming/KWIVER/darknet/models/virat.weights"));
-  config->set_value("class_names", std::string("C:/Programming/KWIVER/darknet/models/virat.names"));
-  config->set_value("thresh", 0.20);
-  config->set_value("hier_thresh", 0.5);
-  config->set_value("gpu_index", 0);
-  detector->set_configuration(config);// This will default the configuration
-
-  // Meta kpf packet to provide some commentary in our geomerty kpf file
-  diva_meta meta;
-  meta.set_msg("darknet geometry");
-  meta.write(os);
-
-  // Note this is how you load an image/frame off disk, if that is something you would want to do
-  //kwiver::vital::algo::image_io_sptr ocv_io = kwiver::vital::algo::image_io::create("ocv");
-  //kwiver::vital::image_container_sptr ocv_img = ocv_io->load("./image.png");
-
-  // Here we are going to open a video file off disk
-  kwiver::vital::algo::video_input_sptr   video_reader = kwiver::vital::algo::video_input::create("vidl_ffmpeg");
-  video_reader->set_configuration(video_reader->get_configuration());// This will default the configuration 
-  video_reader->open("C:/Programming/DIVA/src/data/video.mp4"); // throws
-  // Get the capabilities for the currently opened video.
-  kwiver::vital::algorithm_capabilities video_traits = video_reader->get_implementation_capabilities();
- 
-  kwiver::vital::timestamp          ts;
-  kwiver::vital::timestamp::time_t  frame_time;
-  kwiver::vital::timestamp::frame_t frame_number;
-
-  kwiver::vital::metadata_vector metadata;
-  kwiver::vital::metadata_vector last_metadata;
-  kwiver::vital::image_container_sptr frame;
-
-  size_t detection_id = 0; // Incremented for every detection on every frame
-
-  // If the video does not know its frame time step, use this as default
-  kwiver::vital::timestamp::time_t  default_frame_time_step_usec = static_cast<kwiver::vital::timestamp::time_t>(.3333 * 1e6); // in usec;
-
+  // Load our own configuration file, assume its in the same location as the experiment data
+  kwiver::vital::config_block_sptr config = kwiver::vital::read_config_file(exp.get_input_root_dir() + "/darknet.config");
+  detector->set_configuration(config);
 #ifdef DISPLAY_FRAME
   kwiver::vital::algo::draw_detected_object_set_sptr drawer = kwiver::vital::algo::draw_detected_object_set::create("ocv");
   drawer->set_configuration(drawer->get_configuration());// This will default the configuration 
 #endif
 
-  while (video_reader->next_frame(ts))
+  // Meta kpf packet to provide some commentary in our geomerty kpf file
+  diva_meta meta;
+  meta.set_msg("darknet geometry");
+  meta.write(os);
+  // Create a geometry kfp packet we will reuse for each frame
+  diva_geometry geom;
+
+  // Load the input
+  diva_input input;
+  if(!input.load_experiment(exp))
+    throw malformed_diva_data_exception("Something happend in loading the experiment input");
+
+  kwiver::vital::timestamp ts;
+  kwiver::vital::image_container_sptr frame;
+  size_t detection_id = 0; // Incremented for every detection on every frame
+  while (input.has_next_frame())
   {
-    // Get the next frame and its associated data
-    frame = video_reader->frame_image();
-    if (!video_traits.capability(kwiver::vital::algo::video_input::HAS_FRAME_DATA))
-    {
-      throw kwiver::vital::video_stream_exception("Video reader selected does not supply image data.");
-    }
-
-    // Compute the frame number
-    if (video_traits.capability(kwiver::vital::algo::video_input::HAS_FRAME_NUMBERS))
-    {
-      frame_number = ts.get_frame();
-    }
-    else
-    {
-      ++frame_number;
-      ts.set_frame(frame_number);
-    }
-
-    // Compute the frame time
-    if (!video_traits.capability(kwiver::vital::algo::video_input::HAS_FRAME_TIME))
-    {
-      // create an internal time standard
-      frame_time = frame_number * default_frame_time_step_usec;
-      ts.set_time_usec(frame_time);
-    }
-
-    // If this reader/video does not have any metadata, we will just
-    // return an empty vector.  That is all handled by the algorithm
-    // implementation.
-    metadata = video_reader->frame_metadata();
-    // Since we want to try to always return valid metadata for this
-    // frame - if the returned metadata is empty, then use the last
-    // one we received.  The requirement is to always provide the best
-    // metadata for a frame. Since metadata appears less frequently
-    // than the frames, the metadata returned can be a little old, but
-    // it is still the best we have.
-    if (metadata.empty())
-    {
-      // The saved one could be empty, but it is the bewt we have.
-      metadata = last_metadata;
-    }
-    else
-    {
-      // Now that we have new metadata save it in case we need it later.
-      last_metadata = metadata;
-    }
+    frame = input.get_next_frame();
+    ts = input.get_next_frame_timestamp();
 
     // Now do detections on this frame
     kwiver::vital::detected_object_set_sptr detections = detector->detect(frame);
@@ -171,8 +136,8 @@ void darknet_geometry()
       //geom.set_name?
       geom.set_track_id(detection_id);
       geom.set_detection_id(detection_id++);
-      geom.set_frame_id(frame_number);
-      geom.set_frame_time(frame_time);
+      geom.set_frame_id(ts.get_frame());
+      geom.set_frame_time(ts.get_time_usec());
       geom.set_confidence((*det)->confidence());
       for (std::string name : (*det)->type()->class_names())
         geom.get_classification()[name] = (*det)->type()->score(name);
@@ -185,7 +150,7 @@ void darknet_geometry()
     }// Loop to the next detection
 
 #ifdef DISPLAY_FRAME
-    // Draw the detections onto the image
+     // Draw the detections onto the image and show it via kwiver and the opencv api
     kwiver::vital::image_container_sptr detections_img = drawer->draw(detections, frame);
     // Let's see what it looks like
     cv::Mat _mat = kwiver::arrows::ocv::image_container::vital_to_ocv(detections_img->get_image());
@@ -195,6 +160,6 @@ void darknet_geometry()
     kwiversys::SystemTools::Delay(2000);                                       // Wait for 2s
     cvDestroyWindow("Darknet Detections");
 #endif
-  }// Loop to the next frame
+  }// loop to the next frame
 }
 

@@ -30,7 +30,31 @@
 
 #pragma once
 #include <utils/diva_utils_export.h>
-#include <vital/types/image_container.h>
+#include <string>
+
+enum class diva_experiment_type
+{
+  object_detection = 0,
+  activity_detection
+};
+
+enum class diva_input_type
+{
+  file_list = 0,
+  video
+};
+
+enum class diva_transport_type
+{
+  disk = 0,
+  girder,
+  rstp
+};
+
+enum class diva_output_type
+{
+  file = 0
+};
 
 class DIVA_UTILS_EXPORT diva_experiment
 {
@@ -38,23 +62,58 @@ public:
   diva_experiment();
   virtual ~diva_experiment();
 
+  void clear();
   bool is_valid();
 
-  bool read_experiment(const std::string& file_name);
-  void write_experiment(const std::string& file_name);
+  bool read_experiment(const std::string& filename);
+  bool write_experiment(const std::string& filename);
 
-  // The experiment properties
+  bool has_type() const;
+  diva_experiment_type get_type() const;
+  void set_type(diva_experiment_type s);
+  void remove_type();
+
+  bool has_input_type() const;
+  diva_input_type get_input_type() const;
+  void set_input_type(diva_input_type s);
+  void remove_input_type();
+
+  bool has_transport_type() const;
+  diva_transport_type get_transport_type() const;
+  void set_transport_type(diva_transport_type s);
+  void remove_transport_type();
+
+  bool has_dataset_id() const;
+  void set_dataset_id(const std::string& id);
+  std::string get_dataset_id() const;
+  void remove_dataset_id();
+
+  bool has_input_source() const;
+  void set_input_source(const std::string& id);
+  std::string get_input_source() const;
+  void remove_input_source();
+
+  bool has_input_root_dir() const;
+  void set_input_root_dir(const std::string& id);
+  std::string get_input_root_dir() const;
+  void remove_input_root_dir();
+
+  bool has_frame_rate_Hz() const;
   void set_frame_rate_Hz(size_t hz);
-  size_t get_frame_rate_Hz();
+  size_t get_frame_rate_Hz() const;
+  void remove_frame_rate_Hz();
 
-  void set_source(const std::string& src);
-  std::string& get_source();
+  bool has_output_type() const;
+  diva_output_type get_output_type() const;
+  void set_output_type(diva_output_type s);
+  void remove_output_type();
 
-  void set_kpf_output(const std::string& dst);
-  std::string& get_kpf_output();
+  bool has_output_root_dir() const;
+  void set_output_root_dir(const std::string& id);
+  std::string get_output_root_dir() const;
+  void remove_output_root_dir();
 
-  bool has_next_frame();
-  kwiver::vital::image_container_sptr get_next_frame();
+  std::string get_output_filename() const;// Full path with no extension!
 
 private:
   class pimpl;

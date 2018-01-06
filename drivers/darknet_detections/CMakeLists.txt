@@ -4,15 +4,13 @@ if( OpenCV_VERSION VERSION_LESS "2.4" )
   message( FATAL_ERROR "OpenCV version must be at least 2.4" )
 endif()
 
-set(SOURCE "main.cpp"
-           "diva_kpf_darknet_example.cpp"
-           "diva_kpf_schema_examples.cpp"
-)
+set(SOURCE "darknet_detections.cpp")
+
 include_directories(${OpenCV_INCLUDE_DIRS})
 include_directories("${CMAKE_BINARY_DIR}")
 include_directories("${CMAKE_SOURCE_DIR}/utils")
-add_executable(diva_driver ${SOURCE})
-target_link_libraries(diva_driver 
+add_executable(darknet_detections ${SOURCE})
+target_link_libraries(darknet_detections 
                       diva_utils
                       kwiversys
                       vital
@@ -27,5 +25,5 @@ target_link_libraries(diva_driver
 link_directories(${OpenCV_LIB_DIR})
 
 if(WIN32)
-  target_compile_definitions(diva_driver PRIVATE YAML_CPP_DLL)
+  target_compile_definitions(darknet_detections PRIVATE YAML_CPP_DLL)
 endif()

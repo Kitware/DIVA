@@ -65,7 +65,7 @@ struct diva_activity_adapter : public KPF::kpf_act_adapter< diva_activity_impl >
       [](const KPF::canonical::activity_t& a, diva_activity_impl& u)
   {
     if(a.activity_id.domain != DIVA_DOMAIN)
-      throw malformed_diva_packet_exception("activty domain must be " + DIVA_DOMAIN);
+      throw malformed_diva_data_exception("activty domain must be " + DIVA_DOMAIN);
     // load the activity ID, name, and start and stop frames
     u.activity_id = a.activity_id.t.d;
     u.activity_name = a.activity_label;
@@ -89,7 +89,7 @@ struct diva_activity_adapter : public KPF::kpf_act_adapter< diva_activity_impl >
     for (const auto& actor : a.actors)
     {
       if (actor.actor_id.domain != TRACK_DOMAIN)
-        throw malformed_diva_packet_exception("activty actor domain must be "+ TRACK_DOMAIN);
+        throw malformed_diva_data_exception("activty actor domain must be "+ TRACK_DOMAIN);
       for (const auto& ts : actor.actor_timespan)
       {
         switch (ts.domain)
@@ -396,7 +396,7 @@ void diva_activity::remove_actor_frame_absolute_time_span()
 void diva_activity::write(std::ostream& os) const
 {
   if (!is_valid())
-    throw malformed_diva_packet_exception("activity packet is invalid");
+    throw malformed_diva_data_exception("activity packet is invalid");
 
   namespace KPFC = KPF::canonical;
   diva_activity_adapter act_adapter;

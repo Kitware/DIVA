@@ -8,8 +8,9 @@ endif()
 
 set( sources
   diva_exceptions.cxx
-  diva_packet.cxx
   diva_experiment.cxx
+  diva_input.cxx
+  diva_packet.cxx
   diva_geometry.cxx
   diva_label.cxx
   diva_activity.cxx
@@ -17,8 +18,9 @@ set( sources
 
 set( public_headers
   diva_exceptions.h
-  diva_packet.h
   diva_experiment.h
+  diva_input.h
+  diva_packet.h
   diva_geometry.h
   diva_label.h
   diva_activity.h
@@ -37,9 +39,12 @@ target_include_directories(diva_utils PRIVATE ${YAML_CPP_INCLUDE_DIR})
 target_include_directories(diva_utils PRIVATE ${Boost_INCLUDE_DIR})
 
 target_link_libraries( diva_utils
-  PRIVATE        vital
-                 vital_logger
-                 vital_util
+  PRIVATE              vital
+                       vital_algo
+                       vital_config
+                       vital_logger
+                       vital_util
+                       kwiversys
                  yaml-cpp kpf_yaml
 )
 

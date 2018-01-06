@@ -33,7 +33,7 @@
 #include "diva_label.h"
 #include "diva_activity.h"
 
-void example_diva_kpf_packets()
+int main(int argc, const char* argv[])
 {
   diva_meta meta;// We will reuse this
 

@@ -104,7 +104,7 @@ void diva_label::remove_type()
 void diva_label::write(std::ostream& os) const
 {
   if (!is_valid())
-    throw malformed_diva_packet_exception("label packet is invalid");
+    throw malformed_diva_data_exception("label packet is invalid");
 
   namespace KPFC = KPF::canonical;
   KPF::record_yaml_writer w(os);
