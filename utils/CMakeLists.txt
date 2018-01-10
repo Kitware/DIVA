@@ -6,6 +6,8 @@ else()
 endif()
 
 
+set( DIVA_BUILD_PYTHON_BINDINGS ON CACHE PATH "Generate Python Bindings" )
+
 set( sources
   diva_exceptions.cxx
   diva_experiment.cxx
@@ -52,3 +54,5 @@ target_link_libraries( diva_utils
 if(WIN32)
   target_compile_definitions(diva_utils PRIVATE YAML_CPP_DLL)
 endif()
+
+add_subdirectory(python)
