@@ -41,13 +41,15 @@ class diva_activity_impl
 public:
   std::string                                              activity_name;
   size_t                                                   activity_id;
-  diva_source                                              source;
+  diva_activity::source                                    source;
   std::vector<std::pair<double, double>>                   frame_id_span;
   std::vector<std::pair<double, double>>                   frame_time_span;
   std::vector<std::pair<double, double>>                   frame_absolute_time_span;
   std::map<size_t, std::vector<std::pair<double, double>>> actor_frame_id_span;
   std::map<size_t, std::vector<std::pair<double, double>>> actor_frame_time_span;
   std::map<size_t, std::vector<std::pair<double, double>>> actor_frame_absolute_time_span;
+
+  std::stringstream ss;
 };
 
 const int DIVA_DOMAIN = 2;
@@ -226,7 +228,7 @@ void diva_activity::clear()
 {
   _pimpl->activity_name = "";
   _pimpl->activity_id = -1;
-  _pimpl->source = (diva_source )-1;
+  _pimpl->source = (diva_activity::source )-1;
   _pimpl->frame_id_span.clear();
   _pimpl->frame_time_span.clear();
   _pimpl->frame_absolute_time_span.clear();
@@ -276,19 +278,19 @@ void diva_activity::remove_activity_id()
 
 bool diva_activity::has_source() const
 {
-  return _pimpl->source != (diva_source)-1;
+  return _pimpl->source != (diva_activity::source)-1;
 }
-diva_source diva_activity::get_source() const
+diva_activity::source diva_activity::get_source() const
 {
   return _pimpl->source;
 }
-void diva_activity::set_source(diva_source s)
+void diva_activity::set_source(diva_activity::source s)
 {
   _pimpl->source = s;
 }
 void diva_activity::remove_source()
 {
-  _pimpl->source = (diva_source)-1;
+  _pimpl->source = (diva_activity::source)-1;
 }
 
 bool diva_activity::has_frame_id_span() const
@@ -302,6 +304,10 @@ std::vector<std::pair<double, double>>& diva_activity::get_frame_id_span()
 const std::vector<std::pair<double, double>>& diva_activity::get_frame_id_span() const
 {
   return _pimpl->frame_id_span;
+}
+void diva_activity::add_frame_id_span(const std::pair<double, double>& start_end)
+{
+  _pimpl->frame_id_span.push_back(start_end);
 }
 void diva_activity::remove_frame_id_span()
 {
@@ -320,6 +326,10 @@ const std::vector<std::pair<double, double>>& diva_activity::get_frame_time_span
 {
   return _pimpl->frame_time_span;
 }
+void diva_activity::add_frame_time_span(const std::pair<double, double>& start_end)
+{
+  _pimpl->frame_time_span.push_back(start_end);
+}
 void diva_activity::remove_frame_time_span()
 {
   _pimpl->frame_time_span.clear();
@@ -336,6 +346,10 @@ std::vector<std::pair<double, double>>& diva_activity::get_frame_absolute_time_s
 const std::vector<std::pair<double, double>>& diva_activity::get_frame_absolute_time_span() const
 {
   return _pimpl->frame_absolute_time_span;
+}
+void diva_activity::add_frame_absolute_time_span(const std::pair<double, double>& start_end)
+{
+  _pimpl->frame_absolute_time_span.push_back(start_end);
 }
 void diva_activity::remove_frame_absolute_time_span()
 {
@@ -354,6 +368,11 @@ const std::map<size_t, std::vector<std::pair<double, double>>>& diva_activity::g
 {
   return _pimpl->actor_frame_id_span;
 }
+void diva_activity::add_actor_frame_id_span(size_t id, const std::pair<double, double>& start_end)
+{
+  std::vector<std::pair<double, double>>& v = _pimpl->actor_frame_id_span[id];
+  v.push_back(start_end);
+}
 void diva_activity::remove_actor_frame_id_span()
 {
   _pimpl->actor_frame_id_span.clear();
@@ -371,6 +390,11 @@ const std::map<size_t, std::vector<std::pair<double, double>>>& diva_activity::g
 {
   return _pimpl->actor_frame_time_span;
 }
+void diva_activity::add_actor_frame_time_span(size_t id, const std::pair<double, double>& start_end)
+{
+  std::vector<std::pair<double, double>>& v = _pimpl->actor_frame_time_span[id];
+  v.push_back(start_end);
+}
 void diva_activity::remove_actor_frame_time_span()
 {
   _pimpl->actor_frame_time_span.clear();
@@ -387,6 +411,11 @@ std::map<size_t, std::vector<std::pair<double, double>>>& diva_activity::get_act
 const std::map<size_t, std::vector<std::pair<double, double>>>& diva_activity::get_actor_frame_absolute_time_span() const
 {
   return _pimpl->actor_frame_absolute_time_span;
+}
+void diva_activity::add_actor_frame_absolute_time_span(size_t id, const std::pair<double, double>& start_end)
+{
+  std::vector<std::pair<double, double>>& v = _pimpl->actor_frame_absolute_time_span[id];
+  v.push_back(start_end);
 }
 void diva_activity::remove_actor_frame_absolute_time_span()
 {
@@ -406,3 +435,11 @@ void diva_activity::write(std::ostream& os) const
   w << KPF::writer< KPFC::activity_t >(act_adapter(*_pimpl), DIVA_DOMAIN)
     << KPF::record_yaml_writer::endl;
 }
+
+std::string diva_activity::to_string() const
+{
+  _pimpl->ss.str("");
+  write(_pimpl->ss);
+  return _pimpl->ss.str();
+}
+

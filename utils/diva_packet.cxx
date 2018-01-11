@@ -86,3 +86,9 @@ void diva_meta::write(std::ostream& os) const
     << KPF::record_yaml_writer::endl;
 }
 
+std::string diva_meta::to_string() const
+{
+  _ss.str("");
+  write(_ss);
+  return _ss.str();
+}

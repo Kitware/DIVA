@@ -37,8 +37,37 @@ class diva_geometry_impl;
 class DIVA_UTILS_EXPORT diva_geometry : public diva_packet
 {
 public:
-  struct bounding_box
+
+  enum class source
   {
+    truth = 0
+  };
+
+  enum class occlusion
+  {
+    medium = 0,
+    heavy
+  };
+
+  enum class evaluation
+  {
+    true_positive = 0,
+    false_positive,
+    false_alarm
+  };
+
+  enum class keyframe
+  {
+    yes = 0,
+    no
+  }; 
+
+  struct bounding_box_pixels
+  {
+    size_t get_x1() const { return x1; }
+    size_t get_y1() const { return y1; }
+    size_t get_x2() const { return x2; }
+    size_t get_y2() const { return y2; }
     size_t x1, y1, x2, y2;
   };
 
@@ -78,42 +107,45 @@ public:
   void set_confidence(double conf);
   void remove_confidence();
   
-  bool has_bounding_box() const;
-  const bounding_box& get_bounding_box() const;
+  bool has_bounding_box_pixels() const;
+  const bounding_box_pixels& get_bounding_box_pixels() const;
   void set_bounding_box_pixels(size_t x1, size_t y1, size_t x2, size_t y2);
-  void remove_bounding_box();
+  void remove_bounding_box_pixels();
   
   bool has_source() const;
-  diva_source get_source() const;
-  void set_source(diva_source s);
+  source get_source() const;
+  void set_source(source s);
   void remove_source();
 
   bool has_evaluation() const;
-  diva_evaluation get_evaluation() const;
-  void set_evaluation(diva_evaluation e);
+  evaluation get_evaluation() const;
+  void set_evaluation(evaluation e);
   void remove_evaluation();
 
   bool has_occlusion() const;
-  diva_occlusion get_occlusion() const;
-  void set_occlusion(diva_occlusion o);
+  occlusion get_occlusion() const;
+  void set_occlusion(occlusion o);
   void remove_occlusion();
 
   bool has_keyframe() const;
-  diva_keyframe get_keyframe() const;
-  void set_keyframe(diva_keyframe kf);
+  keyframe get_keyframe() const;
+  void set_keyframe(keyframe kf);
   void remove_keyframe();
 
   bool has_classification() const;
   std::map<std::string,double>& get_classification();
   const std::map<std::string, double>& get_classification() const;
+  void add_classification(const std::string& name, double probability);
   void remove_classification();
   
   bool has_polygon() const;
   std::vector<std::pair<size_t, size_t>>& get_polygon();
   const std::vector<std::pair<size_t, size_t>>& get_polygon() const;
+  void add_polygon_point(const std::pair<size_t, size_t>&);
   void remove_polygon();
 
   void write(std::ostream& os) const;
+  std::string to_string() const;
 private:
   diva_geometry_impl* _pimpl;
 };

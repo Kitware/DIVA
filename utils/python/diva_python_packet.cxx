@@ -28,31 +28,20 @@
 * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-#pragma once
+#include <pybind11/pybind11.h>
 #include "diva_packet.h"
 
-class DIVA_UTILS_EXPORT diva_label : public diva_packet
+namespace py = pybind11;
+
+void diva_python_meta(py::module &m)
 {
-public:
-  diva_label();
-  virtual ~diva_label();
-
-  void clear();
-  bool is_valid() const;
-
-  bool has_track_id() const;
-  size_t get_track_id() const;
-  void set_track_id(size_t track_id);
-  void remove_track_id();
-
-  bool has_type() const;
-  std::string get_type() const;
-  void set_type(const std::string& label);
-  void remove_type();
-
-  void write(std::ostream& os) const;
-  std::string to_string() const;
-private:
-  class pimpl;
-  pimpl* _pimpl;
-};
+  py::class_<diva_meta>(m, "meta")
+    .def(py::init<>())
+    .def("clear", &diva_meta::clear)
+    .def("is_valid", &diva_meta::is_valid)
+    .def("has_msg", &diva_meta::has_msg)
+    .def("get_msg", &diva_meta::get_msg)
+    .def("set_msg", &diva_meta::set_msg)
+    .def("remove_msg", &diva_meta::remove_msg)
+    .def("to_string", &diva_meta::to_string);
+}

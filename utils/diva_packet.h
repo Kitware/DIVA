@@ -32,31 +32,8 @@
 #include <iostream>
 #include <map>
 #include <vector>
+#include <sstream>
 #include <utils/diva_utils_export.h>
-
-enum class diva_source
-{
-  truth = 0
-};
-
-enum class diva_occlusion
-{
-  medium = 0,
-  heavy
-};
-
-enum class diva_evaluation
-{
-  true_positive = 0,
-  false_positive,
-  false_alarm
-};
-
-enum class diva_keyframe
-{
-  yes = 0,
-  no
-};
 
 class DIVA_UTILS_EXPORT diva_packet
 {
@@ -86,7 +63,8 @@ public:
   void remove_msg();
 
   void write(std::ostream& os) const;
-
+  std::string to_string() const;
 private:
   std::string _msg;
+  mutable std::stringstream _ss;
 };

@@ -78,7 +78,7 @@ bool diva_input::load_experiment(const diva_experiment& exp)
   _pimpl->default_frame_time_step_usec = static_cast<kwiver::vital::timestamp::time_t>(.3333 * 1e6); // in usec;
   switch (_pimpl->exp->get_input_type())
   {
-    case diva_input_type::file_list:
+  case diva_experiment::input_type::file_list:
     {
       std::vector< std::string > search_paths;
       search_paths.push_back(exp.get_input_root_dir());
@@ -108,13 +108,13 @@ bool diva_input::load_experiment(const diva_experiment& exp)
       _pimpl->current_file = _pimpl->files.begin();
       break;
     }
-    case diva_input_type::video:
+    case diva_experiment::input_type::video:
     {
       _pimpl->video_reader = kwiver::vital::algo::video_input::create("vidl_ffmpeg"); 
       _pimpl->video_reader->set_configuration(_pimpl->video_reader->get_configuration());// This will default the configuration 
       try
       {
-        if (exp.get_transport_type() == diva_transport_type::disk)
+        if (exp.get_transport_type() == diva_experiment::transport_type::disk)
           _pimpl->video_reader->open(exp.get_input_root_dir() + "/" + exp.get_input_source()); // throws
         else
           return false;//TODO support other transport options
@@ -139,9 +139,9 @@ bool diva_input::has_next_frame()
 {
   switch (_pimpl->exp->get_input_type())
   {
-  case diva_input_type::file_list:
+  case diva_experiment::input_type::file_list:
     return _pimpl->current_file != _pimpl->files.end();
-  case diva_input_type::video:
+  case diva_experiment::input_type::video:
     return _pimpl->video_reader->next_frame(_pimpl->ts);
   }
   return false;
@@ -152,7 +152,7 @@ kwiver::vital::image_container_sptr diva_input::get_next_frame()
   kwiver::vital::image_container_sptr frame;
   switch (_pimpl->exp->get_input_type())
   {
-    case diva_input_type::file_list:
+    case diva_experiment::input_type::file_list:
     {
       std::string a_file = *_pimpl->current_file;
       frame = _pimpl->image_reader->load(a_file);
@@ -164,7 +164,7 @@ kwiver::vital::image_container_sptr diva_input::get_next_frame()
       // TODO meta data?
       break;
     }
-    case diva_input_type::video:
+    case diva_experiment::input_type::video:
     {
       if (!_pimpl->video_traits.capability(kwiver::vital::algo::video_input::HAS_FRAME_DATA))
       {

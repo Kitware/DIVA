@@ -34,6 +34,8 @@
 #include <yaml-cpp/yaml.h>
 #include <arrows/kpf/yaml/kpf_yaml_writer.h>
 #include <arrows/kpf/yaml/kpf_canonical_io_adapter.h>
+#include <fstream> 
+#include <ostream>
 
 namespace KPF = kwiver::vital::kpf;
 
@@ -42,6 +44,8 @@ class diva_label::pimpl
 public:
   size_t          track_id;
   std::string     obj_type;
+
+  std::stringstream ss;
 };
 
 diva_label::diva_label()
@@ -113,4 +117,11 @@ void diva_label::write(std::ostream& os) const
   w << KPF::writer< KPFC::id_t >(_pimpl->track_id, KPFC::id_t::TRACK_ID)
     << KPF::writer< KPFC::kv_t >("obj_type", _pimpl->obj_type)
     << KPF::record_yaml_writer::endl;
+}
+
+std::string diva_label::to_string() const
+{
+  _pimpl->ss.str("");
+  write(_pimpl->ss);
+  return _pimpl->ss.str();
 }

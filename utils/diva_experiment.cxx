@@ -36,18 +36,18 @@
 class diva_experiment::pimpl
 {
 public:
-  diva_experiment_type type;
-  diva_input_type      input_type;
-  diva_transport_type  transport_type;
-  std::string          dataset_id;
-  std::string          input_source;
-  std::string          input_root_dir;
-  diva_output_type     output_type;
-  std::string          output_root_dir;
+  diva_experiment::type            type;
+  diva_experiment::input_type      input_type;
+  diva_experiment::transport_type  transport_type;
+  std::string                      dataset_id;
+  std::string                      input_source;
+  std::string                      input_root_dir;
+  diva_experiment::output_type     output_type;
+  std::string                      output_root_dir;
 
-  size_t               frame_rate_Hz = 30;
-  std::string          source_filepath = "";
-  std::string          output_filename = "";
+  size_t                           frame_rate_Hz = 30;
+  std::string                      source_filepath = "";
+  std::string                      output_filename = "";
 
   kwiver::vital::config_block_sptr config;
 };
@@ -96,7 +96,7 @@ bool diva_experiment::is_valid()
     return false;
   if (!has_output_root_dir())
     return false;
-  if (_pimpl->transport_type == diva_transport_type::rstp && _pimpl->input_type != diva_input_type::video)
+  if (_pimpl->transport_type == diva_experiment::transport_type::rstp && _pimpl->input_type != diva_experiment::input_type::video)
     return false;
   // TODO more checks for directories and files exist... 
   return true;
@@ -110,9 +110,9 @@ bool diva_experiment::read_experiment(const std::string& filename)
   {
     std::string t = _pimpl->config->get_value<std::string>("type");
     if (t == "activity_detection")
-      set_type(diva_experiment_type::activity_detection);
+      set_type(diva_experiment::type::activity_detection);
     else if (t == "object_detection")
-      set_type(diva_experiment_type::object_detection);
+      set_type( diva_experiment::type::object_detection);
   }
 
   if (_pimpl->config->has_value("input:dataset_id"))
@@ -121,19 +121,19 @@ bool diva_experiment::read_experiment(const std::string& filename)
   {
     std::string t = _pimpl->config->get_value<std::string>("input:type");
     if (t == "file_list")
-      set_input_type(diva_input_type::file_list);
+      set_input_type( diva_experiment::input_type::file_list);
     else if (t == "video")
-      set_input_type(diva_input_type::video);
+      set_input_type( diva_experiment::input_type::video);
   }
   if (_pimpl->config->has_value("input:transport_type"))
   {
     std::string t = _pimpl->config->get_value<std::string>("input:transport_type");
     if (t == "disk")
-      set_transport_type(diva_transport_type::disk);
+      set_transport_type( diva_experiment::transport_type::disk);
     else if (t == "girder")
-      set_transport_type(diva_transport_type::girder);
+      set_transport_type( diva_experiment::transport_type::girder);
     else if (t == "rstp")
-      set_transport_type(diva_transport_type::rstp);
+      set_transport_type( diva_experiment::transport_type::rstp);
   }
   if (_pimpl->config->has_value("input:source"))
     set_input_source(_pimpl->config->get_value<std::string>("input:source"));
@@ -146,7 +146,7 @@ bool diva_experiment::read_experiment(const std::string& filename)
   {
     std::string t = _pimpl->config->get_value<std::string>("output:type");
     if (t == "file")
-      set_output_type(diva_output_type::file);
+      set_output_type( diva_experiment::output_type::file);
   }
   if (_pimpl->config->has_value("output:root_dir"))
     set_output_root_dir(_pimpl->config->get_value<std::string>("output:root_dir"));
@@ -163,87 +163,87 @@ bool diva_experiment::write_experiment(const std::string& filename)
 
 bool diva_experiment::has_type() const
 {
-  return _pimpl->type != (diva_experiment_type)-1;
+  return _pimpl->type != ( diva_experiment::type)-1;
 }
-diva_experiment_type diva_experiment::get_type() const
+ diva_experiment::type diva_experiment::get_type() const
 {
   return _pimpl->type;
 }
-void diva_experiment::set_type(diva_experiment_type e)
+void diva_experiment::set_type( diva_experiment::type e)
 {
   _pimpl->type = e;
   switch (e)
   {
-  case diva_experiment_type::activity_detection:
+  case  diva_experiment::type::activity_detection:
     _pimpl->config->set_value<std::string>("type","activity_detection");
     return;
-  case diva_experiment_type::object_detection:
+  case  diva_experiment::type::object_detection:
     _pimpl->config->set_value<std::string>("type","object_detection");
     return;
   }
 }
 void diva_experiment::remove_type()
 {
-  _pimpl->type = (diva_experiment_type)-1;
+  _pimpl->type = ( diva_experiment::type)-1;
   if(_pimpl->config->has_value("type"))
     _pimpl->config->unset_value("type");
 }
 
 bool diva_experiment::has_input_type() const
 {
-  return _pimpl->input_type != (diva_input_type)-1;
+  return _pimpl->input_type != ( diva_experiment::input_type)-1;
 }
-diva_input_type diva_experiment::get_input_type() const
+ diva_experiment::input_type diva_experiment::get_input_type() const
 {
   return _pimpl->input_type;
 }
-void diva_experiment::set_input_type(diva_input_type e)
+void diva_experiment::set_input_type( diva_experiment::input_type e)
 {
   _pimpl->input_type = e;
   switch (e)
   {
-  case diva_input_type::file_list:
+  case  diva_experiment::input_type::file_list:
     _pimpl->config->set_value<std::string>("input:type", "file_list");
     return;
-  case diva_input_type::video:
+  case  diva_experiment::input_type::video:
     _pimpl->config->set_value<std::string>("input:type", "video");
     return;
   }
 }
 void diva_experiment::remove_input_type()
 {
-  _pimpl->input_type = (diva_input_type)-1;
+  _pimpl->input_type = ( diva_experiment::input_type)-1;
   if (_pimpl->config->has_value("input:type"))
     _pimpl->config->unset_value("input:type");
 }
 
 bool diva_experiment::has_transport_type() const
 {
-  return _pimpl->transport_type != (diva_transport_type)-1;
+  return _pimpl->transport_type != ( diva_experiment::transport_type)-1;
 }
-diva_transport_type diva_experiment::get_transport_type() const
+ diva_experiment::transport_type diva_experiment::get_transport_type() const
 {
   return _pimpl->transport_type;
 }
-void diva_experiment::set_transport_type(diva_transport_type e)
+void diva_experiment::set_transport_type( diva_experiment::transport_type e)
 {
   _pimpl->transport_type = e;
   switch (e)
   {
-  case diva_transport_type::disk:
+  case  diva_experiment::transport_type::disk:
     _pimpl->config->set_value<std::string>("input:transport_type", "disk");
     return;
-  case diva_transport_type::girder:
+  case  diva_experiment::transport_type::girder:
     _pimpl->config->set_value<std::string>("input:transport_type", "girder");
     return;
-  case diva_transport_type::rstp:
+  case  diva_experiment::transport_type::rstp:
     _pimpl->config->set_value<std::string>("input:transport_type", "rstp");
     return;
   }
 }
 void diva_experiment::remove_transport_type()
 {
-  _pimpl->transport_type = (diva_transport_type)-1;
+  _pimpl->transport_type = ( diva_experiment::transport_type)-1;
   if (_pimpl->config->has_value("input:transport_type"))
     _pimpl->config->unset_value("input:transport_type");
 }
@@ -330,25 +330,25 @@ void diva_experiment::remove_input_root_dir()
 
 bool diva_experiment::has_output_type() const
 {
-  return _pimpl->output_type != (diva_output_type)-1;
+  return _pimpl->output_type != ( diva_experiment::output_type)-1;
 }
-diva_output_type diva_experiment::get_output_type() const
+ diva_experiment::output_type diva_experiment::get_output_type() const
 {
   return _pimpl->output_type;
 }
-void diva_experiment::set_output_type(diva_output_type e) 
+void diva_experiment::set_output_type( diva_experiment::output_type e) 
 {
   _pimpl->output_type = e;
   switch (e)
   {
-  case diva_output_type::file:
+  case  diva_experiment::output_type::file:
     _pimpl->config->set_value<std::string>("output:type", "file");
     return;
   }
 }
 void diva_experiment::remove_output_type()
 {
-  _pimpl->output_type = (diva_output_type)-1;
+  _pimpl->output_type = ( diva_experiment::output_type)-1;
   if (_pimpl->config->has_value("output:type"))
     _pimpl->config->unset_value("output:type");
 }

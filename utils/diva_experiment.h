@@ -32,33 +32,33 @@
 #include <utils/diva_utils_export.h>
 #include <string>
 
-enum class diva_experiment_type
-{
-  object_detection = 0,
-  activity_detection
-};
-
-enum class diva_input_type
-{
-  file_list = 0,
-  video
-};
-
-enum class diva_transport_type
-{
-  disk = 0,
-  girder,
-  rstp
-};
-
-enum class diva_output_type
-{
-  file = 0
-};
-
 class DIVA_UTILS_EXPORT diva_experiment
 {
 public:
+  enum class type
+  {
+    object_detection = 0,
+    activity_detection
+  };
+
+  enum class input_type
+  {
+    file_list = 0,
+    video
+  };
+
+  enum class transport_type
+  {
+    disk = 0,
+    girder,
+    rstp
+  };
+
+  enum class output_type
+  {
+    file = 0
+  };
+
   diva_experiment();
   virtual ~diva_experiment();
 
@@ -69,18 +69,18 @@ public:
   bool write_experiment(const std::string& filename);
 
   bool has_type() const;
-  diva_experiment_type get_type() const;
-  void set_type(diva_experiment_type s);
+  type get_type() const;
+  void set_type(type s);
   void remove_type();
 
   bool has_input_type() const;
-  diva_input_type get_input_type() const;
-  void set_input_type(diva_input_type s);
+ input_type get_input_type() const;
+  void set_input_type(input_type s);
   void remove_input_type();
 
   bool has_transport_type() const;
-  diva_transport_type get_transport_type() const;
-  void set_transport_type(diva_transport_type s);
+  transport_type get_transport_type() const;
+  void set_transport_type(transport_type s);
   void remove_transport_type();
 
   bool has_dataset_id() const;
@@ -104,8 +104,8 @@ public:
   void remove_frame_rate_Hz();
 
   bool has_output_type() const;
-  diva_output_type get_output_type() const;
-  void set_output_type(diva_output_type s);
+  output_type get_output_type() const;
+  void set_output_type(output_type s);
   void remove_output_type();
 
   bool has_output_root_dir() const;

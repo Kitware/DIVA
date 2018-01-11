@@ -58,11 +58,10 @@ int main(int argc, const char* argv[])
     geom.set_detection_id(0);
     geom.set_frame_id(i);
     geom.set_frame_time(time_s);
-    geom.set_evaluation(diva_evaluation::true_positive);
-    geom.set_occlusion(diva_occlusion::heavy);
-    geom.set_source(diva_source::truth);
+    geom.set_evaluation(diva_geometry::evaluation::true_positive);
+    geom.set_occlusion(diva_geometry::occlusion::heavy);
+    geom.set_source(diva_geometry::source::truth);
     geom.set_bounding_box_pixels(104, 349, 210, 385);
-    geom.remove_polygon();
     geom.get_polygon().push_back(std::pair<size_t, size_t>(100, 399));
     geom.get_polygon().push_back(std::pair<size_t, size_t>(200, 398));
     geom.get_polygon().push_back(std::pair<size_t, size_t>(300, 397));
@@ -101,12 +100,12 @@ int main(int argc, const char* argv[])
   meta.write(actv_ss);
   meta.set_msg("vehicle_moving 2 instances");
   meta.write(actv_ss);
-  meta.set_msg("ctivity_gesturing 0 instances");
+  meta.set_msg("activity_gesturing 0 instances");
   meta.write(actv_ss);
 
   actv.set_activity_name("vehicle_moving");
   actv.set_activity_id(1);
-  actv.set_source(diva_source::truth);
+  actv.set_source(diva_activity::source::truth);
   // Overall timeframe of the activity
   actv.get_frame_id_span().push_back(std::pair<double, double>(2135, 2456));
   actv.get_frame_id_span().push_back(std::pair<double, double>(2479, 2503));

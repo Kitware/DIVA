@@ -43,19 +43,21 @@ class diva_geometry_impl
   friend struct diva_bbox_adapter;
   friend struct diva_poly_adapter;
 
-  size_t          detection_id;
-  size_t          track_id;
-  size_t          frame_id;
-  double          frame_time_s;
-  double          frame_absolute_time_us;
-  double          confidence;
-  diva_geometry:: bounding_box    bbox;
-  diva_source     source;
-  diva_occlusion  occlusion;
-  diva_evaluation evaluation;
-  diva_keyframe   keyframe;
+  size_t                                 detection_id;
+  size_t                                 track_id;
+  size_t                                 frame_id;
+  double                                 frame_time_s;
+  double                                 frame_absolute_time_us;
+  double                                 confidence;
+  diva_geometry::bounding_box_pixels     bboxp;
+  diva_geometry::source                  source;
+  diva_geometry::occlusion               occlusion;
+  diva_geometry::evaluation              evaluation;
+  diva_geometry::keyframe                keyframe;
   std::vector<std::pair<size_t, size_t>> poly;
-  std::map<std::string, double> classification;
+  std::map<std::string, double>          classification;
+
+  std::stringstream ss;
 };
 
 struct diva_bbox_adapter : public KPF::kpf_box_adapter< diva_geometry_impl >
@@ -64,16 +66,16 @@ struct diva_bbox_adapter : public KPF::kpf_box_adapter< diva_geometry_impl >
     kpf_box_adapter< diva_geometry_impl >(
       // reads the canonical box "b" into the user_detection "d"
       [](const KPF::canonical::bbox_t& b, diva_geometry_impl& d) {
-    d.bbox.x1 = b.x1;
-    d.bbox.y1 = b.y1;
-    d.bbox.x2 = b.x2;
-    d.bbox.y2 = b.y2; },
+    d.bboxp.x1 = b.x1;
+    d.bboxp.y1 = b.y1;
+    d.bboxp.x2 = b.x2;
+    d.bboxp.y2 = b.y2; },
 
       // converts a user_detection "d" into a canonical box and returns it
       [](const diva_geometry_impl& d) {
       return KPF::canonical::bbox_t(
-        d.bbox.x1,d.bbox.y1,
-        d.bbox.x2,d.bbox.y2); })
+        d.bboxp.x1,d.bboxp.y1,
+        d.bboxp.x2,d.bboxp.y2); })
   {}
 };
 
@@ -117,14 +119,15 @@ void diva_geometry::clear()
   _pimpl->frame_time_s           = -1;
   _pimpl->frame_absolute_time_us = -1;
   _pimpl->confidence             = -1;
-  _pimpl->bbox.x1 = -1; _pimpl->bbox.y1 = -1;
-  _pimpl->bbox.x2 = -1; _pimpl->bbox.y2 = -1;
+  _pimpl->bboxp.x1 = -1; _pimpl->bboxp.y1 = -1;
+  _pimpl->bboxp.x2 = -1; _pimpl->bboxp.y2 = -1;
   _pimpl->poly.clear();
-  _pimpl->source     = (diva_source)-1;
-  _pimpl->occlusion  = (diva_occlusion)-1;
-  _pimpl->evaluation = (diva_evaluation)-1;
-  _pimpl->keyframe   = (diva_keyframe)-1;
+  _pimpl->source     = (diva_geometry::source)-1;
+  _pimpl->occlusion  = (diva_geometry::occlusion)-1;
+  _pimpl->evaluation = (diva_geometry::evaluation)-1;
+  _pimpl->keyframe   = (diva_geometry::keyframe)-1;
   _pimpl->classification.clear();
+  _pimpl->poly.clear();
 }
 
 bool diva_geometry::is_valid() const
@@ -237,92 +240,92 @@ void diva_geometry::remove_confidence()
 
 bool diva_geometry::has_source() const
 {
-  return _pimpl->source != (diva_source )-1;
+  return _pimpl->source != (diva_geometry::source )-1;
 }
-diva_source diva_geometry::get_source() const
+diva_geometry::source diva_geometry::get_source() const
 {
   return _pimpl->source;
 }
-void diva_geometry::set_source(diva_source s)
+void diva_geometry::set_source(diva_geometry::source s)
 { 
   _pimpl->source = s; 
 }
 void diva_geometry::remove_source()
 {
-  _pimpl->source = (diva_source)-1;
+  _pimpl->source = (diva_geometry::source)-1;
 }
 
 bool diva_geometry::has_evaluation() const
 {
-  return _pimpl->evaluation != (diva_evaluation )-1;
+  return _pimpl->evaluation != (diva_geometry::evaluation )-1;
 }
-diva_evaluation diva_geometry::get_evaluation() const
+diva_geometry::evaluation diva_geometry::get_evaluation() const
 {
   return _pimpl->evaluation;
 }
-void diva_geometry::set_evaluation(diva_evaluation o)
+void diva_geometry::set_evaluation(diva_geometry::evaluation o)
 { 
   _pimpl->evaluation = o; 
 }
 void diva_geometry::remove_evaluation()
 {
-  _pimpl->evaluation = (diva_evaluation)-1;
+  _pimpl->evaluation = (diva_geometry::evaluation)-1;
 }
 
 bool diva_geometry::has_occlusion() const
 {
-  return _pimpl->occlusion != (diva_occlusion )-1;
+  return _pimpl->occlusion != (diva_geometry::occlusion )-1;
 }
-diva_occlusion diva_geometry::get_occlusion() const
+diva_geometry::occlusion diva_geometry::get_occlusion() const
 {
   return _pimpl->occlusion;
 }
-void diva_geometry::set_occlusion(diva_occlusion e)
+void diva_geometry::set_occlusion(diva_geometry::occlusion e)
 { 
   _pimpl->occlusion = e; 
 }
 void diva_geometry::remove_occlusion()
 {
-  _pimpl->occlusion = (diva_occlusion)-1;
+  _pimpl->occlusion = (diva_geometry::occlusion)-1;
 }
 
 bool diva_geometry::has_keyframe() const
 {
-  return _pimpl->keyframe != (diva_keyframe )-1;
+  return _pimpl->keyframe != (diva_geometry::keyframe )-1;
 }
-diva_keyframe diva_geometry::get_keyframe() const
+diva_geometry::keyframe diva_geometry::get_keyframe() const
 {
   return _pimpl->keyframe;
 }
-void diva_geometry::set_keyframe(diva_keyframe kf)
+void diva_geometry::set_keyframe(diva_geometry::keyframe kf)
 { 
   _pimpl->keyframe = kf; 
 }
 void diva_geometry::remove_keyframe()
 {
-  _pimpl->keyframe = (diva_keyframe)-1;
+  _pimpl->keyframe = (diva_geometry::keyframe)-1;
 }
 
-bool diva_geometry::has_bounding_box() const
+bool diva_geometry::has_bounding_box_pixels() const
 {
-  if (_pimpl->bbox.x1 == -1 || _pimpl->bbox.y1 == -1 ||
-      _pimpl->bbox.x2 == -1 || _pimpl->bbox.y2 == -1)
+  if (_pimpl->bboxp.x1 == -1 || _pimpl->bboxp.y1 == -1 ||
+      _pimpl->bboxp.x2 == -1 || _pimpl->bboxp.y2 == -1)
     return false;
   return true;
 }
-const diva_geometry::bounding_box& diva_geometry::get_bounding_box() const
+const diva_geometry::bounding_box_pixels& diva_geometry::get_bounding_box_pixels() const
 {
-  return _pimpl->bbox;
+  return _pimpl->bboxp;
 }
-void diva_geometry::set_bounding_box_pixels(size_t x1, size_t y1, size_t x2, size_t y2) 
+void diva_geometry::set_bounding_box_pixels(size_t x1, size_t y1, size_t x2, size_t y2)
 { 
-  _pimpl->bbox.x1 = x1; _pimpl->bbox.y1 = y1;
-  _pimpl->bbox.x2 = x2; _pimpl->bbox.y2 = y2;
+  _pimpl->bboxp.x1 = x1; _pimpl->bboxp.y1 = y1;
+  _pimpl->bboxp.x2 = x2; _pimpl->bboxp.y2 = y2;
 }
-void diva_geometry::remove_bounding_box()
+void diva_geometry::remove_bounding_box_pixels()
 {
-  _pimpl->bbox.x1 = -1; _pimpl->bbox.y1 = -1;
-  _pimpl->bbox.x2 = -1; _pimpl->bbox.y2 = -1;
+  _pimpl->bboxp.x1 = -1; _pimpl->bboxp.y1 = -1;
+  _pimpl->bboxp.x2 = -1; _pimpl->bboxp.y2 = -1;
 }
 
 bool diva_geometry::has_polygon() const
@@ -336,6 +339,10 @@ std::vector<std::pair<size_t, size_t>>& diva_geometry::get_polygon()
 const std::vector<std::pair<size_t, size_t>>& diva_geometry::get_polygon() const
 {
   return _pimpl->poly;
+}
+void diva_geometry::add_polygon_point(const std::pair<size_t, size_t>& pt)
+{
+  _pimpl->poly.push_back(pt);
 }
 void diva_geometry::remove_polygon()
 {
@@ -353,6 +360,10 @@ std::map<std::string,double>& diva_geometry::get_classification()
 const std::map<std::string, double>& diva_geometry::get_classification() const
 {
   return _pimpl->classification;
+}
+void diva_geometry::add_classification(const std::string& name, double probability)
+{
+  _pimpl->classification.insert(std::pair <std::string, double>(name, probability));
 }
 void diva_geometry::remove_classification()
 {
@@ -383,41 +394,41 @@ void diva_geometry::write(std::ostream& os) const
   w << KPF::writer< KPFC::bbox_t >(bba(*_pimpl), KPFC::bbox_t::IMAGE_COORDS);
   if (_pimpl->confidence != -1)
     w << KPF::writer< KPFC::conf_t >(_pimpl->confidence, DETECTOR_DOMAIN);
-  if (_pimpl->source != (diva_source)-1)
+  if (_pimpl->source != (diva_geometry::source)-1)
   {
     switch (_pimpl->source)
     {
-    case diva_source::truth:
+    case diva_geometry::source::truth:
       w << KPF::writer< KPFC::kv_t >("src", "truth");
       break;
     }
   }
-  if (_pimpl->evaluation != (diva_evaluation)-1)
+  if (_pimpl->evaluation != (diva_geometry::evaluation)-1)
   {
     switch (_pimpl->evaluation)
     {
-    case diva_evaluation::true_positive:
+    case diva_geometry::evaluation::true_positive:
       w << KPF::writer< KPFC::kv_t >("eval_type", "tp");
       break;
     }
   }
-  if (_pimpl->occlusion != (diva_occlusion)-1)
+  if (_pimpl->occlusion != (diva_geometry::occlusion)-1)
   {
     switch (_pimpl->occlusion)
     {
-    case diva_occlusion::heavy:
+    case diva_geometry::occlusion::heavy:
       w << KPF::writer< KPFC::kv_t >("occlusion", "heavy");
       break;
     }
   }
-  if (_pimpl->keyframe != (diva_keyframe)-1)
+  if (_pimpl->keyframe != (diva_geometry::keyframe)-1)
   {
     switch (_pimpl->keyframe)
     {
-    case diva_keyframe::yes:
+    case diva_geometry::keyframe::yes:
       w << KPF::writer< KPFC::kv_t >("keyframe", "1");
       break;
-    case diva_keyframe::no:
+    case diva_geometry::keyframe::no:
       w << KPF::writer< KPFC::kv_t >("keyframe", "0");
       break;
     }
@@ -434,4 +445,9 @@ void diva_geometry::write(std::ostream& os) const
   w << KPF::record_yaml_writer::endl;
 }
 
-
+std::string diva_geometry::to_string() const
+{
+  _pimpl->ss.str("");
+  write(_pimpl->ss);
+  return _pimpl->ss.str();
+}

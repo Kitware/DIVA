@@ -28,31 +28,21 @@
 * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-#pragma once
-#include "diva_packet.h"
+#include <pybind11/pybind11.h>
 
-class DIVA_UTILS_EXPORT diva_label : public diva_packet
+namespace py = pybind11;
+
+void diva_python_experiment(py::module&);
+void diva_python_meta(py::module&);
+void diva_python_label(py::module&);
+void diva_python_geometry(py::module&);
+void diva_python_activity(py::module&);
+
+PYBIND11_MODULE(diva_python_utils, m) 
 {
-public:
-  diva_label();
-  virtual ~diva_label();
-
-  void clear();
-  bool is_valid() const;
-
-  bool has_track_id() const;
-  size_t get_track_id() const;
-  void set_track_id(size_t track_id);
-  void remove_track_id();
-
-  bool has_type() const;
-  std::string get_type() const;
-  void set_type(const std::string& label);
-  void remove_type();
-
-  void write(std::ostream& os) const;
-  std::string to_string() const;
-private:
-  class pimpl;
-  pimpl* _pimpl;
-};
+  diva_python_experiment(m);
+  diva_python_meta(m);
+  diva_python_label(m);
+  diva_python_geometry(m);
+  diva_python_activity(m);
+}

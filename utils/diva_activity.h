@@ -38,6 +38,11 @@ class DIVA_UTILS_EXPORT diva_activity : public diva_packet
 {
   friend struct diva_activity_adapter;
 public:
+  enum class source
+  {
+    truth = 0
+  };
+
   diva_activity();
   virtual ~diva_activity();
 
@@ -55,41 +60,48 @@ public:
   void remove_activity_id();
 
   bool has_source() const;
-  diva_source get_source() const;
-  void set_source(diva_source s);
+  source get_source() const;
+  void set_source(source s);
   void remove_source();
 
   bool has_frame_id_span() const;
   std::vector<std::pair<double, double>>& get_frame_id_span();
   const std::vector<std::pair<double, double>>& get_frame_id_span() const;
+  void add_frame_id_span(const std::pair<double, double>& start_end);
   void remove_frame_id_span();
 
   bool has_frame_time_span() const;
   std::vector<std::pair<double, double>>& get_frame_time_span();
   const std::vector<std::pair<double, double>>& get_frame_time_span() const;
+  void add_frame_time_span(const std::pair<double, double>& start_end);
   void remove_frame_time_span();
 
   bool has_frame_absolute_time_span() const;
   std::vector<std::pair<double, double>>& get_frame_absolute_time_span();
   const std::vector<std::pair<double, double>>& get_frame_absolute_time_span() const;
+  void add_frame_absolute_time_span(const std::pair<double, double>& start_end);
   void remove_frame_absolute_time_span();
 
   bool has_actor_frame_id_span() const;
   std::map<size_t,std::vector<std::pair<double, double>>>& get_actor_frame_id_span();
   const std::map<size_t, std::vector<std::pair<double, double>>>& get_actor_frame_id_span() const;
+  void add_actor_frame_id_span(size_t id, const std::pair<double, double>& start_end);
   void remove_actor_frame_id_span();
 
   bool has_actor_frame_time_span() const;
   std::map<size_t, std::vector<std::pair<double, double>>>& get_actor_frame_time_span();
   const std::map<size_t, std::vector<std::pair<double, double>>>& get_actor_frame_time_span() const;
+  void add_actor_frame_time_span(size_t id, const std::pair<double, double>& start_end);
   void remove_actor_frame_time_span();
 
   bool has_actor_frame_absolute_time_span() const;
   std::map<size_t, std::vector<std::pair<double, double>>>& get_actor_frame_absolute_time_span();
   const std::map<size_t, std::vector<std::pair<double, double>>>& get_actor_frame_absolute_time_span() const;
+  void add_actor_frame_absolute_time_span(size_t id, const std::pair<double, double>& start_end);
   void remove_actor_frame_absolute_time_span();
 
   void write(std::ostream& os) const;
+  std::string to_string() const;
 private:
   diva_activity_impl* _pimpl;
 };

@@ -7,10 +7,12 @@ include_directories("${CMAKE_BINARY_DIR}")
 include_directories("${CMAKE_SOURCE_DIR}/utils")
 
 set( sources
-  diva_python_experiment.cxx
-  diva_python_geometry.cxx
+  diva_python_utils.cxx
+  diva_python_packet.cxx
   diva_python_label.cxx
+  diva_python_geometry.cxx
   diva_python_activity.cxx
+  diva_python_experiment.cxx
 )
 
 set( public_headers
@@ -25,6 +27,10 @@ pybind11_add_module(diva_python_utils SHARED NO_EXTRAS
   ${private_sources}
 )
 
+set_target_properties( diva_python_utils
+    PROPERTIES
+    RUNTIME_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/bin"
+)
 
 target_include_directories(diva_python_utils PRIVATE ${CMAKE_BINARY_DIR})
 
