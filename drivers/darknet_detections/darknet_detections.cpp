@@ -61,22 +61,22 @@ int main(int argc, const char* argv[])
   diva_experiment exp;
   if (argc == 1)
   {// For this example driver, make the experiment in code if its not provided
-    exp.set_type(diva_experiment_type::object_detection);
+    exp.set_type(diva_experiment::type::object_detection);
     exp.set_dataset_id("VIRAT_S_000206_06_001421_001458");
     if (true)
     {
-      exp.set_input_type(diva_input_type::video);
+      exp.set_input_type(diva_experiment::input_type::video);
       exp.set_input_source("VIRAT_S_000206_06_001421_001458.mp4");
     }
     else
     {
-      exp.set_input_type(diva_input_type::file_list);
+      exp.set_input_type(diva_experiment::input_type::file_list);
       exp.set_input_source("VIRAT_S_000206_06_001421_001458.txt");
     }
-    exp.set_transport_type(diva_transport_type::disk);
+    exp.set_transport_type(diva_experiment::transport_type::disk);
     exp.set_frame_rate_Hz(30);
     exp.set_input_root_dir("C:/Programming/DIVA/src/data/darknet_detections");
-    exp.set_output_type(diva_output_type::file);
+    exp.set_output_type(diva_experiment::output_type::file);
     exp.set_output_root_dir("C:/Programming/DIVA/src/data/darknet_detections/outputs");
   }
   else if (argc == 2)
@@ -86,7 +86,7 @@ int main(int argc, const char* argv[])
   }
 
   // Examine the experiment configuration and make sure we can run what it wants
-  if(exp.get_type() != diva_experiment_type::object_detection)
+  if(exp.get_type() != diva_experiment::type::object_detection)
     throw malformed_diva_data_exception("The calculator can only process object_detection experiments");
 
   // Create a stream/file to write our dectections to
