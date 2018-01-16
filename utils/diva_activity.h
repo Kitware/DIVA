@@ -40,7 +40,8 @@ class DIVA_UTILS_EXPORT diva_activity : public diva_packet
 public:
   enum class source
   {
-    truth = 0
+    truth = 0,
+    user = 1
   };
 
   diva_activity();
@@ -49,10 +50,10 @@ public:
   void clear();
   bool is_valid() const;
 
-  bool has_activity_name() const;
-  std::string get_activity_name() const;
-  void set_activity_name(const std::string& name);
-  void remove_activity_name();
+  bool has_activity_names() const;
+  std::map< std::string, double > get_activity_names() const;
+  void set_activity_names(const std::map< std::string, double >& names);
+  void remove_activity_names();
 
   bool has_activity_id() const;
   size_t get_activity_id() const;

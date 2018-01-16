@@ -47,7 +47,7 @@ public:
 
   size_t                           frame_rate_Hz = 30;
   std::string                      source_filepath = "";
-  std::string                      output_filename = "";
+  std::string                      output_prefix = "";
 
   kwiver::vital::config_block_sptr config;
 };
@@ -336,7 +336,7 @@ bool diva_experiment::has_output_type() const
 {
   return _pimpl->output_type;
 }
-void diva_experiment::set_output_type( diva_experiment::output_type e) 
+void diva_experiment::set_output_type( diva_experiment::output_type e)
 {
   _pimpl->output_type = e;
   switch (e)
@@ -373,7 +373,20 @@ void diva_experiment::remove_output_root_dir()
     _pimpl->config->unset_value("output:root_dir");
 }
 
-std::string diva_experiment::get_output_filename() const
+std::string diva_experiment::get_output_prefix() const
 {
   return _pimpl->output_root_dir + "/" + _pimpl->dataset_id;
+}
+
+void diva_experiment::set_algorithm_parameter( const std::string& key, const std::string& val )
+{
+  _pimpl->config->set_value< std::string >( "algo:"+key, val );
+}
+
+std::string diva_experiment::get_algorithm_parameter( const std::string& key ) const
+{
+  return
+    _pimpl->config->has_value( "algo:"+key )
+    ? _pimpl->config->get_value< std::string >( "algo:"+key )
+    : "";
 }

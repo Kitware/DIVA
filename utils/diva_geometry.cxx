@@ -380,7 +380,7 @@ void diva_geometry::write(std::ostream& os) const
   diva_bbox_adapter bba;
   diva_poly_adapter pa;
 
-  const int DETECTOR_DOMAIN = 17;
+  const int DETECTOR_DOMAIN = 3; // DIVA objects
 
   w.set_schema(KPF::schema_style::GEOM);
   w << KPF::writer< KPFC::id_t >(_pimpl->detection_id, KPFC::id_t::DETECTION_ID)

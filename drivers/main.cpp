@@ -30,7 +30,7 @@
 
 #include "diva_experiment.h"
 
-// Forward declair example methods
+// Forward declare example methods
 void example_diva_kpf_packets();
 void darknet_geometry();
 

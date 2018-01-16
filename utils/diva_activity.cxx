@@ -39,7 +39,7 @@ namespace KPF = kwiver::vital::kpf;
 class diva_activity_impl
 {
 public:
-  std::string                                              activity_name;
+  std::map< std::string, double >                          activity_names;
   size_t                                                   activity_id;
   diva_activity::source                                    source;
   std::vector<std::pair<double, double>>                   frame_id_span;
@@ -52,8 +52,8 @@ public:
   std::stringstream ss;
 };
 
-const int DIVA_DOMAIN = 2;
-const int TRACK_DOMAIN = 2;
+const int DIVA_ACTIVITY_DOMAIN = 2;
+const int DIVA_TRACK_DOMAIN = 2;
 
 //
 // The KPF activity object is complex, and requires an adapter.
@@ -66,11 +66,11 @@ struct diva_activity_adapter : public KPF::kpf_act_adapter< diva_activity_impl >
       // reads the canonical activity "a" into the user_activity "u"
       [](const KPF::canonical::activity_t& a, diva_activity_impl& u)
   {
-    if(a.activity_id.domain != DIVA_DOMAIN)
-      throw malformed_diva_data_exception("activty domain must be " + DIVA_DOMAIN);
+    if(a.activity_id.domain != DIVA_ACTIVITY_DOMAIN)
+      throw malformed_diva_data_exception("activty domain must be " + DIVA_ACTIVITY_DOMAIN);
     // load the activity ID, name, and start and stop frames
     u.activity_id = a.activity_id.t.d;
-    u.activity_name = a.activity_label;
+    u.activity_names = a.activity_labels.d;
     // load in our overall activity time spans
     for (const auto& ts : a.timespan)
     {
@@ -90,8 +90,8 @@ struct diva_activity_adapter : public KPF::kpf_act_adapter< diva_activity_impl >
     // load in our actor ID/time spans
     for (const auto& actor : a.actors)
     {
-      if (actor.actor_id.domain != TRACK_DOMAIN)
-        throw malformed_diva_data_exception("activty actor domain must be "+ TRACK_DOMAIN);
+      if (actor.actor_id.domain != DIVA_TRACK_DOMAIN)
+        throw malformed_diva_data_exception("activty actor domain must be "+ DIVA_TRACK_DOMAIN);
       for (const auto& ts : actor.actor_timespan)
       {
         switch (ts.domain)
@@ -132,9 +132,9 @@ struct diva_activity_adapter : public KPF::kpf_act_adapter< diva_activity_impl >
   {
     KPF::canonical::activity_t a;
     // set the name, ID, and domain
-    a.activity_label = u.activity_name;
+    a.activity_labels.d = u.activity_names;
     a.activity_id.t.d = u.activity_id;
-    a.activity_id.domain = DIVA_DOMAIN;
+    a.activity_id.domain = DIVA_ACTIVITY_DOMAIN;
 
     // set the start / stop time (as frame numbers)
     for (const auto& ts : u.frame_id_span)
@@ -167,7 +167,7 @@ struct diva_activity_adapter : public KPF::kpf_act_adapter< diva_activity_impl >
     {
       KPF::canonical::activity_t::actor_t act;
       act.actor_id.t.d = map.first;
-      act.actor_id.domain = TRACK_DOMAIN;
+      act.actor_id.domain = DIVA_TRACK_DOMAIN;
       for (const auto& ts : map.second)
       {
         KPF::canonical::scoped< KPF::canonical::timestamp_range_t > tsr;
@@ -226,7 +226,7 @@ diva_activity::~diva_activity()
 
 void diva_activity::clear()
 {
-  _pimpl->activity_name = "";
+  _pimpl->activity_names.clear();
   _pimpl->activity_id = -1;
   _pimpl->source = (diva_activity::source )-1;
   _pimpl->frame_id_span.clear();
@@ -242,21 +242,21 @@ bool diva_activity::is_valid() const
   return true;
 }
 
-bool diva_activity::has_activity_name() const
+bool diva_activity::has_activity_names() const
 {
-  return !_pimpl->activity_name.empty();
+  return !_pimpl->activity_names.empty();
 }
-std::string diva_activity::get_activity_name() const
+std::map<std::string, double> diva_activity::get_activity_names() const
 {
-  return _pimpl->activity_name;
+  return _pimpl->activity_names;
 }
-void diva_activity::set_activity_name(const std::string& name)
+void diva_activity::set_activity_names(const std::map<std::string, double>& names)
 {
-  _pimpl->activity_name = name;
+  _pimpl->activity_names = names;
 }
-void diva_activity::remove_activity_name()
+void diva_activity::remove_activity_names()
 {
-  _pimpl->activity_name = "";
+  _pimpl->activity_names.clear();
 }
 
 bool diva_activity::has_activity_id() const
@@ -278,7 +278,7 @@ void diva_activity::remove_activity_id()
 
 bool diva_activity::has_source() const
 {
-  return _pimpl->source != (diva_activity::source)-1;
+  return _pimpl->source != static_cast<diva_activity::source>( -1 );
 }
 diva_activity::source diva_activity::get_source() const
 {
@@ -290,7 +290,7 @@ void diva_activity::set_source(diva_activity::source s)
 }
 void diva_activity::remove_source()
 {
-  _pimpl->source = (diva_activity::source)-1;
+  _pimpl->source = static_cast<diva_activity::source>( -1 );
 }
 
 bool diva_activity::has_frame_id_span() const
@@ -432,7 +432,7 @@ void diva_activity::write(std::ostream& os) const
 
   KPF::record_yaml_writer w(os);
   w.set_schema(KPF::schema_style::ACT);
-  w << KPF::writer< KPFC::activity_t >(act_adapter(*_pimpl), DIVA_DOMAIN)
+  w << KPF::writer< KPFC::activity_t >(act_adapter(*_pimpl), DIVA_ACTIVITY_DOMAIN)
     << KPF::record_yaml_writer::endl;
 }
 

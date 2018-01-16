@@ -1,5 +1,5 @@
 /*ckwg +29
-* Copyright 2017 by Kitware, Inc.
+* Copyright 2017,2018 by Kitware, Inc.
 * All rights reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -27,7 +27,9 @@
 * OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
-#include <fstream> 
+
+#include <cstdlib>
+#include <fstream>
 #include <ostream>
 #include "diva_geometry.h"
 #include "diva_label.h"
@@ -46,6 +48,9 @@
 #include "vital/config/config_block_io.h"
 #include "vital/plugin_loader/plugin_manager.h"
 
+#include <kwiversys/CommandLineArguments.hxx>
+#include <kwiversys/SystemTools.hxx>
+
 //Uncomment this macro to draw detections on each frame and display it
 #define DISPLAY_FRAME
 
@@ -56,101 +61,317 @@
 #include "vital/algo/draw_detected_object_set.h"
 #endif
 
+//
+// Program options support
+
+typedef kwiversys::CommandLineArguments argT;
+
+struct options_t
+{
+  bool help;                  // did the user ask for help?
+  std::string sample_exp_fn;  // location to write sample experiment file
+  std::string user_exp_fn;    // location of user's experiment file
+  int exit_code;              // if we exit, exit with this code
+
+  explicit options_t( argT& arg );
+  bool check_for_sanity_and_help();
+};
+
+//
+// prototypes
+//
+
+bool write_sample_experiment( const std::string& fn );
+bool run_experiment( const std::string& fn );
+
+// ----------------------------------------
+// main
+// ----------------------------------------
+
 int main(int argc, const char* argv[])
 {
-  diva_experiment exp;
-  if (argc == 1)
-  {// For this example driver, make the experiment in code if its not provided
-    exp.set_type(diva_experiment::type::object_detection);
-    exp.set_dataset_id("VIRAT_S_000206_06_001421_001458");
-    if (true)
-    {
-      exp.set_input_type(diva_experiment::input_type::video);
-      exp.set_input_source("VIRAT_S_000206_06_001421_001458.mp4");
-    }
-    else
-    {
-      exp.set_input_type(diva_experiment::input_type::file_list);
-      exp.set_input_source("VIRAT_S_000206_06_001421_001458.txt");
-    }
-    exp.set_transport_type(diva_experiment::transport_type::disk);
-    exp.set_frame_rate_Hz(30);
-    exp.set_input_root_dir("C:/Programming/DIVA/src/data/darknet_detections");
-    exp.set_output_type(diva_experiment::output_type::file);
-    exp.set_output_root_dir("C:/Programming/DIVA/src/data/darknet_detections/outputs");
-  }
-  else if (argc == 2)
+  //
+  // Parse and check the options
+  //
+
+  argT arg;
+  arg.Initialize( argc, argv );
+  options_t options( arg );
+
+  if ( ! arg.Parse() )
   {
-    if (!exp.read_experiment(argv[1]))
-      throw malformed_diva_data_exception("Invalid experiment configuration");
+    std::cerr << "Problem parsing arguments\n";
+    exit( EXIT_FAILURE );
   }
 
-  // Examine the experiment configuration and make sure we can run what it wants
-  if(exp.get_type() != diva_experiment::type::object_detection)
-    throw malformed_diva_data_exception("The calculator can only process object_detection experiments");
+  if ( options.check_for_sanity_and_help() )
+  {
+    exit( options.exit_code );
+  }
 
-  // Create a stream/file to write our dectections to
-  std::filebuf fb;
-  fb.open(exp.get_output_filename() +"_geom.kpf", std::ios::out | std::ofstream::trunc);
-  std::ostream os(&fb);
+  //
+  // If requested, write out sample experiment file
+  //
 
-  // Initialize KWIVER
-  kwiver::vital::plugin_manager::instance().load_all_plugins();
-  // Instantiate Darknet KWIVER arrow
-  kwiver::vital::algo::image_object_detector_sptr detector = kwiver::vital::algo::image_object_detector::create("darknet");
-  // Load our own configuration file, assume its in the same location as the experiment data
-  kwiver::vital::config_block_sptr config = kwiver::vital::read_config_file(exp.get_input_root_dir() + "/darknet.config");
-  detector->set_configuration(config);
+  if ( ! options.sample_exp_fn.empty() )
+  {
+    bool okay = write_sample_experiment( options.sample_exp_fn );
+    const std::string& status = okay? std::string("success") : std::string("error");
+    std::cout << status << " writing sample experiment file to '" << options.sample_exp_fn << "'\n";
+  }
+
+  //
+  // If requested, run the experiment
+  //
+
+  if ( ! options.user_exp_fn.empty() )
+  {
+    bool okay = run_experiment( options.user_exp_fn );
+    const std::string& status = okay? std::string("success") : std::string("error");
+    std::cout << status << " running experiment '" << options.user_exp_fn << "'\n";
+  }
+
+  //
+  // all done
+  //
+}
+
+// =================================================================
+
+//
+// constructor for the options
+//
+
+options_t
+::options_t( argT& arg):
+  help(false), sample_exp_fn(""), user_exp_fn(""), exit_code( EXIT_SUCCESS )
+{
+  arg.AddArgument( "-h",       argT::NO_ARGUMENT, &(this->help),
+                   "Display usage information" );
+  arg.AddArgument( "--help",   argT::NO_ARGUMENT, &(this->help),
+                   "Display usage information" );
+  arg.AddArgument( "-s",       argT::SPACE_ARGUMENT, &(this->sample_exp_fn),
+                   "Write sample experiment file to filename and exit" );
+  arg.AddArgument( "--sample", argT::EQUAL_ARGUMENT, &(this->sample_exp_fn),
+                   "Write sample experiment file to filename and exit" );
+  arg.AddArgument( "-r",       argT::SPACE_ARGUMENT, &(this->user_exp_fn),
+                   "Run the experiment named by the file" );
+  arg.AddArgument( "--run",    argT::EQUAL_ARGUMENT, &(this->user_exp_fn),
+                   "Run the experiment named by the file" );
+}
+
+//
+// some sanity checking
+//
+
+bool
+options_t
+::check_for_sanity_and_help()
+{
+  bool main_should_exit( false ), print_help( this->help );
+  std::string err_msg("");
+  if ( ! this->help )
+  {
+    if ( (! this->sample_exp_fn.empty()) && (! this->user_exp_fn.empty()))
+    {
+      err_msg = "Must set only one of '-s' or '-r'";
+    }
+    else if (this->sample_exp_fn.empty() && this->user_exp_fn.empty())
+    {
+      err_msg = "Must set at least one of '-s' or '-r'";
+    }
+    else if ((! this->sample_exp_fn.empty())
+             && kwiversys::SystemTools::FileExists( this->sample_exp_fn ))
+    {
+      err_msg = "Won't write sample over existing file";
+    }
+    if (! err_msg.empty() )
+    {
+      print_help = true;
+      main_should_exit = true;
+      this->exit_code = EXIT_FAILURE;
+    }
+  }
+  if (print_help)
+  {
+    std::cout
+      << "This program runs a sample darknet detector using the DIVA framework.\n"
+      << "It takes a simple argument, which is a DIVA experiment file setting\n"
+      << "input and output parameters.\n"
+      << "\n"
+      << "Options are:\n"
+      << "  -h / --help          display this message and exit\n"
+      << "  -r FN / --run=FN     run the experiment in file FN\n"
+      << "  -s FN / --sample=FN  write a sample experiment to FN and exit\n"
+      << "\n";
+  }
+
+  if (! err_msg.empty())
+  {
+    std::cerr << "Error: " << err_msg << std::endl;
+  }
+
+  return main_should_exit;
+}
+
+// =================================================================
+
+//
+// Create a sample experiment file and write it out to the given
+// filename. Return true if successful.
+//
+
+bool
+write_sample_experiment( const std::string& fn )
+{
+  diva_experiment ex;
+
+  ex.set_type(diva_experiment::type::object_detection);
+  ex.set_dataset_id( "VIRAT_S_000000" );
+
+  // ex.set_input_type(diva_experiment::input_type::video);
+  // ex.set_input_source("VIRAT_S_000000.mp4");
+
+  ex.set_input_type(diva_experiment::input_type::file_list);
+  ex.set_input_source( "VIRAT_S_000000.frames.txt" );
+
+  ex.set_transport_type(diva_experiment::transport_type::disk);
+  ex.set_frame_rate_Hz(30);
+
+  ex.set_input_root_dir( "/your/path/to/input_root_directory" );
+  ex.set_output_type(diva_experiment::output_type::file);
+  ex.set_output_root_dir( "/your/path/to/output_root_directory" );
+
+  ex.set_algorithm_parameter( "darknet_config_path", "/your/path/to/darknet.config" );
+
+  return ex.write_experiment( fn );
+}
+
+// =================================================================
+
+bool
+run_experiment( const std::string& fn )
+{
+  namespace KV=kwiver::vital;
+
+  //
+  // Framework: initialization
+  //
+  // The following code loads the experiment, ensures that it's an object_detection
+  // task, and opens our output file
+  //
+
+  diva_experiment ex;
+  if (!ex.read_experiment( fn ))
+  {
+    throw malformed_diva_data_exception("Invalid experiment configuration");
+  }
+  if (ex.get_type() != diva_experiment::type::object_detection)
+  {
+    throw malformed_diva_data_exception("Invalid experiment type; should be object_detection");
+  }
+  std::ofstream os( ex.get_output_prefix() +"_geom.kpf" );
+
+
+  //
+  // Detector: initialization
+  //
+  // The following code initializes KWIVER, instantiates the darknet object
+  // detector, and configures it via the config file (named in the experiment file)
+  //
+
+  KV::plugin_manager::instance().load_all_plugins();
+  KV::algo::image_object_detector_sptr detector =
+    KV::algo::image_object_detector::create( "darknet" );
+  KV::config_block_sptr config =
+    KV::read_config_file( ex.get_algorithm_parameter( "darknet_config_path" ));
+  detector->set_configuration( config );
+
 #ifdef DISPLAY_FRAME
-  kwiver::vital::algo::draw_detected_object_set_sptr drawer = kwiver::vital::algo::draw_detected_object_set::create("ocv");
-  drawer->set_configuration(drawer->get_configuration());// This will default the configuration 
+  kwiver::vital::algo::draw_detected_object_set_sptr drawer =
+    kwiver::vital::algo::draw_detected_object_set::create("ocv");
+  drawer->set_configuration(drawer->get_configuration()); // This will default the configuration 
 #endif
 
-  // Meta kpf packet to provide some commentary in our geomerty kpf file
-  diva_meta meta;
-  meta.set_msg("darknet geometry");
-  meta.write(os);
-  // Create a geometry kfp packet we will reuse for each frame
-  diva_geometry geom;
+  //
+  // Framework: loading the experiment
+  //
+  // This code creates a diva input point and intializes it via the
+  // experiment file.
 
-  // Load the input
   diva_input input;
-  if(!input.load_experiment(exp))
-    throw malformed_diva_data_exception("Something happend in loading the experiment input");
+  if(!input.load_experiment( ex ))
+  {
+    throw malformed_diva_data_exception( "Failed to initialize experiment input source" );
+  }
 
-  kwiver::vital::timestamp ts;
-  kwiver::vital::image_container_sptr frame;
-  size_t detection_id = 0; // Incremented for every detection on every frame
+  //
+  // Framework: writing some metadata
+  //
+
+  diva_meta meta;
+  meta.set_msg( "darknet geometry for dataset "+ex.get_dataset_id() );
+  meta.write(os);
+
+  //
+  // Framework + detector: setting up buffer variables
+  //
+
+  KV::timestamp ts;                // timestamp of the current image
+  KV::image_container_sptr frame;  // pointer to the current image
+  size_t detection_id = 0;         // Incremented for every detection on every frame
+
+  //
+  // Framework + detector:
+  // -- looping over input to compute detections
+  // -- writing the detections to the framework
+  //
+
   while (input.has_next_frame())
   {
     frame = input.get_next_frame();
     ts = input.get_next_frame_timestamp();
 
-    // Now do detections on this frame
-    kwiver::vital::detected_object_set_sptr detections = detector->detect(frame);
+    //
+    // Call the detector on the current frame
+    //
+
+    kwiver::vital::detected_object_set_sptr detections = detector->detect( frame );
+
+    //
     // Loop over the detections and append them to the kpf geometry file
+    //
+
     auto ie = detections->cend();
     for (auto det = detections->cbegin(); det != ie; ++det)
     {
-      geom.clear();
-      //geom.set_name?
-      geom.set_track_id(detection_id);
-      geom.set_detection_id(detection_id++);
-      geom.set_frame_id(ts.get_frame());
-      geom.set_frame_time(ts.get_time_usec());
-      geom.set_confidence((*det)->confidence());
-      for (std::string name : (*det)->type()->class_names())
-        geom.get_classification()[name] = (*det)->type()->score(name);
+      diva_geometry geom;              // KPF geometry output buffer
+
+      // set the IDs and timestamps
+      geom.set_track_id( detection_id );         // set the ID1 packet
+      geom.set_detection_id( detection_id );     // set the ID0 packet
+      geom.set_frame_id( ts.get_frame() );       // set the TS0 packet
+      geom.set_frame_time( ts.get_time_usec() ); // set the TS1 packet
+      ++detection_id;
+
+      // set the classification label->confidence map
+      for ( std::string name : (*det)->type()->class_names() )
+      {
+        double confidence = (*det)->type()->score(name);
+        geom.get_classification()[ name ] = confidence;
+      }
+
+      // set the detection geometry
       const kwiver::vital::bounding_box_d bbox((*det)->bounding_box());
-      geom.set_bounding_box_pixels(bbox.min_x(), bbox.min_y(), bbox.max_x(), bbox.max_y());
-      //geom.set_evaluation(diva_evaluation::true_positive);
-      //geom.set_occlusion(diva_occlusion::heavy);
-      //geom.set_source(diva_source::truth);
+      geom.set_bounding_box_pixels( bbox.min_x(), bbox.min_y(), bbox.max_x(), bbox.max_y() );
+
+      // write this geometry record
       geom.write(os);
-    }// Loop to the next detection
+
+    } // ...for all the detections on this frame
 
 #ifdef DISPLAY_FRAME
-     // Draw the detections onto the image and show it via kwiver and the opencv api
+    // Draw the detections onto the image and show it via kwiver and the opencv api
     kwiver::vital::image_container_sptr detections_img = drawer->draw(detections, frame);
     // Let's see what it looks like
     cv::Mat _mat = kwiver::arrows::ocv::image_container::vital_to_ocv(detections_img->get_image());
@@ -160,6 +381,9 @@ int main(int argc, const char* argv[])
     kwiversys::SystemTools::Delay(2000);                                       // Wait for 2s
     cvDestroyWindow("Darknet Detections");
 #endif
-  }// loop to the next frame
+
+  } // ...for all the frames in the input
+
+  return true;
 }
 

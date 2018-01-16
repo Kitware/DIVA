@@ -97,5 +97,8 @@ void diva_python_experiment(py::module &m)
     .def("set_output_root_dir", &diva_experiment::set_output_root_dir)
     .def("get_output_root_dir", &diva_experiment::get_output_root_dir)
     .def("remove_output_root_dir", &diva_experiment::remove_output_root_dir)
-    .def("get_output_filename", &diva_experiment::get_output_filename);
+    .def("get_output_filename", &diva_experiment::get_output_prefix)
+    .def("set_algorithm_parameter", &diva_experiment::set_algorithm_parameter)
+    .def("get_algorithm_parameter", &diva_experiment::get_algorithm_parameter)
+    ;
 }

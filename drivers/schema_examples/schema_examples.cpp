@@ -103,7 +103,7 @@ int main(int argc, const char* argv[])
   meta.set_msg("activity_gesturing 0 instances");
   meta.write(actv_ss);
 
-  actv.set_activity_name("vehicle_moving");
+  actv.set_activity_names( {{std::string("vehicle_moving"), 1.0}} );
   actv.set_activity_id(1);
   actv.set_source(diva_activity::source::truth);
   // Overall timeframe of the activity

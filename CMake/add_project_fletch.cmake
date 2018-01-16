@@ -34,7 +34,7 @@ ExternalProject_Add(fletch
     -Dfletch_ENABLE_GLog:BOOL=OFF
     -Dfletch_ENABLE_GTest:BOOL=OFF
     -Dfletch_ENABLE_GeographicLib:BOOL=OFF
-    -Dfletch_ENABLE_HDF5:BOOL=OFF
+    -Dfletch_ENABLE_HDF5:BOOL=ON
     -Dfletch_ENABLE_ITK:BOOL=OFF
     -Dfletch_ENABLE_OpenCV:BOOL=ON
     -DOpenCV_SELECT_VERSION:STRING=3.1.0

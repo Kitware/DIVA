@@ -12,7 +12,7 @@ ExternalProject_Add(kwiver
   BINARY_DIR kwiver-build
   STAMP_DIR ${DIVA_STAMP_DIR}
   GIT_REPOSITORY "git://github.com/Kitware/kwiver.git"
-  GIT_TAG 0d25feb27f9ceb1a115e6e9554f729847758d10e
+  GIT_TAG 9f5168aa3ad9cbc597a87a6ec16a226d03057c0a
   CMAKE_CACHE_ARGS
     -DBUILD_SHARED_LIBS:BOOL=ON
     -Dfletch_DIR:PATH=${fletch_DIR}
