@@ -105,6 +105,7 @@ struct diva_poly_adapter : public KPF::kpf_poly_adapter< diva_geometry_impl >
 diva_geometry::diva_geometry()
 {
   _pimpl = new diva_geometry_impl();
+  this->clear();
 }
 diva_geometry::~diva_geometry()
 {
@@ -122,10 +123,10 @@ void diva_geometry::clear()
   _pimpl->bboxp.x1 = -1; _pimpl->bboxp.y1 = -1;
   _pimpl->bboxp.x2 = -1; _pimpl->bboxp.y2 = -1;
   _pimpl->poly.clear();
-  _pimpl->source     = (diva_geometry::source)-1;
-  _pimpl->occlusion  = (diva_geometry::occlusion)-1;
-  _pimpl->evaluation = (diva_geometry::evaluation)-1;
-  _pimpl->keyframe   = (diva_geometry::keyframe)-1;
+  _pimpl->source     = static_cast<diva_geometry::source>( -1 );
+  _pimpl->occlusion  = static_cast<diva_geometry::occlusion>( -1 );
+  _pimpl->evaluation = static_cast<diva_geometry::evaluation>( -1 );
+  _pimpl->keyframe   = static_cast<diva_geometry::keyframe>( -1 );
   _pimpl->classification.clear();
   _pimpl->poly.clear();
 }
@@ -240,7 +241,7 @@ void diva_geometry::remove_confidence()
 
 bool diva_geometry::has_source() const
 {
-  return _pimpl->source != (diva_geometry::source )-1;
+  return _pimpl->source != static_cast<diva_geometry::source >( -1 );
 }
 diva_geometry::source diva_geometry::get_source() const
 {
@@ -252,12 +253,12 @@ void diva_geometry::set_source(diva_geometry::source s)
 }
 void diva_geometry::remove_source()
 {
-  _pimpl->source = (diva_geometry::source)-1;
+  _pimpl->source = static_cast<diva_geometry::source>( -1 );
 }
 
 bool diva_geometry::has_evaluation() const
 {
-  return _pimpl->evaluation != (diva_geometry::evaluation )-1;
+  return _pimpl->evaluation != static_cast<diva_geometry::evaluation >( -1 );
 }
 diva_geometry::evaluation diva_geometry::get_evaluation() const
 {
@@ -269,12 +270,12 @@ void diva_geometry::set_evaluation(diva_geometry::evaluation o)
 }
 void diva_geometry::remove_evaluation()
 {
-  _pimpl->evaluation = (diva_geometry::evaluation)-1;
+  _pimpl->evaluation = static_cast<diva_geometry::evaluation>( -1 );
 }
 
 bool diva_geometry::has_occlusion() const
 {
-  return _pimpl->occlusion != (diva_geometry::occlusion )-1;
+  return _pimpl->occlusion != static_cast<diva_geometry::occlusion >( -1 );
 }
 diva_geometry::occlusion diva_geometry::get_occlusion() const
 {
@@ -286,12 +287,12 @@ void diva_geometry::set_occlusion(diva_geometry::occlusion e)
 }
 void diva_geometry::remove_occlusion()
 {
-  _pimpl->occlusion = (diva_geometry::occlusion)-1;
+  _pimpl->occlusion = static_cast<diva_geometry::occlusion>( -1 );
 }
 
 bool diva_geometry::has_keyframe() const
 {
-  return _pimpl->keyframe != (diva_geometry::keyframe )-1;
+  return _pimpl->keyframe != static_cast<diva_geometry::keyframe >( -1 );
 }
 diva_geometry::keyframe diva_geometry::get_keyframe() const
 {
@@ -303,7 +304,7 @@ void diva_geometry::set_keyframe(diva_geometry::keyframe kf)
 }
 void diva_geometry::remove_keyframe()
 {
-  _pimpl->keyframe = (diva_geometry::keyframe)-1;
+  _pimpl->keyframe = static_cast<diva_geometry::keyframe>( -1 );
 }
 
 bool diva_geometry::has_bounding_box_pixels() const
@@ -394,7 +395,7 @@ void diva_geometry::write(std::ostream& os) const
   w << KPF::writer< KPFC::bbox_t >(bba(*_pimpl), KPFC::bbox_t::IMAGE_COORDS);
   if (_pimpl->confidence != -1)
     w << KPF::writer< KPFC::conf_t >(_pimpl->confidence, DETECTOR_DOMAIN);
-  if (_pimpl->source != (diva_geometry::source)-1)
+  if (_pimpl->source != static_cast<diva_geometry::source>( -1 ))
   {
     switch (_pimpl->source)
     {
@@ -403,7 +404,7 @@ void diva_geometry::write(std::ostream& os) const
       break;
     }
   }
-  if (_pimpl->evaluation != (diva_geometry::evaluation)-1)
+  if (_pimpl->evaluation != static_cast<diva_geometry::evaluation>( -1 ))
   {
     switch (_pimpl->evaluation)
     {
@@ -412,7 +413,7 @@ void diva_geometry::write(std::ostream& os) const
       break;
     }
   }
-  if (_pimpl->occlusion != (diva_geometry::occlusion)-1)
+  if (_pimpl->occlusion != static_cast<diva_geometry::occlusion>( -1 ))
   {
     switch (_pimpl->occlusion)
     {
@@ -421,7 +422,7 @@ void diva_geometry::write(std::ostream& os) const
       break;
     }
   }
-  if (_pimpl->keyframe != (diva_geometry::keyframe)-1)
+  if (_pimpl->keyframe != static_cast<diva_geometry::keyframe>( -1 ))
   {
     switch (_pimpl->keyframe)
     {
