@@ -196,7 +196,7 @@ options_t
   {
     std::cout
       << "This program runs a sample darknet detector using the DIVA framework.\n"
-      << "It takes a simple argument, which is a DIVA experiment file setting\n"
+      << "It takes a single argument, which is a DIVA experiment file setting\n"
       << "input and output parameters.\n"
       << "\n"
       << "Options are:\n"
