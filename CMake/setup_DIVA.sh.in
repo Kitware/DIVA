@@ -1,3 +1,7 @@
 cd @kwiver_DIR@
 source setup_KWIVER.sh
 cd @DIVA_BINARY_DIR@
+
+export PYTHONPATH=@DIVA_BINARY_DIR@/lib:$PYTHONPATH
+export @LIBRARY_PATH_VAR@=$this_dir/lib:$@LIBRARY_PATH_VAR@
+

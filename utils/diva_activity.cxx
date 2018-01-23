@@ -70,7 +70,7 @@ struct diva_activity_adapter : public KPF::kpf_act_adapter< diva_activity_impl >
       throw malformed_diva_data_exception("activty domain must be " + DIVA_DOMAIN);
     // load the activity ID, name, and start and stop frames
     u.activity_id = a.activity_id.t.d;
-    u.activity_name = a.activity_label;
+    // TODO u.activity_name = a.activity_label;
     // load in our overall activity time spans
     for (const auto& ts : a.timespan)
     {
@@ -132,7 +132,7 @@ struct diva_activity_adapter : public KPF::kpf_act_adapter< diva_activity_impl >
   {
     KPF::canonical::activity_t a;
     // set the name, ID, and domain
-    a.activity_label = u.activity_name;
+    // TODO a.activity_label = u.activity_name;
     a.activity_id.t.d = u.activity_id;
     a.activity_id.domain = DIVA_DOMAIN;
 

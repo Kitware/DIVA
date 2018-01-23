@@ -32,7 +32,7 @@ ExternalProject_Add(fletch
     -Dfletch_ENABLE_GEOS:BOOL=OFF
     -Dfletch_ENABLE_GFlags:BOOL=OFF
     -Dfletch_ENABLE_GLog:BOOL=OFF
-    -Dfletch_ENABLE_GTest:BOOL=OFF
+    -Dfletch_ENABLE_GTest:BOOL=ON
     -Dfletch_ENABLE_GeographicLib:BOOL=OFF
     -Dfletch_ENABLE_HDF5:BOOL=OFF
     -Dfletch_ENABLE_ITK:BOOL=OFF
@@ -44,7 +44,7 @@ ExternalProject_Add(fletch
     -Dfletch_ENABLE_PNG:BOOL=ON
     -Dfletch_ENABLE_PROJ4:BOOL=ON
     -Dfletch_ENABLE_PostgresSQL:BOOL=OFF
-    -Dfletch_ENABLE_PyBind11:BOOL=OFF
+    -Dfletch_ENABLE_PyBind11:BOOL=ON
     -Dfletch_ENABLE_Qt:BOOL=OFF
     -Dfletch_ENABLE_SuiteSparse:BOOL=OFF
     -Dfletch_ENABLE_TinyXML:BOOL=ON

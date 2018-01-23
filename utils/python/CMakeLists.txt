@@ -21,7 +21,7 @@ set( public_headers
 set( private_headers
 )
 
-pybind11_add_module(diva_python_utils SHARED NO_EXTRAS
+pybind11_add_module(diva_python_utils MODULE NO_EXTRAS
   ${sources}
   ${public_headers}
   ${private_sources}
@@ -30,14 +30,15 @@ pybind11_add_module(diva_python_utils SHARED NO_EXTRAS
 set_target_properties( diva_python_utils
     PROPERTIES
     RUNTIME_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/bin"
+    LIBRARY_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/lib"
 )
 
 target_include_directories(diva_python_utils PRIVATE ${CMAKE_BINARY_DIR})
 
+message(STATUS "Pylibs : ${pybind11_LIBRARIES}")
 target_link_libraries( diva_python_utils
-  PRIVATE              diva_utils
+  PRIVATE              diva_utils pybind11::embed
 )
-
 
 if(WIN32)
   target_compile_definitions(diva_utils PRIVATE YAML_CPP_DLL)
