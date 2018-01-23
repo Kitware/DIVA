@@ -74,7 +74,7 @@ public:
   void remove_type();
 
   bool has_input_type() const;
- input_type get_input_type() const;
+  input_type get_input_type() const;
   void set_input_type(input_type s);
   void remove_input_type();
 
