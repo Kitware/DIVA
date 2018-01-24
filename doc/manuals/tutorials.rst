@@ -2,10 +2,36 @@ Tutorials
 =========
 
 The following sections describe a set of DIVA tutorials. |br|
-Visit the `repository <https://github.com/Kitware/DIVA>`_ on how to get and build the DIVA code base. |br|
+Visit the `repository <https://github.com/Kitware/DIVA>`_ on how to get and build the DIVA code base.
+
+The example instructions provided assume that the DIVA superbuild pulled and built Fletch, KWIVER, and KWANT. |br|
+Hence the following directory structure will be assumed :
+
+* DIVA
+
+  * Source - This is unique to your machine and is refered to as ``</path/to/DIVA/source>``
+
+    * drivers - All C++ and Python example code
+    * utils - DIVA C++ and Python API library
+
+  * Build - This is unique to your machine and is refered to as ``</path/to/DIVA/build>``
+
+    * DIVA - Empty
+    * DIVA-build - Built libraries, executables, and environment setup script
+    * fletch - Source code pulled from fletch repository
+    * fletch-build - Built fletch libraries
+    * kwant - Source code pulled from kwant repository
+    * kwant-build - Built kwant libraries and executables
+    * kwiver - Source code pulled from kwiver repository
+    * kwiver-build - Built kwiver libraries
+
 All the source code mentioned here are provided in the `driver directory of the repository <https://github.com/Kitware/DIVA/tree/master/drivers>`_. 
 
+All of the provided C++ and Python examples that require the necessary DIVA enviroment variables set.
+To setup your environement, run this setup_DIVA script from the Diva-build directory ::
 
+  </path/to/DIVA/build>/DIVA-build$ source setup_DIVA.sh
+ 
 As always, we would be happy to hear your comments and receive your contributions on any tutorial.
 
 Basic KPF I/O
@@ -28,15 +54,11 @@ The following classes are provided in the API to assist performers read and writ
 `Activity <https://github.com/Kitware/DIVA/blob/master/utils/diva_activity.h>`_      Describes the detection and tracking of activities in a scene
 =================================================================================== ==========================================================================================
 
-We provide a simple C++ and Python examples that utilize the API to write out some KPF Files |br|
-Before you run these examples, please set your enviroment by running the appropriate setup_DIVA script ::
-
-  </path/to/DIVA/build>/DIVA-build$ source setup_DIVA.sh
-
 C++
 ~~~
 
-A simple `C++ executable <https://github.com/Kitware/DIVA/blob/master/drivers/schema_examples/schema_examples.cpp>`_ is provided to generate some KPF objects. To run this example, do the following ::
+A simple `C++ executable <https://github.com/Kitware/DIVA/blob/master/drivers/schema_examples/schema_examples.cpp>`_ is provided to generate some KPF objects. 
+To run this example, do the following from the BUILD directory ::
 
   </path/to/DIVA/build>/DIVA-build/drivers/schema_examples$./schema_examples
   # You will get the following output
@@ -47,13 +69,13 @@ A simple `C++ executable <https://github.com/Kitware/DIVA/blob/master/drivers/sc
   - { geom: { id0: 0, id1: 66, ts0: 0, g0: 104 349 210 385, src: truth, eval_type: tp, occlusion: heavy, poly0: [[ 100, 399 ],[ 200, 398 ],[ 300, 397 ],],  } }
   ...
 
-
 Python
 ~~~~~~
 
-A simple `Python script <https://github.com/Kitware/DIVA/blob/master/drivers/schema_examples/schema_examples.py>`_ is provided to generate some KPF objects. To run this example, do the following ::
+A simple `Python script <https://github.com/Kitware/DIVA/blob/master/drivers/schema_examples/schema_examples.py>`_ is provided to generate some KPF objects. 
+To run this example, do the following from the SOURCE directory ::
  
-  </path/to/DIVA/Source>/drivers/schema_examples$python schema_examples.py
+  </path/to/DIVA/source>/drivers/schema_examples$python schema_examples.py
   # You will get the following output
   Geometry Content
   - { meta: Example geometry }

@@ -1,0 +1,46 @@
+# Experiment Configuration
+# Must be one of the following options:
+# - object_detection
+# - activity_detection
+type = object_detection
+
+experiment_id = parking_lot
+
+block input
+
+  # Input Type
+  # Must be one of the following options:
+  # - file_list
+  # - video
+  type = file_list
+  
+  # Input Transport
+  # Must be one of the following options:
+  # - disk
+  # - girder
+  # - rstp # This is only valid with video input type
+  transport_type = disk
+  
+  # Video
+  source = image_list.txt
+  dataset_id = 1
+  
+  root_dir = @CMAKE_SOURCE_DIR@/drivers/data/
+  frame_rate_Hz = 30
+endblock # input
+
+block output
+  # Output Type
+  # Must be one of the following options:
+  # - file
+  type = file
+  
+  root_dir = /path/to/results/directory
+endblock # output
+
+block scoring
+  truth_dir = /path/to/ground/truth
+  output_dir = /path/to/scoring/artifacts
+  params:iou = 0.5
+  params:time_window = M
+endblock # scoring
