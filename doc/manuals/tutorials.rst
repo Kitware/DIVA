@@ -88,7 +88,23 @@ To run this example, do the following from the SOURCE directory ::
 Basic Experiment
 ----------------
 
-As we mentioned above, the DIVA API can provide image frames from the input source specified for an experiment. In this example we will look at how to do this.
+The `Basic Experiment executable <https://github.com/Kitware/DIVA/blob/master/drivers/basic_experiment/basic_experiment.cpp>`_ is provided to demonstrate the experiment format.
+
+<More detail about an experiment file>
+
+To run this example, do the following from the BUILD directory ::
+
+  # This will write out a sample kpf experiment file in the current directory
+  </path/to/DIVA/build>/DIVA-build/drivers/basic_experiment$./basic_experiment -s example.kpf
+
+As we mentioned above, the DIVA API can provide image frames from the input source specified for an experiment.
+Two example experiement files are provided, one that sources a list of images, and another that sources a video file.
+To run this example, do the following from the BUILD directory ::
+
+  # The image experiment displays frames from a list of images specified in a txt file
+  </path/to/DIVA/build>/DIVA-build/drivers/basic_experiment$./basic_experiment -d ../image_experiment.kpf
+  # The video experiment displays frames from a video file
+  </path/to/DIVA/build>/DIVA-build/drivers/basic_experiment$./basic_experiment -d ../video_experiment.kpf
 
 
 Object Detection

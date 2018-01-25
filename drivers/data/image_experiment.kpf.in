@@ -25,7 +25,7 @@ block input
   source = image_list.txt
   dataset_id = 1
   
-  root_dir = @CMAKE_SOURCE_DIR@/drivers/data/
+  root_dir = @DIVA_BINARY_DIR@/drivers
   frame_rate_Hz = 30
 endblock # input
 

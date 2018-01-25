@@ -50,3 +50,7 @@ configure_file(${DIVA_CMAKE_DIR}/setup_DIVA.sh.in  ${DIVA_BINARY_DIR}/setup_DIVA
 configure_file(${DIVA_CMAKE_DIR}/setup_DIVA.bat.in ${DIVA_BINARY_DIR}/setup_DIVA.bat @ONLY)
 configure_file(${DIVA_CMAKE_DIR}/start_MSVC.bat.in   ${DIVA_BINARY_DIR}/start_MSVC.bat @ONLY)
 
+configure_file(${CMAKE_SOURCE_DIR}/drivers/data/image_experiment.kpf.in ${DIVA_BINARY_DIR}/drivers/image_experiment.kpf @ONLY)
+configure_file(${CMAKE_SOURCE_DIR}/drivers/data/image_list.txt.in       ${DIVA_BINARY_DIR}/drivers/image_list.txt @ONLY)
+configure_file(${CMAKE_SOURCE_DIR}/drivers/data/video_experiment.kpf.in ${DIVA_BINARY_DIR}/drivers/video_experiment.kpf @ONLY)
+

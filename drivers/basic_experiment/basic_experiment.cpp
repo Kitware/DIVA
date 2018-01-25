@@ -287,8 +287,7 @@ display_experiment_frames( const std::string& fn )
     cv::Mat _mat = kwiver::arrows::ocv::image_container::vital_to_ocv(frame->get_image());
     cv::namedWindow("Input Frame", cv::WINDOW_AUTOSIZE);// Create a window for display.
     cv::imshow("Input Frame", _mat);                    // Show our image inside it.
-    cv::waitKey(5);
-    kwiversys::SystemTools::Delay(2000);                // Wait for 2s
+    cv::waitKey(2000);                                  // Wait for 2s
     cvDestroyWindow("Input Frame");
 
   } // ...for all the frames in the input
