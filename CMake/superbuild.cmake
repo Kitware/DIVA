@@ -19,7 +19,7 @@ set( kwiver_FOUND FALSE)
 if(kwiver_DIR)
   ## Make sure this is a good kwiver dir
   if ( IS_DIRECTORY ${kwiver_DIR} )
-    message(STATUS "Looking for your kwiver...")
+    message(STATUS "Looking for your kwiver in ${kwiver_DIR}...")
     # if we find it, we want to use the fletch_DIR used by kwiver
     # so cache off what we have, and unset it, so we get it in our scope
     set(user_fletch_DIR ${fletch_DIR})

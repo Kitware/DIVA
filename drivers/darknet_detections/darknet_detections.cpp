@@ -68,6 +68,7 @@ typedef kwiversys::CommandLineArguments argT;
 struct options_t
 {
   bool help;                  // did the user ask for help?
+<<<<<<< HEAD
   std::string user_exp_fn;    // location of user's experiment file
   int exit_code;              // if we exit, exit with this code
 
@@ -79,6 +80,21 @@ struct options_t
 // prototypes
 //
 
+=======
+  std::string sample_exp_fn;  // location to write sample experiment file
+  std::string user_exp_fn;    // location of user's experiment file
+  int exit_code;              // if we exit, exit with this code
+
+  explicit options_t( argT& arg );
+  bool check_for_sanity_and_help();
+};
+
+//
+// prototypes
+//
+
+bool write_sample_experiment( const std::string& fn );
+>>>>>>> refs/remotes/origin/dev/kpf-v4
 bool run_experiment( const std::string& fn );
 
 // ----------------------------------------
@@ -107,9 +123,14 @@ int main(int argc, const char* argv[])
   }
 
   //
+<<<<<<< HEAD
   // If requested, run the experiment
+=======
+  // If requested, write out sample experiment file
+>>>>>>> refs/remotes/origin/dev/kpf-v4
   //
 
+<<<<<<< HEAD
   if ( ! options.user_exp_fn.empty() )
   {
     bool okay = run_experiment( options.user_exp_fn );
@@ -192,6 +213,166 @@ run_experiment( const std::string& fn )
     throw malformed_diva_data_exception("Invalid experiment type; should be object_detection");
   }
   std::ofstream os( ex.get_output_prefix() +".geom.yml" );
+=======
+  if ( ! options.sample_exp_fn.empty() )
+  {
+    bool okay = write_sample_experiment( options.sample_exp_fn );
+    const std::string& status = okay? std::string("success") : std::string("error");
+    std::cout << status << " writing sample experiment file to '" << options.sample_exp_fn << "'\n";
+  }
+
+  //
+  // If requested, run the experiment
+  //
+
+  if ( ! options.user_exp_fn.empty() )
+  {
+    bool okay = run_experiment( options.user_exp_fn );
+    const std::string& status = okay? std::string("success") : std::string("error");
+    std::cout << status << " running experiment '" << options.user_exp_fn << "'\n";
+  }
+
+  //
+  // all done
+  //
+}
+
+// =================================================================
+
+//
+// constructor for the options
+//
+
+options_t
+::options_t( argT& arg):
+  help(false), sample_exp_fn(""), user_exp_fn(""), exit_code( EXIT_SUCCESS )
+{
+  arg.AddArgument( "-h",       argT::NO_ARGUMENT, &(this->help),
+                   "Display usage information" );
+  arg.AddArgument( "--help",   argT::NO_ARGUMENT, &(this->help),
+                   "Display usage information" );
+  arg.AddArgument( "-s",       argT::SPACE_ARGUMENT, &(this->sample_exp_fn),
+                   "Write sample experiment file to filename and exit" );
+  arg.AddArgument( "--sample", argT::EQUAL_ARGUMENT, &(this->sample_exp_fn),
+                   "Write sample experiment file to filename and exit" );
+  arg.AddArgument( "-r",       argT::SPACE_ARGUMENT, &(this->user_exp_fn),
+                   "Run the experiment named by the file" );
+  arg.AddArgument( "--run",    argT::EQUAL_ARGUMENT, &(this->user_exp_fn),
+                   "Run the experiment named by the file" );
+}
+
+//
+// some sanity checking
+//
+
+bool
+options_t
+::check_for_sanity_and_help()
+{
+  bool main_should_exit( false ), print_help( this->help );
+  std::string err_msg("");
+  if ( ! this->help )
+  {
+    if ( (! this->sample_exp_fn.empty()) && (! this->user_exp_fn.empty()))
+    {
+      err_msg = "Must set only one of '-s' or '-r'";
+    }
+    else if (this->sample_exp_fn.empty() && this->user_exp_fn.empty())
+    {
+      err_msg = "Must set at least one of '-s' or '-r'";
+    }
+    else if ((! this->sample_exp_fn.empty())
+             && kwiversys::SystemTools::FileExists( this->sample_exp_fn ))
+    {
+      err_msg = "Won't write sample over existing file";
+    }
+    if (! err_msg.empty() )
+    {
+      print_help = true;
+      main_should_exit = true;
+      this->exit_code = EXIT_FAILURE;
+    }
+  }
+  if (print_help)
+  {
+    std::cout
+      << "This program runs a sample darknet detector using the DIVA framework.\n"
+      << "It takes a single argument, which is a DIVA experiment file setting\n"
+      << "input and output parameters.\n"
+      << "\n"
+      << "Options are:\n"
+      << "  -h / --help          display this message and exit\n"
+      << "  -r FN / --run=FN     run the experiment in file FN\n"
+      << "  -s FN / --sample=FN  write a sample experiment to FN and exit\n"
+      << "\n";
+  }
+
+  if (! err_msg.empty())
+  {
+    std::cerr << "Error: " << err_msg << std::endl;
+  }
+
+  return main_should_exit;
+}
+
+// =================================================================
+
+//
+// Create a sample experiment file and write it out to the given
+// filename. Return true if successful.
+//
+
+bool
+write_sample_experiment( const std::string& fn )
+{
+  diva_experiment ex;
+
+  ex.set_type(diva_experiment::type::object_detection);
+  ex.set_dataset_id( "VIRAT_S_000000" );
+
+  // ex.set_input_type(diva_experiment::input_type::video);
+  // ex.set_input_source("VIRAT_S_000000.mp4");
+
+  ex.set_input_type(diva_experiment::input_type::file_list);
+  ex.set_input_source( "VIRAT_S_000000.frames.txt" );
+
+  ex.set_transport_type(diva_experiment::transport_type::disk);
+  ex.set_frame_rate_Hz(30);
+
+  ex.set_input_root_dir( "/your/path/to/input_root_directory" );
+  ex.set_output_type(diva_experiment::output_type::file);
+  ex.set_output_root_dir( "/your/path/to/output_root_directory" );
+
+  ex.set_algorithm_parameter( "darknet_config_path", "/your/path/to/darknet.config" );
+
+  return ex.write_experiment( fn );
+}
+
+// =================================================================
+
+bool
+run_experiment( const std::string& fn )
+{
+  namespace KV=kwiver::vital;
+
+  //
+  // Framework: initialization
+  //
+  // The following code loads the experiment, ensures that it's an object_detection
+  // task, and opens our output file
+  //
+
+  diva_experiment ex;
+  if (!ex.read_experiment( fn ))
+  {
+    throw malformed_diva_data_exception("Invalid experiment configuration");
+  }
+  if (ex.get_type() != diva_experiment::type::object_detection)
+  {
+    throw malformed_diva_data_exception("Invalid experiment type; should be object_detection");
+  }
+  std::ofstream os( ex.get_output_prefix() +"_geom.kpf" );
+>>>>>>> refs/remotes/origin/dev/kpf-v4
 
 
   //

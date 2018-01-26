@@ -113,7 +113,10 @@ public:
   std::string get_output_root_dir() const;
   void remove_output_root_dir();
 
-  std::string get_output_filename() const;// Full path with no extension!
+  std::string get_output_prefix() const;
+
+  void set_algorithm_parameter( const std::string& key, const std::string& val );
+  std::string get_algorithm_parameter( const std::string& key ) const;
 
 private:
   class pimpl;
