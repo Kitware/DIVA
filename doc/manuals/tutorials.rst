@@ -32,27 +32,17 @@ To setup your environement, run this setup_DIVA script from the Diva-build direc
 
   </path/to/DIVA/build>/DIVA-build$ source setup_DIVA.sh
  
+
+The following examples demonstrate how to use the DIVA :doc:`C++ and Python utility library</api>` to read and write :doc:`KPF</kpf>`, the data/file format DIVA will use for specifying an experiment and its results for scoring.
+
 As always, we would be happy to hear your comments and receive your contributions on any tutorial.
 
-Basic KPF I/O
--------------
+KPF Results Basics
+------------------
 
-:doc:`KPF</kpf>` is the data/file format DIVA will use for specifying an experiment and its results for scoring. |br|
-DIVA provides a C++ and Python utility library that contains API's for reading and writing experiment files as well as the various results files for scoring particular algorithms. |br|
-The API libraries provided are intended to be linked into a performer executable. By using these API classes performers will be able to easily:
-
-* Read and interpret an experiment file
-* Write scorable results files
-* Recieve image frames from the input source specified for an experiment
-
-The following classes are provided in the API to assist performers read and write data files for execution and scoring 
-
-=================================================================================== ==========================================================================================
-`Experiment <https://github.com/Kitware/DIVA/blob/master/utils/diva_experiment.h>`_  Describes the task parameters a performer is to execute      
-`Meta <https://github.com/Kitware/DIVA/blob/master/utils/diva_packet.h>`_            Used to add comments and context to Geometry and Activity files     
-`Geometry <https://github.com/Kitware/DIVA/blob/master/utils/diva_geometry.h>`_      Describes the detection and tracking of objects in a scene       
-`Activity <https://github.com/Kitware/DIVA/blob/master/utils/diva_activity.h>`_      Describes the detection and tracking of activities in a scene
-=================================================================================== ==========================================================================================
+This example focuses on the API classes used to writing valid KPF results files for scoring. |br|
+The code provided simply instantiats KPF packet classes, populates them with data, and writes their contents to the console. |br|
+The intent of this example is to demonstrate the code necessary by the performer to convert their results into the common scorable KPF format.
 
 C++
 ~~~
@@ -88,37 +78,70 @@ To run this example, do the following from the SOURCE directory ::
 Basic Experiment
 ----------------
 
-The `Basic Experiment executable <https://github.com/Kitware/DIVA/blob/master/drivers/basic_experiment/basic_experiment.cpp>`_ is provided to demonstrate the experiment format.
+This example demonstrates 2 things :
 
-<More detail about an experiment file>
+* Demonstrating writing an experiment file using the Experimente API class
+* Demonstrate getting individual frames from an experiment source
 
+First we will look at how to run the code provided to simply instantiats an instance of the Experiement class, populates it with data, and writes its contents to the console. |br|
+The intent of this example is to demonstrate the code necessary by the performer to write a valid experiment file. |br|
+
+C++
+~~~
+
+A simple `C++ executable <https://github.com/Kitware/DIVA/blob/master/drivers/basic_experiment/basic_experiment.cpp>`_ is provided to read and write experiment files. 
 To run this example, do the following from the BUILD directory ::
 
-  # This will write out a sample kpf experiment file in the current directory
+  # This will write out a new file 'example.kpf' experiment file in the current directory
   </path/to/DIVA/build>/DIVA-build/drivers/basic_experiment$./basic_experiment -s example.kpf
 
-As we mentioned above, the DIVA API can provide image frames from the input source specified for an experiment.
-Two example experiement files are provided, one that sources a list of images, and another that sources a video file.
+As we mentioned above, the DIVA API can provide image frames from the input source specified for an experiment. |br|
+Two example experiement files are provided, one that sources a list of images, and another that sources a video file. |br|
+The intent of this example is to demonstrate the performer can use the API to easily get frames from any source and use them in their code. |br|
 To run this example, do the following from the BUILD directory ::
 
   # The image experiment displays frames from a list of images specified in a txt file
-  </path/to/DIVA/build>/DIVA-build/drivers/basic_experiment$./basic_experiment -d ../image_experiment.kpf
+  </path/to/DIVA/build>/DIVA-build/drivers/basic_experiment$./basic_experiment -d ../image_experiment.yml
   # The video experiment displays frames from a video file
-  </path/to/DIVA/build>/DIVA-build/drivers/basic_experiment$./basic_experiment -d ../video_experiment.kpf
+  </path/to/DIVA/build>/DIVA-build/drivers/basic_experiment$./basic_experiment -d ../video_experiment.yml
 
 
 Object Detection
 ----------------
 
+The intent of this example is to demonstrate using the DIVA API to:
 
-Scoring
-~~~~~~~
+* Read an experiment file
+* Get individual frames from the experiment source
+* Perform the Darknet object detection algorithm on each frame
+* Translate Darknet results into the KPF Geometry object
+* Write the KPF objects into a scorable results file on disk
+
+C++
+~~~
+
+A simple `C++ executable <https://github.com/Kitware/DIVA/blob/master/drivers/darknet_detections/darknet_detections.cpp>`_ is provided for this example. 
+To run this example, do the following from the BUILD directory ::
+
+  # First, we need to pull the Darknet weights
+  # To do this, we will go into the KWIVER build directory
+  </path/to/DIVA/build>/kwiver-build$ make setup_darknet_example
+  # This will next unzip and configure the example
+  </path/to/DIVA/build>/kwiver-build$ make external_darknet_example
+  # Go back to the diva build directory and run darknet_detections 
+  </path/to/DIVA/build>/DIVA-build/drivers/darknet_detections$./darknet_detections ../image_experiment.yml
+  # To run Darknet with a video source
+  </path/to/DIVA/build>/DIVA-build/drivers/darknet_detections$./darknet_detections ../video_experiment.yml
+  # Note the output geometry kpf file will be written to the current directory
+
+Activity Detection
+------------------
 
 Coming Soon!!
 
 
-Activity Detection
-------------------
+Scoring
+-------
 
 Coming Soon!!
 

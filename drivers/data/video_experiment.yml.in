@@ -35,7 +35,7 @@ block output
   # - file
   type = file
   
-  root_dir = /path/to/results/directory
+  root_dir = ./
 endblock # output
 
 block scoring
