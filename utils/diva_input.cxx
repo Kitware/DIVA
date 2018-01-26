@@ -40,6 +40,7 @@
 #include <vital/algo/image_io.h>
 #include <vital/util/data_stream_reader.h>
 #include <kwiversys/SystemTools.hxx>
+#include <kwiversys/RegularExpression.hxx>
 
 class diva_input::pimpl
 {
@@ -157,7 +158,15 @@ kwiver::vital::image_container_sptr diva_input::get_next_frame()
       std::string a_file = *_pimpl->current_file;
       frame = _pimpl->image_reader->load(a_file);
       // update timestamp
-      ++_pimpl->frame_number;
+      kwiversys::RegularExpression frame_num_re( "([0-9]+)\\.[^\\.]+$" );
+      if ( ! frame_num_re.find( a_file ) )
+      {
+        ++_pimpl->frame_number;
+      }
+      else
+      {
+        _pimpl->frame_number = std::stoi( frame_num_re.match( 1 ));
+      }
       _pimpl->ts.set_frame(_pimpl->frame_number);
       _pimpl->ts.set_time_usec(_pimpl->frame_number * _pimpl->default_frame_time_step_usec);
       ++_pimpl->current_file;
