@@ -231,6 +231,7 @@ def score_experiment (expfn, dry_run_flag ):
         return
 
     cmd = None
+    title = None
 
     if exp_type == 'object_detection':
         ref_types = cfg_get( cfg, 'scoring:object_detection:ref_types' )
@@ -241,6 +242,7 @@ def score_experiment (expfn, dry_run_flag ):
             if not i:
                 return
 
+        title = '%s\n%s det' % (dataset_id, obj_type )
         if time_window != 'M':
             time_window = 'if' + time_window
 
@@ -274,15 +276,25 @@ def score_experiment (expfn, dry_run_flag ):
     else:
         subprocess.call( ' '.join(cmd), shell=True )
 
-        # if can_plot:
-        #     pd = list()
-        #     fa = list()
-        #     with open( roc_csv_fn ) as csv:
-        #         csvreader = csv.DictReader( csv, delimiter=',')
-        #         for row in csvreader:
-        #             pd.append( float( row['PD'] ))
-        #             fa.append( float( row['FA'] ))
-        #     fig = plt.figure
+        if can_plot:
+            pd = list()
+            fa = list()
+            with open( roc_csv_fn ) as csvfile:
+                csvreader = csv.DictReader( csvfile, delimiter=',', skipinitialspace=True)
+                for row in csvreader:
+                    pd.append( float( row['PD'] ))
+                    fa.append( float( row['FA'] ))
+            fig = plt.figure()
+            rocplot = plt.subplot( 1, 1, 1 )
+            rocplot.set_title( title, fontsize=10 )
+            rocplot.set_ylim( 0.0, 1.0 )
+            rocplot.plot( fa, pd )
+            plt.xlabel( "FA count", fontsize=10 )
+            plt.ylabel( "PD", fontsize=10 )
+            plot_fn = '%s/%s.%s.png' % (out_dir, dataset_id, obj_type )
+            plt.savefig( plot_fn )
+            sys.stderr.write( 'Info: saved plot to %s\n' % plot_fn )
+            plt.show()
 
 
 if __name__ == '__main__':
