@@ -1,0 +1,7 @@
+net_config  = @kwiver_DIR@/examples/pipelines/darknet/models/virat.cfg
+weight_file = @kwiver_DIR@/examples/pipelines/darknet/models/virat.weights
+class_names = @kwiver_DIR@/examples/pipelines/darknet/models/virat.names
+
+thresh      = 0.25
+hier_thresh = 0.5
+gpu_index   = 0
