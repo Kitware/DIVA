@@ -50,8 +50,11 @@ configure_file(${DIVA_CMAKE_DIR}/setup_DIVA.sh.in  ${DIVA_BINARY_DIR}/setup_DIVA
 configure_file(${DIVA_CMAKE_DIR}/setup_DIVA.bat.in ${DIVA_BINARY_DIR}/setup_DIVA.bat @ONLY)
 configure_file(${DIVA_CMAKE_DIR}/start_MSVC.bat.in   ${DIVA_BINARY_DIR}/start_MSVC.bat @ONLY)
 
+configure_file(${CMAKE_SOURCE_DIR}/drivers/score.sh.in   ${DIVA_BINARY_DIR}/drivers/score.sh @ONLY)
 configure_file(${CMAKE_SOURCE_DIR}/drivers/data/darknet.config.in       ${DIVA_BINARY_DIR}/drivers/darknet_detections/darknet.config @ONLY)
 configure_file(${CMAKE_SOURCE_DIR}/drivers/data/image_experiment.yml.in ${DIVA_BINARY_DIR}/drivers/image_experiment.yml @ONLY)
 configure_file(${CMAKE_SOURCE_DIR}/drivers/data/image_list.txt.in       ${DIVA_BINARY_DIR}/drivers/image_list.txt @ONLY)
 configure_file(${CMAKE_SOURCE_DIR}/drivers/data/video_experiment.yml.in ${DIVA_BINARY_DIR}/drivers/video_experiment.yml @ONLY)
+file(MAKE_DIRECTORY ${DIVA_BINARY_DIR}/drivers/darknet_detections/algo-out)
+file(MAKE_DIRECTORY ${DIVA_BINARY_DIR}/drivers/darknet_detections/eval-out)
 

@@ -55,7 +55,7 @@ block output
    type = file
 
    # Where will the output be written?
-   root_dir = @CMAKE_SOURCE_DIR@/drivers/data/algo-out
+   root_dir = @DIVA_BINARY_DIR@/drivers/darknet_detections/algo-out
 
 endblock
 
@@ -68,7 +68,7 @@ block scoring
     score_events = @kwant_DIR@/bin/score_events
     ref_geom = @CMAKE_SOURCE_DIR@/drivers/data/ref-geom/VIRAT_S_000206_04_000710_000779.reduced.geom.yml
 
-    eval_output_dir = @CMAKE_SOURCE_DIR@/drivers/data/eval-out
+    eval_output_dir = @DIVA_BINARY_DIR@/drivers/darknet_detections/eval-out
 
     block object_detection
         ref_types = @CMAKE_SOURCE_DIR@/drivers/data/ref-geom/VIRAT_S_000206_04_000710_000779.types.yml

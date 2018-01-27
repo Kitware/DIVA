@@ -34,4 +34,4 @@ ExternalProject_Add(kwant
   )
 
 
-#set(kwant_DIR "${DIVA_BINARY_DIR}/kwant-build")
+set(kwant_DIR "${DIVA_BINARY_DIR}/kwant-build")

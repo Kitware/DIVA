@@ -13,7 +13,9 @@ find_package(Git REQUIRED)
 
 set( fletch_DIR "" CACHE PATH "Path to FLETCH" )
 set( kwiver_DIR "" CACHE PATH "Path to KWIVER" )
-set( kwant_DIR  "" CACHE PATH "Path to KWANT" )
+#set( kwant_DIR  "" CACHE PATH "Path to KWANT" )
+# We can use this when we can find_package(kwant) 
+# but it currently does not provide a kwantConfig.cmake file
 
 set( kwiver_FOUND FALSE)
 if(kwiver_DIR)
