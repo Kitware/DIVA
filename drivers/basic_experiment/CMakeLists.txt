@@ -11,6 +11,13 @@ include_directories("${CMAKE_SOURCE_DIR}/utils")
 add_executable(basic_experiment ${SOURCE})
 target_link_libraries(basic_experiment 
                       diva_utils
+                      kwiversys
+                      vital
+                      vital_algo
+                      vital_config
+                      vital_logger
+                      vital_util
+                      vital_vpm
                       kwiver_algo_ocv
                       ${OpenCV_LIBS})
 link_directories(${OpenCV_LIB_DIR})
