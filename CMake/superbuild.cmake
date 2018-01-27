@@ -13,7 +13,7 @@ find_package(Git REQUIRED)
 
 set( fletch_DIR "" CACHE PATH "Path to FLETCH" )
 set( kwiver_DIR "" CACHE PATH "Path to KWIVER" )
-#set( kwant_DIR "" CACHE PATH "Path to KWANT" )
+set( kwant_DIR  "" CACHE PATH "Path to KWANT" )
 
 set( kwiver_FOUND FALSE)
 if(kwiver_DIR)
@@ -93,6 +93,7 @@ ExternalProject_Add(DIVA
   STAMP_DIR ${DIVA_STAMP_DIR}
   CMAKE_CACHE_ARGS
     -Dkwiver_DIR:PATH=${kwiver_DIR}
+    -Dkwant_DIR:PATH=${kwant_DIR}
     -DBUILD_SHARED_LIBS:BOOL=ON
     -DDIVA_SUPERBUILD:BOOL=OFF
     -DCMAKE_PREFIX_PATH:STRING=${CMAKE_PREFIX_PATH}

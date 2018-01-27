@@ -1,5 +1,3 @@
-@CMAKE_SOURCE_DIR@/drivers/data/images/1.jpg
-@CMAKE_SOURCE_DIR@/drivers/data/images/2.jpg
-@CMAKE_SOURCE_DIR@/drivers/data/images/3.jpg
-@CMAKE_SOURCE_DIR@/drivers/data/images/4.jpg
-@CMAKE_SOURCE_DIR@/drivers/data/images/5.jpg
+@CMAKE_SOURCE_DIR@/drivers/data/images/00025.png
+@CMAKE_SOURCE_DIR@/drivers/data/images/00050.png
+@CMAKE_SOURCE_DIR@/drivers/data/images/00075.png

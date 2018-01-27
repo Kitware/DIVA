@@ -1,0 +1,91 @@
+- { geom: { id1: 0, id0: 25, ts0: 25, ts1: 0.833333333333333, g0: 1198 307 1248 343 , src: truth, occlusion: partially, } }
+- { geom: { id1: 1, id0: 2078, ts0: 25, ts1: 0.833333333333333, g0: 677 261 727 296 , src: truth, } }
+- { geom: { id1: 2, id0: 4131, ts0: 25, ts1: 0.833333333333333, g0: 944 320 1013 360 , src: truth, } }
+- { geom: { id1: 3, id0: 6184, ts0: 25, ts1: 0.833333333333333, g0: 705 380 766 423 , src: truth, occlusion: partially, } }
+- { geom: { id1: 4, id0: 8237, ts0: 25, ts1: 0.833333333333333, g0: 661 394 736 437 , src: truth, } }
+- { geom: { id1: 5, id0: 10290, ts0: 25, ts1: 0.833333333333333, g0: 830 439 956 494 , src: truth, occlusion: partially, } }
+- { geom: { id1: 6, id0: 12343, ts0: 25, ts1: 0.833333333333333, g0: 796 449 910 501 , src: truth, occlusion: mostly, } }
+- { geom: { id1: 7, id0: 14396, ts0: 25, ts1: 0.833333333333333, g0: 776 462 887 510 , src: truth, occlusion: partially, } }
+- { geom: { id1: 8, id0: 16449, ts0: 25, ts1: 0.833333333333333, g0: 700 467 824 533 , src: truth, occlusion: partially, } }
+- { geom: { id1: 9, id0: 18502, ts0: 25, ts1: 0.833333333333333, g0: 638 492 785 565 , src: truth, } }
+- { geom: { id1: 10, id0: 20555, ts0: 25, ts1: 0.833333333333333, g0: 622 362 695 400 , src: truth, occlusion: mostly, } }
+- { geom: { id1: 11, id0: 22608, ts0: 25, ts1: 0.833333333333333, g0: 608 371 673 417 , src: truth, occlusion: mostly, } }
+- { geom: { id1: 12, id0: 24661, ts0: 25, ts1: 0.833333333333333, g0: 581 375 640 423 , src: truth, occlusion: mostly, } }
+- { geom: { id1: 13, id0: 26714, ts0: 25, ts1: 0.833333333333333, g0: 538 373 608 426 , src: truth, } }
+- { geom: { id1: 14, id0: 28767, ts0: 25, ts1: 0.833333333333333, g0: 430 380 513 451 , src: truth, occlusion: partially, } }
+- { geom: { id1: 15, id0: 30820, ts0: 25, ts1: 0.833333333333333, g0: 252 353 364 401 , src: truth, occlusion: partially, } }
+- { geom: { id1: 16, id0: 32873, ts0: 25, ts1: 0.833333333333333, g0: 158 368 261 416 , src: truth, occlusion: partially, } }
+- { geom: { id1: 17, id0: 34926, ts0: 25, ts1: 0.833333333333333, g0: 81 375 202 424 , src: truth, occlusion: partially, } }
+- { geom: { id1: 18, id0: 36979, ts0: 25, ts1: 0.833333333333333, g0: 97 344 211 392 , src: truth, occlusion: partially, } }
+- { geom: { id1: 19, id0: 39032, ts0: 25, ts1: 0.833333333333333, g0: 90 318 161 359 , src: truth, } }
+- { geom: { id1: 23, id0: 42905, ts0: 25, ts1: 0.833333333333333, g0: 1059 547 1160 622 , src: truth, occlusion: partially, } }
+- { geom: { id1: 24, id0: 43003, ts0: 25, ts1: 0.833333333333333, g0: 881 504 1040 657 , src: truth, } }
+- { geom: { id1: 25, id0: 43183, ts0: 25, ts1: 0.833333333333333, g0: 430 309 448 341 , src: truth, } }
+- { geom: { id1: 26, id0: 44293, ts0: 25, ts1: 0.833333333333333, g0: 1105 419 1132 467 , src: truth, } }
+- { geom: { id1: 27, id0: 44494, ts0: 25, ts1: 0.833333333333333, g0: 739 538 771 609 , src: truth, } }
+- { geom: { id1: 34, id0: 48124, ts0: 25, ts1: 0.833333333333333, g0: 2 323 25 363 , src: truth, occlusion: mostly, } }
+- { geom: { id1: 5000, id0: 50295, ts0: 25, ts1: 0.833333333333333, g0: 1056 368 1070 402 , src: truth, } }
+- { geom: { id1: 5001, id0: 52349, ts0: 25, ts1: 0.833333333333333, g0: 69 291 117 328 , src: truth, occlusion: partially, } }
+- { geom: { id1: 5025, id0: 54403, ts0: 25, ts1: 0.833333333333333, g0: 0 470 226 719 , src: truth, occlusion: partially, } }
+- { geom: { id1: 5030, id0: 56457, ts0: 25, ts1: 0.833333333333333, g0: 72 423 95 487 , src: truth, } }
+- { geom: { id1: 0, id0: 50, ts0: 50, ts1: 1.66666666666667, g0: 1198 307 1248 343 , src: truth, occlusion: partially, } }
+- { geom: { id1: 1, id0: 2103, ts0: 50, ts1: 1.66666666666667, g0: 677 261 727 296 , src: truth, } }
+- { geom: { id1: 2, id0: 4156, ts0: 50, ts1: 1.66666666666667, g0: 944 320 1013 360 , src: truth, } }
+- { geom: { id1: 3, id0: 6209, ts0: 50, ts1: 1.66666666666667, g0: 705 380 766 423 , src: truth, occlusion: partially, } }
+- { geom: { id1: 4, id0: 8262, ts0: 50, ts1: 1.66666666666667, g0: 661 394 736 437 , src: truth, } }
+- { geom: { id1: 5, id0: 10315, ts0: 50, ts1: 1.66666666666667, g0: 830 439 956 494 , src: truth, occlusion: partially, } }
+- { geom: { id1: 6, id0: 12368, ts0: 50, ts1: 1.66666666666667, g0: 796 449 910 501 , src: truth, occlusion: mostly, } }
+- { geom: { id1: 7, id0: 14421, ts0: 50, ts1: 1.66666666666667, g0: 776 462 887 510 , src: truth, occlusion: partially, } }
+- { geom: { id1: 8, id0: 16474, ts0: 50, ts1: 1.66666666666667, g0: 700 467 824 533 , src: truth, occlusion: partially, } }
+- { geom: { id1: 9, id0: 18527, ts0: 50, ts1: 1.66666666666667, g0: 638 492 785 565 , src: truth, } }
+- { geom: { id1: 10, id0: 20580, ts0: 50, ts1: 1.66666666666667, g0: 622 362 695 400 , src: truth, occlusion: mostly, } }
+- { geom: { id1: 11, id0: 22633, ts0: 50, ts1: 1.66666666666667, g0: 608 371 673 417 , src: truth, occlusion: mostly, } }
+- { geom: { id1: 12, id0: 24686, ts0: 50, ts1: 1.66666666666667, g0: 581 375 640 423 , src: truth, occlusion: mostly, } }
+- { geom: { id1: 13, id0: 26739, ts0: 50, ts1: 1.66666666666667, g0: 538 373 608 426 , src: truth, } }
+- { geom: { id1: 14, id0: 28792, ts0: 50, ts1: 1.66666666666667, g0: 430 380 513 451 , src: truth, occlusion: partially, } }
+- { geom: { id1: 15, id0: 30845, ts0: 50, ts1: 1.66666666666667, g0: 252 353 364 401 , src: truth, occlusion: partially, } }
+- { geom: { id1: 16, id0: 32898, ts0: 50, ts1: 1.66666666666667, g0: 158 368 261 416 , src: truth, occlusion: partially, } }
+- { geom: { id1: 17, id0: 34951, ts0: 50, ts1: 1.66666666666667, g0: 81 375 202 424 , src: truth, occlusion: partially, } }
+- { geom: { id1: 18, id0: 37004, ts0: 50, ts1: 1.66666666666667, g0: 97 344 211 392 , src: truth, occlusion: partially, } }
+- { geom: { id1: 19, id0: 39057, ts0: 50, ts1: 1.66666666666667, g0: 90 318 161 359 , src: truth, } }
+- { geom: { id1: 23, id0: 42930, ts0: 50, ts1: 1.66666666666667, g0: 1121 512 1208 570 , src: truth, occlusion: partially, } }
+- { geom: { id1: 24, id0: 43028, ts0: 50, ts1: 1.66666666666667, g0: 867 513 1022 659 , src: truth, } }
+- { geom: { id1: 25, id0: 43208, ts0: 50, ts1: 1.66666666666667, g0: 453 305 476 346 , src: truth, } }
+- { geom: { id1: 26, id0: 44318, ts0: 50, ts1: 1.66666666666667, g0: 1118 417 1144 464 , src: truth, } }
+- { geom: { id1: 27, id0: 44519, ts0: 50, ts1: 1.66666666666667, g0: 759 535 789 602 , src: truth, } }
+- { geom: { id1: 34, id0: 48149, ts0: 50, ts1: 1.66666666666667, g0: 2 323 25 363 , src: truth, occlusion: mostly, } }
+- { geom: { id1: 5000, id0: 50320, ts0: 50, ts1: 1.66666666666667, g0: 1056 368 1070 402 , src: truth, } }
+- { geom: { id1: 5001, id0: 52374, ts0: 50, ts1: 1.66666666666667, g0: 69 291 117 328 , src: truth, occlusion: partially, } }
+- { geom: { id1: 5025, id0: 54428, ts0: 50, ts1: 1.66666666666667, g0: 0 470 226 719 , src: truth, occlusion: partially, } }
+- { geom: { id1: 5030, id0: 56482, ts0: 50, ts1: 1.66666666666667, g0: 72 423 95 487 , src: truth, } }
+- { geom: { id1: 0, id0: 75, ts0: 75, ts1: 2.5, g0: 1198 307 1248 343 , src: truth, occlusion: partially, } }
+- { geom: { id1: 1, id0: 2128, ts0: 75, ts1: 2.5, g0: 677 261 727 296 , src: truth, } }
+- { geom: { id1: 2, id0: 4181, ts0: 75, ts1: 2.5, g0: 944 320 1013 360 , src: truth, } }
+- { geom: { id1: 3, id0: 6234, ts0: 75, ts1: 2.5, g0: 705 380 766 423 , src: truth, occlusion: partially, } }
+- { geom: { id1: 4, id0: 8287, ts0: 75, ts1: 2.5, g0: 661 394 736 437 , src: truth, } }
+- { geom: { id1: 5, id0: 10340, ts0: 75, ts1: 2.5, g0: 830 439 956 494 , src: truth, occlusion: partially, } }
+- { geom: { id1: 6, id0: 12393, ts0: 75, ts1: 2.5, g0: 796 449 910 501 , src: truth, occlusion: mostly, } }
+- { geom: { id1: 7, id0: 14446, ts0: 75, ts1: 2.5, g0: 776 462 887 510 , src: truth, occlusion: partially, } }
+- { geom: { id1: 8, id0: 16499, ts0: 75, ts1: 2.5, g0: 700 467 824 533 , src: truth, occlusion: partially, } }
+- { geom: { id1: 9, id0: 18552, ts0: 75, ts1: 2.5, g0: 638 492 785 565 , src: truth, } }
+- { geom: { id1: 10, id0: 20605, ts0: 75, ts1: 2.5, g0: 622 362 695 400 , src: truth, occlusion: mostly, } }
+- { geom: { id1: 11, id0: 22658, ts0: 75, ts1: 2.5, g0: 608 371 673 417 , src: truth, occlusion: mostly, } }
+- { geom: { id1: 12, id0: 24711, ts0: 75, ts1: 2.5, g0: 581 375 640 423 , src: truth, occlusion: mostly, } }
+- { geom: { id1: 13, id0: 26764, ts0: 75, ts1: 2.5, g0: 538 373 608 426 , src: truth, } }
+- { geom: { id1: 14, id0: 28817, ts0: 75, ts1: 2.5, g0: 430 380 513 451 , src: truth, occlusion: partially, } }
+- { geom: { id1: 15, id0: 30870, ts0: 75, ts1: 2.5, g0: 252 353 364 401 , src: truth, occlusion: partially, } }
+- { geom: { id1: 16, id0: 32923, ts0: 75, ts1: 2.5, g0: 158 368 261 416 , src: truth, occlusion: partially, } }
+- { geom: { id1: 17, id0: 34976, ts0: 75, ts1: 2.5, g0: 81 375 202 424 , src: truth, occlusion: partially, } }
+- { geom: { id1: 18, id0: 37029, ts0: 75, ts1: 2.5, g0: 97 344 211 392 , src: truth, occlusion: partially, } }
+- { geom: { id1: 19, id0: 39082, ts0: 75, ts1: 2.5, g0: 90 318 161 359 , src: truth, } }
+- { geom: { id1: 22, id0: 42778, ts0: 75, ts1: 2.5, g0: 968 618 1086 704 , src: truth, } }
+- { geom: { id1: 23, id0: 42955, ts0: 75, ts1: 2.5, g0: 1171 478 1251 529 , src: truth, occlusion: partially, } }
+- { geom: { id1: 24, id0: 43053, ts0: 75, ts1: 2.5, g0: 839 531 999 673 , src: truth, } }
+- { geom: { id1: 25, id0: 43233, ts0: 75, ts1: 2.5, g0: 474 309 492 344 , src: truth, occlusion: partially, } }
+- { geom: { id1: 26, id0: 44343, ts0: 75, ts1: 2.5, g0: 1130 416 1150 458 , src: truth, } }
+- { geom: { id1: 27, id0: 44544, ts0: 75, ts1: 2.5, g0: 778 526 810 600 , src: truth, } }
+- { geom: { id1: 34, id0: 48174, ts0: 75, ts1: 2.5, g0: 2 323 25 363 , src: truth, occlusion: mostly, } }
+- { geom: { id1: 5000, id0: 50345, ts0: 75, ts1: 2.5, g0: 1056 368 1070 402 , src: truth, } }
+- { geom: { id1: 5001, id0: 52399, ts0: 75, ts1: 2.5, g0: 69 291 117 328 , src: truth, occlusion: partially, } }
+- { geom: { id1: 5025, id0: 54453, ts0: 75, ts1: 2.5, g0: 0 470 226 719 , src: truth, occlusion: partially, } }
+- { geom: { id1: 5030, id0: 56507, ts0: 75, ts1: 2.5, g0: 72 423 95 487 , src: truth, } }

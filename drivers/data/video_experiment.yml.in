@@ -1,46 +1,98 @@
-# Experiment Configuration
+#
+# This is a sample experiment file for the DIVA system.
+#
+# This file can be used for
+#
+#   1) Running and experiment
+#
+#   2) Scoring the results of the experiment
+#
+
+#
+# What is the purpose of this experiment?
 # Must be one of the following options:
 # - object_detection
 # - activity_detection
 type = object_detection
 
-experiment_id = parking_lot
+#
+# Tell the system about the input
+#
 
 block input
 
-  # Input Type
-  # Must be one of the following options:
-  # - file_list
-  # - video
-  type = video
-  
-  # Input Transport
-  # Must be one of the following options:
-  # - disk
-  # - girder
-  # - rstp # This is only valid with video input type
-  transport_type = disk
-  
-  # Video
-  source = parking_lot.mp4
-  dataset_id = 1
-  
-  root_dir = @CMAKE_SOURCE_DIR@/drivers/data/video/
-  frame_rate_Hz = 30
-endblock # input
+   # the dataset ID is used as the prefix for output files
+   dataset_id = parking_lot
+
+   # frame_rate_Hz metadata; available via the API if you want it
+   frame_rate_Hz = 30.0
+
+   # transport_type: how the input type is made available
+   # currently only 'disk' is supported
+   transport_type = disk
+
+   # local path to the input data
+   root_dir = @CMAKE_SOURCE_DIR@/drivers/data/video/
+
+   # input source type; currently either 'file_list' or 'video'
+   type = video
+
+   # the instance of the input source, in this case, a file,
+   # located in ${root_dir}/${source}, with filepaths of images to be
+   # processed.
+   source = parking_lot.mp4
+
+endblock
+
+
+#
+# Tell the system about your output
+#
 
 block output
-  # Output Type
-  # Must be one of the following options:
-  # - file
-  type = file
-  
-  root_dir = ./
-endblock # output
+
+   # How will your algorithm's output be transported?
+   type = file
+
+   # Where will the output be written?
+   root_dir = @CMAKE_SOURCE_DIR@/drivers/data/algo-out
+
+endblock
+
+# NO SCOREING DATA FOR THIS VIDEO INPUT YET
+# scoring
+#
 
 block scoring
-  truth_dir = /path/to/ground/truth
-  output_dir = /path/to/scoring/artifacts
-  params:iou = 0.5
-  params:time_window = M
-endblock # scoring
+
+    score_events = @kwant_DIR@/bin/score_events
+    ref_geom = @CMAKE_SOURCE_DIR@/drivers/data/ref-geom/unavailable
+
+    eval_output_dir = @CMAKE_SOURCE_DIR@/drivers/data/eval-out
+
+    block object_detection
+        ref_types = @CMAKE_SOURCE_DIR@/drivers/data/ref-geom/unavailable
+        target = Person
+        iou = 0.5
+        time_window = 25:75
+    endblock
+
+    roc_plot_opts = 
+
+endblock
+
+#
+# These parameters are specific to your algorithm and available
+# via the API
+#
+
+block algo
+
+   command = @DIVA_BINARY_DIR@/drivers/darknet_detections/darknet_detections -r $expfn
+
+   darknet_config_path = @DIVA_BINARY_DIR@/drivers/darknet_detections/darknet.config
+
+endblock
+
+
+

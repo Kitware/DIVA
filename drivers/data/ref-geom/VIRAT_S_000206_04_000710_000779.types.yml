@@ -1,0 +1,48 @@
+- { meta: "VIRAT_S_000206_04_000710_000779 types"}
+- { meta: "Construction_Vehicle 2 instances"}
+- { meta: "Door 1 instances"}
+- { meta: "Dumpster 1 instances"}
+- { meta: "Parking_Meter 1 instances"}
+- { meta: "Person 6 instances"}
+- { meta: "Tree 1 instances"}
+- { meta: "Vehicle 28 instances"}
+- { types: { id1: 0 , cset3: { Vehicle: 1.0 } } }
+- { types: { id1: 1 , cset3: { Vehicle: 1.0 } } }
+- { types: { id1: 2 , cset3: { Vehicle: 1.0 } } }
+- { types: { id1: 3 , cset3: { Vehicle: 1.0 } } }
+- { types: { id1: 4 , cset3: { Vehicle: 1.0 } } }
+- { types: { id1: 5 , cset3: { Vehicle: 1.0 } } }
+- { types: { id1: 6 , cset3: { Vehicle: 1.0 } } }
+- { types: { id1: 7 , cset3: { Vehicle: 1.0 } } }
+- { types: { id1: 8 , cset3: { Vehicle: 1.0 } } }
+- { types: { id1: 9 , cset3: { Vehicle: 1.0 } } }
+- { types: { id1: 10 , cset3: { Vehicle: 1.0 } } }
+- { types: { id1: 11 , cset3: { Vehicle: 1.0 } } }
+- { types: { id1: 12 , cset3: { Vehicle: 1.0 } } }
+- { types: { id1: 13 , cset3: { Vehicle: 1.0 } } }
+- { types: { id1: 14 , cset3: { Vehicle: 1.0 } } }
+- { types: { id1: 15 , cset3: { Vehicle: 1.0 } } }
+- { types: { id1: 16 , cset3: { Vehicle: 1.0 } } }
+- { types: { id1: 17 , cset3: { Vehicle: 1.0 } } }
+- { types: { id1: 18 , cset3: { Vehicle: 1.0 } } }
+- { types: { id1: 19 , cset3: { Vehicle: 1.0 } } }
+- { types: { id1: 20 , cset3: { Person: 1.0 } } }
+- { types: { id1: 21 , cset3: { Vehicle: 1.0 } } }
+- { types: { id1: 22 , cset3: { Vehicle: 1.0 } } }
+- { types: { id1: 23 , cset3: { Vehicle: 1.0 } } }
+- { types: { id1: 24 , cset3: { Vehicle: 1.0 } } }
+- { types: { id1: 25 , cset3: { Person: 1.0 } } }
+- { types: { id1: 26 , cset3: { Person: 1.0 } } }
+- { types: { id1: 27 , cset3: { Person: 1.0 } } }
+- { types: { id1: 28 , cset3: { Person: 1.0 } } }
+- { types: { id1: 29 , cset3: { Construction_Vehicle: 1.0 } } }
+- { types: { id1: 30 , cset3: { Vehicle: 1.0 } } }
+- { types: { id1: 31 , cset3: { Vehicle: 1.0 } } }
+- { types: { id1: 32 , cset3: { Construction_Vehicle: 1.0 } } }
+- { types: { id1: 33 , cset3: { Vehicle: 1.0 } } }
+- { types: { id1: 34 , cset3: { Vehicle: 1.0 } } }
+- { types: { id1: 35 , cset3: { Person: 1.0 } } }
+- { types: { id1: 5000 , cset3: { Parking_Meter: 1.0 } } }
+- { types: { id1: 5001 , cset3: { Dumpster: 1.0 } } }
+- { types: { id1: 5025 , cset3: { Tree: 1.0 } } }
+- { types: { id1: 5030 , cset3: { Door: 1.0 } } }
