@@ -263,7 +263,7 @@ display_experiment_frames( const std::string& fn )
   //
   // Framework: loading the experiment
   //
-  // This code creates a diva input point and intializes it via the
+  // This code creates a diva input point and initializes it via the
   // experiment file.
 
   diva_input input;

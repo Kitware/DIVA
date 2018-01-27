@@ -359,7 +359,7 @@ Schema Specification, (Line breaks are for clarity) ::
                   ]
   }
 
-Note the (...) indicates multiple specifications of the previous *{ packects }* may be provided
+Note the (...) indicates multiple specifications of the previous *{ packets }* may be provided
 
 Example (line breaks for clarity) ::
 
