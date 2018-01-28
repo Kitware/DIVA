@@ -3,7 +3,7 @@ add_subdirectory(schema_examples)
 add_subdirectory(basic_experiment)
 add_subdirectory(darknet_detections)
 
-add_custom_target(compile_python)
+add_custom_target(compile_python ALL)
 add_custom_command(TARGET compile_python POST_BUILD
                    COMMAND ${CMAKE_COMMAND} -DSOURCE_DIR=${CMAKE_SOURCE_DIR} 
                                             -DBINARY_DIR=${CMAKE_BINARY_DIR}
