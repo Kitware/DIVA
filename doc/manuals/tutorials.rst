@@ -63,9 +63,9 @@ Python
 ~~~~~~
 
 A simple `Python script <https://github.com/Kitware/DIVA/blob/master/drivers/schema_examples/schema_examples.py>`_ is provided to generate some KPF objects. 
-To run this example, do the following from the SOURCE directory ::
+To run this example, do the following from the BUILD directory ::
  
-  </path/to/DIVA/source>/drivers/schema_examples$python schema_examples.py
+  </path/to/DIVA/build>/drivers/schema_examples$python schema_examples.pyc
   # You will get the following output
   Geometry Content
   - { meta: Example geometry }
@@ -134,6 +134,10 @@ To run this example, do the following from the BUILD directory ::
   # To run Darknet with a video source
   </path/to/DIVA/build>/DIVA-build/drivers/darknet_detections$./darknet_detections ../video_experiment.yml
   # Note the output 'darknet.geom.yml' file will be written to the current directory
+  # Score the out put with this command 
+  </path/to/DIVA/build>/DIVA-build/drivers/system_script$python diva_system.pyc score ../image_experiment.yml
+  # Note the video experiment does not support scoring at this point
+  # Scored outputs will be found in the </path/to/DIVA/build>/DIVA-build/drivers/darknet_detections/eval-out directory
 
 Activity Detection
 ------------------
