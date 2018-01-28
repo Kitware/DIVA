@@ -41,6 +41,7 @@ find_package(fletch REQUIRED)
 # DIVA specific code (inner build)
 add_subdirectory(utils)
 add_subdirectory(drivers)
+include(CMake/python.cmake)
 
 set(LIBRARY_PATH_VAR "LD_LIBRARY_PATH")
 if( APPLE )
