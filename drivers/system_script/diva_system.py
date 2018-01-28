@@ -154,8 +154,10 @@ def write_sample_experiment():
        # evaluation results destination
        eval_output_dir = /path/to/evaluation/output
 
-       # parameters to plot ROC curves
-       # roc_opts = TBD
+       # uncomment to display output (e.g. ROC plots) as well as
+       # save to a file
+
+       # show_graphs = true
 
        # parameters used when type == object_detection
 
@@ -294,7 +296,9 @@ def score_experiment (expfn, dry_run_flag ):
             plot_fn = '%s/%s.%s.png' % (out_dir, dataset_id, obj_type )
             plt.savefig( plot_fn )
             sys.stderr.write( 'Info: saved plot to %s\n' % plot_fn )
-            plt.show()
+            showplot_key = 'scoring:show_graphs'
+            if (showplot_key in cfg) and (not cfg[showplot_key] in ['0','false','False']):
+                plt.show()
 
 
 if __name__ == '__main__':
