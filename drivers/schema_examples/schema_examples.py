@@ -60,7 +60,7 @@ meta.set_msg('activity_gesturing 0 instances');
 print meta.to_string(),
 
 actv = diva_python_utils.activity()
-actv.set_activity_name("vehicle_moving");
+#actv.set_activity_name("vehicle_moving");
 actv.set_activity_id(1);
 actv.set_source(diva_python_utils.activity_source.truth);
 # Overall timeframe of the activity
