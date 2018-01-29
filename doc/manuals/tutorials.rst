@@ -50,7 +50,7 @@ C++
 A simple `C++ executable <https://github.com/Kitware/DIVA/blob/master/drivers/schema_examples/schema_examples.cpp>`_ is provided to generate some KPF objects. 
 To run this example, do the following from the BUILD directory ::
 
-  </path/to/DIVA/build>/DIVA-build/drivers/schema_examples$./schema_examples
+  </path/to/DIVA/build>/DIVA-build/drivers/schema_examples$ ./schema_examples
   # You will get the following output
   - { meta: Example geometry }
   - { meta: 1 tracks; 50 detection }
@@ -65,7 +65,7 @@ Python
 A simple `Python script <https://github.com/Kitware/DIVA/blob/master/drivers/schema_examples/schema_examples.py>`_ is provided to generate some KPF objects. 
 To run this example, do the following from the BUILD directory ::
  
-  </path/to/DIVA/build>/drivers/schema_examples$python schema_examples.pyc
+  </path/to/DIVA/build>/drivers/schema_examples$ python schema_examples.pyc
   # You will get the following output
   Geometry Content
   - { meta: Example geometry }
@@ -93,7 +93,7 @@ A simple `C++ executable <https://github.com/Kitware/DIVA/blob/master/drivers/ba
 To run this example, do the following from the BUILD directory ::
 
   # This will write out a new file 'example.yml' experiment file in the current directory
-  </path/to/DIVA/build>/DIVA-build/drivers/basic_experiment$./basic_experiment -s example.yml
+  </path/to/DIVA/build>/DIVA-build/drivers/basic_experiment$ ./basic_experiment -s example.yml
 
 As we mentioned above, the DIVA API can provide image frames from the input source specified for an experiment. |br|
 Two example experiment files are provided, one that sources a list of images, and another that sources a video file. |br|
@@ -101,9 +101,9 @@ The intent of this example is to demonstrate the performer can use the API to ea
 To run this example, do the following from the BUILD directory ::
 
   # The image experiment displays frames from a list of images specified in a txt file
-  </path/to/DIVA/build>/DIVA-build/drivers/basic_experiment$./basic_experiment -d ../image_experiment.yml
+  </path/to/DIVA/build>/DIVA-build/drivers/basic_experiment$ ./basic_experiment -d ../image_experiment.yml
   # The video experiment displays frames from a video file
-  </path/to/DIVA/build>/DIVA-build/drivers/basic_experiment$./basic_experiment -d ../video_experiment.yml
+  </path/to/DIVA/build>/DIVA-build/drivers/basic_experiment$ ./basic_experiment -d ../video_experiment.yml
 
 
 Object Detection
@@ -129,13 +129,13 @@ To run this example, do the following from the BUILD directory ::
   # This will next unzip and configure the example
   </path/to/DIVA/build>/kwiver-build$ make external_darknet_example
   # Go back to the diva build directory and run darknet_detections 
-  </path/to/DIVA/build>/DIVA-build/drivers/darknet_detections$./darknet_detections ../image_experiment.yml
+  </path/to/DIVA/build>/DIVA-build/drivers/darknet_detections$ ./darknet_detections ../image_experiment.yml
   # Note the output 'darknet.geom.yml' file will be written to the current directory
   # To run Darknet with a video source
-  </path/to/DIVA/build>/DIVA-build/drivers/darknet_detections$./darknet_detections ../video_experiment.yml
+  </path/to/DIVA/build>/DIVA-build/drivers/darknet_detections$ ./darknet_detections ../video_experiment.yml
   # Note the output 'darknet.geom.yml' file will be written to the current directory
   # Score the out put with this command 
-  </path/to/DIVA/build>/DIVA-build/drivers/system_script$python diva_system.pyc score ../image_experiment.yml
+  </path/to/DIVA/build>/DIVA-build/drivers/system_script$ python diva_system.pyc score ../image_experiment.yml
   # Note the video experiment does not support scoring at this point
   # Scored outputs will be found in the </path/to/DIVA/build>/DIVA-build/drivers/darknet_detections/eval-out directory
 
