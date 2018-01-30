@@ -129,10 +129,10 @@ To run this example, do the following from the BUILD directory ::
   # This will next unzip and configure the example
   </path/to/DIVA/build>/kwiver-build$ make external_darknet_example
   # Go back to the diva build directory and run darknet_detections 
-  </path/to/DIVA/build>/DIVA-build/drivers/darknet_detections$ ./darknet_detections ../image_experiment.yml
+  </path/to/DIVA/build>/DIVA-build/drivers/darknet_detections$ ./darknet_detections -r ../image_experiment.yml
   # Note the output 'darknet.geom.yml' file will be written to the current directory
   # To run Darknet with a video source
-  </path/to/DIVA/build>/DIVA-build/drivers/darknet_detections$ ./darknet_detections ../video_experiment.yml
+  </path/to/DIVA/build>/DIVA-build/drivers/darknet_detections$ ./darknet_detections -r ../video_experiment.yml
   # Note the output 'darknet.geom.yml' file will be written to the current directory
   # Score the out put with this command 
   </path/to/DIVA/build>/DIVA-build/drivers/system_script$ python diva_system.pyc score ../image_experiment.yml
