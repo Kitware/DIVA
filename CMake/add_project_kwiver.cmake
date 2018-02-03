@@ -59,7 +59,8 @@ ExternalProject_Add(kwiver
     -DMAKECOMMAND:STRING=${MAKECOMMAND}
     -DADDITIONAL_C_FLAGS:STRING=${ADDITIONAL_C_FLAGS}
     -DADDITIONAL_CXX_FLAGS:STRING=${ADDITIONAL_CXX_FLAGS}
-  INSTALL_COMMAND cmake -E echo "Skipping install step."
+  #INSTALL_COMMAND cmake -E echo "Skipping install step."
+  INSTALL_DIR "${CMAKE_INSTALL_PREFIX}"
 )
 
-set(kwiver_DIR "${DIVA_BINARY_DIR}/kwiver-build")
+set(kwiver_DIR "${CMAKE_INSTALL_PREFIX}")

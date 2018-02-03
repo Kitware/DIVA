@@ -30,8 +30,9 @@ ExternalProject_Add(kwant
     -DCMAKE_SHARED_LINKER_FLAGS:STRING=${CMAKE_SHARED_LINKER_FLAGS}
     -DADDITIONAL_C_FLAGS:STRING=${ADDITIONAL_C_FLAGS}
     -DADDITIONAL_CXX_FLAGS:STRING=${ADDITIONAL_CXX_FLAGS}
-  INSTALL_COMMAND cmake -E echo "Skipping install step."
+  #INSTALL_COMMAND cmake -E echo "Skipping install step."
+  INSTALL_DIR "${CMAKE_INSTALL_PREFIX}"
   )
 
 
-set(kwant_DIR "${DIVA_BINARY_DIR}/kwant-build")
+set(kwant_DIR "${CMAKE_INSTALL_PREFIX}")
