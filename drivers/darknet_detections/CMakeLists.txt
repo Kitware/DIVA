@@ -24,6 +24,8 @@ target_link_libraries(darknet_detections
                       ${OpenCV_LIBS})
 link_directories(${OpenCV_LIB_DIR})
 
+install(TARGETS darknet_detections RUNTIME DESTINATION ${CMAKE_INSTALL_PREFIX}/bin)
+
 if(WIN32)
   target_compile_definitions(darknet_detections PRIVATE YAML_CPP_DLL)
 endif()

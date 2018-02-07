@@ -6,6 +6,8 @@ add_executable(schema_examples ${SOURCE})
 target_link_libraries(schema_examples 
                       diva_utils)
 
+install(TARGETS schema_examples RUNTIME DESTINATION ${CMAKE_INSTALL_PREFIX}/bin)
+
 if(WIN32)
   target_compile_definitions(schema_examples PRIVATE YAML_CPP_DLL)
 endif()
