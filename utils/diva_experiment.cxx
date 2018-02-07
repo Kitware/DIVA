@@ -90,7 +90,7 @@ void diva_experiment::clear()
   remove_scoring_reference_geometry();
   remove_scoring_evaluation_output_dir();
   remove_scoring_object_detection_reference_types();
-  remove_scoring_object_detection_reference_target();
+  remove_scoring_object_detection_target();
   remove_scoring_object_detection_iou();
   remove_scoring_object_detection_time_window();
   
@@ -173,6 +173,24 @@ bool diva_experiment::read_experiment(const std::string& filename)
   if (_pimpl->config->has_value("output:root_dir"))
     set_output_root_dir(_pimpl->config->get_value<std::string>("output:root_dir"));
 
+  if (_pimpl->config->has_value("scoring:score_events"))
+    set_score_events_executable(_pimpl->config->get_value<std::string>("scoring:score_events"));
+  if (_pimpl->config->has_value("scoring:ref_geom"))
+    set_scoring_reference_geometry(_pimpl->config->get_value<std::string>("scoring:ref_geom"));
+  if (_pimpl->config->has_value("scoring:eval_output_dir"))
+    set_scoring_evaluation_output_dir(_pimpl->config->get_value<std::string>("scoring:eval_output_dir"));
+  if (_pimpl->config->has_value("scoring:object_detection:ref_types"))
+    set_scoring_object_detection_reference_types(_pimpl->config->get_value<std::string>("scoring:object_detection:ref_types"));
+  if (_pimpl->config->has_value("scoring:object_detection:target"))
+    set_scoring_object_detection_target(_pimpl->config->get_value<std::string>("scoring:object_detection:target"));
+  if (_pimpl->config->has_value("scoring:object_detection:iou"))
+    set_scoring_object_detection_iou(_pimpl->config->get_value<std::string>("scoring:object_detection:iou"));
+  if (_pimpl->config->has_value("scoring:object_detection:time_window"))
+    set_scoring_object_detection_time_window(_pimpl->config->get_value<std::string>("scoring:object_detection:time_window"));
+
+  if (_pimpl->config->has_value("output:root_dir"))
+    set_algorithm_executable(_pimpl->config->get_value<std::string>("algo:command"));
+
   return is_valid();
 }
 bool diva_experiment::write_experiment(const std::string& filename)
@@ -181,6 +199,13 @@ bool diva_experiment::write_experiment(const std::string& filename)
     return false;
   kwiver::vital::write_config_file(_pimpl->config, filename);
   return true;
+}
+
+std::string diva_experiment::to_string() const
+{
+  std::stringstream str;
+  kwiver::vital::write_config(_pimpl->config, str);
+  return str.str();
 }
 
 bool diva_experiment::has_type() const
@@ -402,20 +427,20 @@ std::string diva_experiment::get_output_prefix() const
 
 bool diva_experiment::has_score_events_executable() const
 {
-  return !_pimpl->score_events_executable(.empty();
+  return !_pimpl->score_events_executable.empty();
 }
 void diva_experiment::set_score_events_executable(const std::string& src)
 {
-  _pimpl->score_events_executable( = src;
+  _pimpl->score_events_executable = src;
   _pimpl->config->set_value<std::string>("scoring:score_events", src);
 }
 std::string diva_experiment::get_score_events_executable() const
 {
-  return _pimpl->score_events_executable(;
+  return _pimpl->score_events_executable;
 }
 void diva_experiment::remove_score_events_executable()
 {
-  _pimpl->score_events_executable( = "";
+  _pimpl->score_events_executable = "";
   if (_pimpl->config->has_value("scoring:score_events"))
     _pimpl->config->unset_value("scoring:score_events");
 }
@@ -427,7 +452,7 @@ bool diva_experiment::has_scoring_reference_geometry() const
 void diva_experiment::set_scoring_reference_geometry(const std::string& src)
 {
   _pimpl->scoring_reference_geometry = src;
-  _pimpl->config->set_value<std::string>("scoring:root_dir", src);
+  _pimpl->config->set_value<std::string>("scoring:ref_geom", src);
 }
 std::string diva_experiment::get_scoring_reference_geometry() const
 {

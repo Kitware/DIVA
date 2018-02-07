@@ -67,6 +67,7 @@ public:
 
   bool read_experiment(const std::string& filename);
   bool write_experiment(const std::string& filename);
+  std::string to_string() const;
 
   bool has_type() const;
   type get_type() const;
@@ -135,10 +136,10 @@ public:
   std::string get_scoring_object_detection_reference_types() const;
   void remove_scoring_object_detection_reference_types();
   
-  bool has_scoring_object_detection_reference_targets() const;
-  void set_scoring_object_detection_reference_targets(const std::string& id);
-  std::string get_scoring_object_detection_reference_targets() const;
-  void remove_scoring_object_detection_reference_targets();
+  bool has_scoring_object_detection_target() const;
+  void set_scoring_object_detection_target(const std::string& id);
+  std::string get_scoring_object_detection_target() const;
+  void remove_scoring_object_detection_target();
   
   bool has_scoring_object_detection_iou() const;
   void set_scoring_object_detection_iou(const std::string& id);

@@ -32,7 +32,7 @@ block input
    transport_type = disk
 
    # local path to the input data
-   root_dir = @DIVA_BINARY_DIR@/drivers
+   root_dir = ./
 
    # input source type; currently either 'file_list' or 'video'
    type = file_list
@@ -40,7 +40,7 @@ block input
    # the instance of the input source, in this case, a file,
    # located in ${root_dir}/${source}, with filepaths of images to be
    # processed.
-   source = image_list.txt
+   source = /etc/image_list.txt
 
 endblock
 
@@ -55,7 +55,7 @@ block output
    type = file
 
    # Where will the output be written?
-   root_dir = @DIVA_BINARY_DIR@/drivers/darknet_detections/algo-out
+   root_dir = ./etc/algo-out
 
 endblock
 
@@ -65,13 +65,13 @@ endblock
 
 block scoring
 
-    score_events = @kwant_DIR@/bin/score_events
-    ref_geom = @CMAKE_SOURCE_DIR@/drivers/data/ref-geom/VIRAT_S_000206_04_000710_000779.reduced.geom.yml
+    score_events = ./bin/score_events
+    ref_geom = ./etc/ref-geom/VIRAT_S_000206_04_000710_000779.reduced.geom.yml
 
-    eval_output_dir = @DIVA_BINARY_DIR@/drivers/darknet_detections/eval-out
+    eval_output_dir = ./etc/eval-out
 
     block object_detection
-        ref_types = @CMAKE_SOURCE_DIR@/drivers/data/ref-geom/VIRAT_S_000206_04_000710_000779.types.yml
+        ref_types = ./etc/ref-geom/VIRAT_S_000206_04_000710_000779.types.yml
         target = Person
         iou = 0.5
         time_window = 25:75
@@ -88,9 +88,9 @@ endblock
 
 block algo
 
-   command = @DIVA_BINARY_DIR@/drivers/darknet_detections/darknet_detections -r $expfn
+   command = ./bin/darknet_detections -r $expfn
 
-   darknet_config_path = @DIVA_BINARY_DIR@/drivers/darknet_detections/darknet.config
+   darknet_config_path = ./etc/darknet.config
 
 endblock
 

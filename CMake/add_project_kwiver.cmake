@@ -63,4 +63,4 @@ ExternalProject_Add(kwiver
   INSTALL_DIR "${CMAKE_INSTALL_PREFIX}"
 )
 
-set(kwiver_DIR "${CMAKE_INSTALL_PREFIX}")
+set(kwiver_DIR "${CMAKE_INSTALL_PREFIX}/lib/cmake/kwiver")
