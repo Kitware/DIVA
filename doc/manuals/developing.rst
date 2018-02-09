@@ -59,8 +59,8 @@ Then to compile these changes, on Linux, open terminal to the DIVA build directo
 
 The ``<path/to/DIVA/install>/bin/darknet_detections`` will be updated from your code changes and you will not get the images displayed after each detection.
 
-As you explore and modify the provided cpp drivers, notice the use of the KWIVER API.
-Using the DIVA API also provides access to the powerful KWIVER framework and its various data types and algorithms.
+As you explore and modify the provided cpp drivers, notice the use of the KWIVER API. |br|
+Using the DIVA API also provides access to the powerful `KWIVER framework <https://github.com/Kitware/kwiver>`_ and its various `data types <http://kwiver.readthedocs.io/en/latest/vital/architecture.html>`_ and `algorithms <http://kwiver.readthedocs.io/en/latest/arrows/architecture.html>`_.
 
 
 Building your own C++ Driver
