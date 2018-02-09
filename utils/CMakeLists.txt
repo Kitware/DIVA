@@ -61,6 +61,10 @@ target_link_libraries( diva_utils
                  yaml-cpp kpf_yaml
 )
 
+add_custom_command(TARGET diva_utils POST_BUILD
+                   COMMAND ${CMAKE_COMMAND} -E copy $<TARGET_FILE:diva_utils> ${CMAKE_INSTALL_PREFIX}/lib)
+install(TARGETS diva_utils DESTINATION ${CMAKE_INSTALL_PREFIX}/lib)
+
 
 if(WIN32)
   target_compile_definitions(diva_utils PRIVATE YAML_CPP_DLL)

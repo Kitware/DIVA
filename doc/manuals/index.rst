@@ -15,6 +15,7 @@ Contents:
    architecture
    tools
    tutorials
+   developing
 
 Indices and tables
 ==================

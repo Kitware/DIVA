@@ -40,6 +40,9 @@ target_link_libraries( diva_python_utils
   PRIVATE              diva_utils pybind11::embed
 )
 
+
+add_custom_command(TARGET diva_python_utils POST_BUILD
+                   COMMAND ${CMAKE_COMMAND} -E copy $<TARGET_FILE:diva_python_utils> ${CMAKE_INSTALL_PREFIX}/lib)
 install(TARGETS diva_python_utils DESTINATION ${CMAKE_INSTALL_PREFIX}/lib)
 
 if(WIN32)
