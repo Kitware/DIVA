@@ -30,7 +30,7 @@ Building DIVA
 
 Dependencies
 ------------
-DIVA requires, at a minimum, Git, CMake, and a C++ compiler.
+DIVA requires, at a minimum, Git, CMake, a C++ compiler, and a Python 2.7 compiler.
 
 DIVA is built on top of the `KWIVER <https://github.com/Kitware/kwiver>`_ toolkit.
 which is in turn built on the `Fletch <https://github.com/Kitware/fletch>`_ super build system.
@@ -38,6 +38,17 @@ To make it easier to build DIVA, a "super-build" is provided to build both KWIVE
 It will pull both projects, configure them for DIVA, and build them for you.
 If you wish, you may point the DIVA build to use your own builds of KWIVER or Fletch for DIVA to use.
 
+On Linux systems, Install the following packages before building
+
+.. code-block :: bash
+
+ # The following example uses the Ubuntu apt-get package manager
+ # These command may differ depending on your Linux flavor and package manager
+ sudo apt-get install build-essential libgl1-mesa-dev
+ sudo apt-get install libexpat1-dev
+ sudo apt-get install libgtk2.0-dev
+ sudo apt-get install liblapack-dev
+ sudo apt-get install python2.7-dev
 
 Running CMake
 -------------
@@ -101,15 +112,16 @@ Running DIVA
 ============
 
 Once you've built DIVA, you'll want to test that it's working on your system.
-From a command prompt execute the following command::
+DIVA will create an install directory inside the DIVA build location.
+From a command prompt change to this install directory and execute the following command::
 
   # via a bash shell
-  source </path/to/DIVA/build>/DIVA-build$ setup_DIVA.sh
+  </path/to/DIVA/build/install>$ source setup_DIVA.sh
   #
   # via a windows cmd prompt
-  </path/to/DIVA/build>/DIVA-build setup_DIVA.bat
+  </path/to/DIVA/build/install> setup_DIVA.bat
 
-Where `</path/to/DIVA/build>` is the actual path of your DIVA CMake build directory.
+Where ``</path/to/DIVA/build/install>`` is the install directory inside your DIVA CMake build directory.
 
 This will set up your PATH and other environment variables
 to allow DIVA to work conveniently within in the shell/cmd window.
@@ -117,10 +129,10 @@ to allow DIVA to work conveniently within in the shell/cmd window.
 You can run this simple driver to ensure your system is configured properly::
 
   # via a bash shell
-  </path/to/DIVA/build>/DIVA-build/driver$./diva_driver
+  </path/to/DIVA/build/install>$ ./bin/schema_examples
   #
   # on windows, you will need to also be in the proper folder
-  </path/to/DIVA/build>/DIVA-build/driver diva_driver
+  </path/to/DIVA/build/install> ./bin/diva_driver
 
 This will generate some KPF packet messages to the terminal/command window.
 
