@@ -38,6 +38,17 @@ To make it easier to build DIVA, a "super-build" is provided to build both KWIVE
 It will pull both projects, configure them for DIVA, and build them for you.
 If you wish, you may point the DIVA build to use your own builds of KWIVER or Fletch for DIVA to use.
 
+On Linux systems, Install the following packages before building
+
+.. code-block :: bash
+
+ # The following example uses the Ubuntu apt-get package manager
+ # These command may differ depending on your Linux flavor and package manager
+ sudo apt-get install build-essential libgl1-mesa-dev
+ sudo apt-get install libexpat1-dev
+ sudo apt-get install libgtk2.0-dev
+ sudo apt-get install liblapack-dev
+ sudo apt-get install python2.7-dev
 
 Running CMake
 -------------
