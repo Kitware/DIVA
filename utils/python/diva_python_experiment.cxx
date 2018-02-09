@@ -35,23 +35,23 @@ namespace py = pybind11;
 
 void diva_python_experiment(py::module &m)
 {
-  py::enum_<diva_experiment::type>(m, "type")
+  py::enum_<diva_experiment::type>(m, "experiment_type")
     .value("object_detection", diva_experiment::type::object_detection)
     .value("activity_detection", diva_experiment::type::activity_detection)
     .export_values();
 
-  py::enum_<diva_experiment::input_type>(m, "input_type")
+  py::enum_<diva_experiment::input_type>(m, "experiment_input_type")
     .value("file_list", diva_experiment::input_type::file_list)
     .value("video", diva_experiment::input_type::video)
     .export_values();
 
-  py::enum_<diva_experiment::transport_type>(m, "transport_type")
+  py::enum_<diva_experiment::transport_type>(m, "experiment_transport_type")
     .value("disk", diva_experiment::transport_type::disk)
     .value("girder", diva_experiment::transport_type::girder)
     .value("rstp", diva_experiment::transport_type::rstp)
     .export_values();
 
-  py::enum_<diva_experiment::output_type>(m, "output_type")
+  py::enum_<diva_experiment::output_type>(m, "experiment_output_type")
     .value("file", diva_experiment::output_type::file)
     .export_values();
 
@@ -98,7 +98,41 @@ void diva_python_experiment(py::module &m)
     .def("get_output_root_dir", &diva_experiment::get_output_root_dir)
     .def("remove_output_root_dir", &diva_experiment::remove_output_root_dir)
     .def("get_output_filename", &diva_experiment::get_output_prefix)
+    .def("has_scoring_reference_geometry", &diva_experiment::has_scoring_reference_geometry)
+    .def("set_scoring_reference_geometry", &diva_experiment::set_scoring_reference_geometry)
+    .def("get_scoring_reference_geometry", &diva_experiment::get_scoring_reference_geometry)
+    .def("remove_scoring_reference_geometry", &diva_experiment::remove_scoring_reference_geometry)
+    .def("has_scoring_evaluation_output_dir", &diva_experiment::has_scoring_evaluation_output_dir)
+    .def("set_scoring_evaluation_output_dir", &diva_experiment::set_scoring_evaluation_output_dir)
+    .def("get_scoring_evaluation_output_dir", &diva_experiment::get_scoring_evaluation_output_dir)
+    .def("remove_scoring_evaluation_output_dir", &diva_experiment::remove_scoring_evaluation_output_dir)
+    .def("has_scoring_object_detection_reference_types", &diva_experiment::has_scoring_object_detection_reference_types)
+    .def("set_scoring_object_detection_reference_types", &diva_experiment::set_scoring_object_detection_reference_types)
+    .def("get_scoring_object_detection_reference_types", &diva_experiment::get_scoring_object_detection_reference_types)
+    .def("remove_scoring_object_detection_reference_types", &diva_experiment::remove_scoring_object_detection_reference_types)
+    .def("has_scoring_object_detection_target", &diva_experiment::has_scoring_object_detection_target)
+    .def("set_scoring_object_detection_target", &diva_experiment::set_scoring_object_detection_target)
+    .def("get_scoring_object_detection_target", &diva_experiment::get_scoring_object_detection_target)
+    .def("remove_scoring_object_detection_target", &diva_experiment::remove_scoring_object_detection_target)
+    .def("has_score_events_executable", &diva_experiment::has_score_events_executable)
+    .def("set_score_events_executable", &diva_experiment::set_score_events_executable)
+    .def("get_score_events_executable", &diva_experiment::get_score_events_executable)
+    .def("remove_score_events_executable", &diva_experiment::remove_score_events_executable)
+    .def("has_scoring_object_detection_iou", &diva_experiment::has_scoring_object_detection_iou)
+    .def("set_scoring_object_detection_iou", &diva_experiment::set_scoring_object_detection_iou)
+    .def("get_scoring_object_detection_iou", &diva_experiment::get_scoring_object_detection_iou)
+    .def("remove_scoring_object_detection_iou", &diva_experiment::remove_scoring_object_detection_iou)
+    .def("has_scoring_object_detection_time_window", &diva_experiment::has_scoring_object_detection_time_window)
+    .def("set_scoring_object_detection_time_window", &diva_experiment::set_scoring_object_detection_time_window)
+    .def("get_scoring_object_detection_time_window", &diva_experiment::get_scoring_object_detection_time_window)
+    .def("remove_scoring_object_detection_time_window", &diva_experiment::remove_scoring_object_detection_time_window)
+    .def("has_algorithm_executable", &diva_experiment::has_algorithm_executable)
+    .def("set_algorithm_executable", &diva_experiment::set_algorithm_executable)
+    .def("get_algorithm_executable", &diva_experiment::get_algorithm_executable)
+    .def("remove_algorithm_executable", &diva_experiment::remove_algorithm_executable)
     .def("set_algorithm_parameter", &diva_experiment::set_algorithm_parameter)
     .def("get_algorithm_parameter", &diva_experiment::get_algorithm_parameter)
+
+      .def("to_string", &diva_experiment::to_string);
     ;
 }

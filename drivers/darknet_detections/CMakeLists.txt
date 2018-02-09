@@ -23,6 +23,10 @@ target_link_libraries(darknet_detections
                       kwiver_algo_ocv
                       ${OpenCV_LIBS})
 link_directories(${OpenCV_LIB_DIR})
+add_custom_command(TARGET darknet_detections POST_BUILD
+                   COMMAND ${CMAKE_COMMAND} -E copy $<TARGET_FILE:darknet_detections> ${CMAKE_INSTALL_PREFIX}/bin)
+
+install(TARGETS darknet_detections RUNTIME DESTINATION ${CMAKE_INSTALL_PREFIX}/bin)
 
 if(WIN32)
   target_compile_definitions(darknet_detections PRIVATE YAML_CPP_DLL)

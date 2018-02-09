@@ -67,6 +67,7 @@ public:
 
   bool read_experiment(const std::string& filename);
   bool write_experiment(const std::string& filename);
+  std::string to_string() const;
 
   bool has_type() const;
   type get_type() const;
@@ -114,6 +115,46 @@ public:
   void remove_output_root_dir();
 
   std::string get_output_prefix() const;
+  
+  bool has_score_events_executable() const;
+  void set_score_events_executable(const std::string& id);
+  std::string get_score_events_executable() const;
+  void remove_score_events_executable();
+  
+  bool has_scoring_reference_geometry() const;
+  void set_scoring_reference_geometry(const std::string& id);
+  std::string get_scoring_reference_geometry() const;
+  void remove_scoring_reference_geometry();
+  
+  bool has_scoring_evaluation_output_dir() const;
+  void set_scoring_evaluation_output_dir(const std::string& id);
+  std::string get_scoring_evaluation_output_dir() const;
+  void remove_scoring_evaluation_output_dir();
+  
+  bool has_scoring_object_detection_reference_types() const;
+  void set_scoring_object_detection_reference_types(const std::string& id);
+  std::string get_scoring_object_detection_reference_types() const;
+  void remove_scoring_object_detection_reference_types();
+  
+  bool has_scoring_object_detection_target() const;
+  void set_scoring_object_detection_target(const std::string& id);
+  std::string get_scoring_object_detection_target() const;
+  void remove_scoring_object_detection_target();
+  
+  bool has_scoring_object_detection_iou() const;
+  void set_scoring_object_detection_iou(const std::string& id);
+  std::string get_scoring_object_detection_iou() const;
+  void remove_scoring_object_detection_iou();
+  
+  bool has_scoring_object_detection_time_window() const;
+  void set_scoring_object_detection_time_window(const std::string& id);
+  std::string get_scoring_object_detection_time_window() const;
+  void remove_scoring_object_detection_time_window();
+  
+  bool has_algorithm_executable() const;
+  void set_algorithm_executable(const std::string& id);
+  std::string get_algorithm_executable() const;
+  void remove_algorithm_executable();
 
   void set_algorithm_parameter( const std::string& key, const std::string& val );
   std::string get_algorithm_parameter( const std::string& key ) const;

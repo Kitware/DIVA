@@ -1,0 +1,19 @@
+# Configuration file for the DIVA build
+set(DIVA_VERSION 1.0.0)
+set(DIVA_ROOT @CMAKE_INSTALL_PREFIX@)
+set(DIVA_PYTHON_MAJOR_VERSION 2)
+
+# Set up the KWIVER and Fletch for use
+set(kwiver_DIR ${DIVA_ROOT}/lib/cmake/kwiver CACHE PATH "Path to KWIVER package")
+find_package(kwiver REQUIRED)
+message(STATUS "KWIVER's Fletch at ${fletch_DIR}")
+include(kwiver-cmake-future)
+include(kwiver-utils)
+include(kwiver-flags)
+include(kwiver-configcheck)
+find_package(fletch REQUIRED)
+
+set(DIVA_INCLUDE_DIR        "@CMAKE_INSTALL_PREFIX@/include")
+set(DIVA_INCLUDE_DIRS       "${DIVA_INCLUDE_DIR}"  "${KWIVER_INCLUDE_DIRS}" )
+set(DIVA_LIBRARY_DIR        "@CMAKE_INSTALL_PREFIX@/lib")
+set(DIVA_LIBRARY_DIRS       "${DIVA_LIBRARY_DIR}"  "${KWIVER_LIBRARY_DIRS}")

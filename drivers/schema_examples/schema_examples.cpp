@@ -32,6 +32,7 @@
 #include "diva_geometry.h"
 #include "diva_label.h"
 #include "diva_activity.h"
+#include "diva_experiment.h"
 
 int main(int argc, const char* argv[])
 {
@@ -137,4 +138,56 @@ int main(int argc, const char* argv[])
   meta.set_msg("eof");
   meta.write(actv_ss);
   std::cout << actv_ss.str() << std::endl;
+
+  // Example of writing an experiment file
+  diva_experiment exp;
+  std::stringstream exp_ss;
+
+  // This is a sample experiment file for the DIVA system.
+  // This file can be used for
+  //    1) Running and experiment
+  //    2) Scoring the results of the experiment
+
+  // What is the purpose of this experiment?
+  exp.set_type(diva_experiment::type::object_detection);
+
+  // Describe the inputs :
+  // the dataset ID is used as the prefix for output files
+  exp.set_dataset_id("VIRAT_S_000206_04_000710_000779");
+  // frame_rate_Hz metadata; available via the API if you want it
+  exp.set_frame_rate_Hz(30);
+  // set how the input type is made available
+  exp.set_transport_type(diva_experiment::transport_type::disk);
+  // local path to the input data
+  exp.set_input_root_dir("./etc/");
+  // input source type
+  exp.set_input_type(diva_experiment::input_type::file_list);
+  // the instance of the input source, in this case, a file,
+  // located in ${root_dir}/${source}, with filepaths of images to be processed.
+  exp.set_input_source("image_list.txt");
+
+  // Describe the outputs :
+  // How will your algorithm's output be transported?
+  exp.set_output_type(diva_experiment::output_type::file);
+  // Where will the output be written?
+  exp.set_output_root_dir("./etc/algo-out");
+
+  // Scoring Configuration
+  // Where is the scoring executable
+  exp.set_score_events_executable("./bin/score_events");
+  // What file do we score against
+  exp.set_scoring_reference_geometry("./etc/ref-geom/VIRAT_S_000206_04_000710_000779.reduced.geom.yml");
+  // Where does the scoring evaluation go?
+  exp.set_scoring_evaluation_output_dir("./etc/eval-out");
+  // For scoring object detections :
+  // The reference labels file
+  exp.set_scoring_object_detection_reference_types("./etc/ref-geom/VIRAT_S_000206_04_000710_000779.types.yml");
+  // The target label to score
+  exp.set_scoring_object_detection_target("Person");
+  // Set the IOU
+  exp.set_scoring_object_detection_iou("0.5");
+  // Set the time window
+  exp.set_scoring_object_detection_time_window("25:75");
+
+  std::cout << exp.to_string() << std::endl;
 }

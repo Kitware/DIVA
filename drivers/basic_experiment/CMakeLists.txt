@@ -22,6 +22,10 @@ target_link_libraries(basic_experiment
                       ${OpenCV_LIBS})
 link_directories(${OpenCV_LIB_DIR})
 
+add_custom_command(TARGET basic_experiment POST_BUILD
+                   COMMAND ${CMAKE_COMMAND} -E copy $<TARGET_FILE:basic_experiment> ${CMAKE_INSTALL_PREFIX}/bin)
+install(TARGETS basic_experiment RUNTIME DESTINATION ${CMAKE_INSTALL_PREFIX}/bin)
+
 if(WIN32)
   target_compile_definitions(basic_experiment PRIVATE YAML_CPP_DLL)
 endif()

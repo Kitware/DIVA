@@ -60,6 +60,10 @@ ExternalProject_Add(fletch
     -Dfletch_ENABLE_log4cplus:BOOL=ON
     -Dfletch_ENABLE_shapelib:BOOL=OFF
     -Dfletch_PYTHON_MAJOR_VERSION:STRING=2
+<<<<<<< HEAD
+    -Dfletch_BUILD_INSTALL_PREFIX:STRING=${CMAKE_INSTALL_PREFIX}
+=======
+>>>>>>> refs/heads/master
     -DCMAKE_INSTALL_PREFIX:STRING=${CMAKE_INSTALL_PREFIX}
     -DCMAKE_BUILD_TYPE:STRING=${CMAKE_BUILD_TYPE}
     -DCMAKE_CXX_COMPILER:FILEPATH=${CMAKE_CXX_COMPILER}
@@ -72,8 +76,9 @@ ExternalProject_Add(fletch
     -DCMAKE_SHARED_LINKER_FLAGS:STRING=${CMAKE_SHARED_LINKER_FLAGS}
     -DADDITIONAL_C_FLAGS:STRING=${ADDITIONAL_C_FLAGS}
     -DADDITIONAL_CXX_FLAGS:STRING=${ADDITIONAL_CXX_FLAGS}
-  INSTALL_COMMAND cmake -E echo "Skipping install step."
+  #INSTALL_COMMAND cmake -E echo "Skipping install step."
+  INSTALL_DIR "${CMAKE_INSTALL_PREFIX}"
 )
 
-set(fletch_DIR "${DIVA_BINARY_DIR}/fletch-build")
+set(fletch_DIR "${CMAKE_INSTALL_PREFIX}/lib/cmake/fletch")
 

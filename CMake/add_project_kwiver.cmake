@@ -12,7 +12,7 @@ ExternalProject_Add(kwiver
   BINARY_DIR kwiver-build
   STAMP_DIR ${DIVA_STAMP_DIR}
   GIT_REPOSITORY "git://github.com/Kitware/kwiver.git"
-  GIT_TAG ceefd536899d043253c1652e24df391205ee3dd2
+  GIT_TAG cec5e17e2314571c94f535b65fa4896d2e8b5eab
   CMAKE_CACHE_ARGS
     -DBUILD_SHARED_LIBS:BOOL=ON
     -Dfletch_DIR:PATH=${fletch_DIR}
@@ -59,7 +59,8 @@ ExternalProject_Add(kwiver
     -DMAKECOMMAND:STRING=${MAKECOMMAND}
     -DADDITIONAL_C_FLAGS:STRING=${ADDITIONAL_C_FLAGS}
     -DADDITIONAL_CXX_FLAGS:STRING=${ADDITIONAL_CXX_FLAGS}
-  INSTALL_COMMAND cmake -E echo "Skipping install step."
+  #INSTALL_COMMAND cmake -E echo "Skipping install step."
+  INSTALL_DIR "${CMAKE_INSTALL_PREFIX}"
 )
 
-set(kwiver_DIR "${DIVA_BINARY_DIR}/kwiver-build")
+set(kwiver_DIR "${CMAKE_INSTALL_PREFIX}/lib/cmake/kwiver")

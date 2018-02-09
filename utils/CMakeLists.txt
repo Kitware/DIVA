@@ -28,6 +28,17 @@ set( public_headers
   diva_activity.h
 )
 
+kwiver_install_headers(
+   ${public_headers}
+ )
+
+ kwiver_install_headers(
+   ${CMAKE_CURRENT_BINARY_DIR}/diva_utils_export.h
+   NOPATH
+   SUBDIR   utils
+ )
+ 
+
 set( private_headers
 )
 kwiver_add_library( diva_utils
@@ -49,6 +60,10 @@ target_link_libraries( diva_utils
                        kwiversys
                  yaml-cpp kpf_yaml
 )
+
+add_custom_command(TARGET diva_utils POST_BUILD
+                   COMMAND ${CMAKE_COMMAND} -E copy $<TARGET_FILE:diva_utils> ${CMAKE_INSTALL_PREFIX}/lib)
+install(TARGETS diva_utils DESTINATION ${CMAKE_INSTALL_PREFIX}/lib)
 
 
 if(WIN32)

@@ -37,18 +37,28 @@ class diva_experiment::pimpl
 {
 public:
   diva_experiment::type            type;
+  
   diva_experiment::input_type      input_type;
   diva_experiment::transport_type  transport_type;
   std::string                      dataset_id;
   std::string                      input_source;
   std::string                      input_root_dir;
-  diva_experiment::output_type     output_type;
-  std::string                      output_root_dir;
-
   size_t                           frame_rate_Hz = 30;
   std::string                      source_filepath = "";
+  
+  diva_experiment::output_type     output_type;
+  std::string                      output_root_dir;
   std::string                      output_prefix = "";
-
+  
+  std::string                      score_events_executable = "";
+  std::string                      scoring_reference_geometry = "";
+  std::string                      scoring_evaluation_output_dir = "";
+  std::string                      scoring_object_detection_reference_types = "";
+  std::string                      scoring_object_detection_reference_target;
+  std::string                      scoring_object_detection_iou = "";
+  std::string                      scoring_object_detection_time_window = "";
+  
+  std::string                      algorithm_executable = "";
   kwiver::vital::config_block_sptr config;
 };
 
@@ -72,8 +82,20 @@ void diva_experiment::clear()
   remove_input_source();
   remove_input_root_dir();
   remove_frame_rate_Hz();
+  
   remove_output_type();
   remove_output_root_dir();
+  
+  remove_score_events_executable();
+  remove_scoring_reference_geometry();
+  remove_scoring_evaluation_output_dir();
+  remove_scoring_object_detection_reference_types();
+  remove_scoring_object_detection_target();
+  remove_scoring_object_detection_iou();
+  remove_scoring_object_detection_time_window();
+  
+  remove_algorithm_executable();
+  // TODO clear algorithm parameter
 }
 
 bool diva_experiment::is_valid()
@@ -151,6 +173,24 @@ bool diva_experiment::read_experiment(const std::string& filename)
   if (_pimpl->config->has_value("output:root_dir"))
     set_output_root_dir(_pimpl->config->get_value<std::string>("output:root_dir"));
 
+  if (_pimpl->config->has_value("scoring:score_events"))
+    set_score_events_executable(_pimpl->config->get_value<std::string>("scoring:score_events"));
+  if (_pimpl->config->has_value("scoring:ref_geom"))
+    set_scoring_reference_geometry(_pimpl->config->get_value<std::string>("scoring:ref_geom"));
+  if (_pimpl->config->has_value("scoring:eval_output_dir"))
+    set_scoring_evaluation_output_dir(_pimpl->config->get_value<std::string>("scoring:eval_output_dir"));
+  if (_pimpl->config->has_value("scoring:object_detection:ref_types"))
+    set_scoring_object_detection_reference_types(_pimpl->config->get_value<std::string>("scoring:object_detection:ref_types"));
+  if (_pimpl->config->has_value("scoring:object_detection:target"))
+    set_scoring_object_detection_target(_pimpl->config->get_value<std::string>("scoring:object_detection:target"));
+  if (_pimpl->config->has_value("scoring:object_detection:iou"))
+    set_scoring_object_detection_iou(_pimpl->config->get_value<std::string>("scoring:object_detection:iou"));
+  if (_pimpl->config->has_value("scoring:object_detection:time_window"))
+    set_scoring_object_detection_time_window(_pimpl->config->get_value<std::string>("scoring:object_detection:time_window"));
+
+  if (_pimpl->config->has_value("output:root_dir"))
+    set_algorithm_executable(_pimpl->config->get_value<std::string>("algo:command"));
+
   return is_valid();
 }
 bool diva_experiment::write_experiment(const std::string& filename)
@@ -159,6 +199,13 @@ bool diva_experiment::write_experiment(const std::string& filename)
     return false;
   kwiver::vital::write_config_file(_pimpl->config, filename);
   return true;
+}
+
+std::string diva_experiment::to_string() const
+{
+  std::stringstream str;
+  kwiver::vital::write_config(_pimpl->config, str);
+  return str.str();
 }
 
 bool diva_experiment::has_type() const
@@ -378,11 +425,170 @@ std::string diva_experiment::get_output_prefix() const
   return _pimpl->output_root_dir + "/" + _pimpl->dataset_id;
 }
 
+bool diva_experiment::has_score_events_executable() const
+{
+  return !_pimpl->score_events_executable.empty();
+}
+void diva_experiment::set_score_events_executable(const std::string& src)
+{
+  _pimpl->score_events_executable = src;
+  _pimpl->config->set_value<std::string>("scoring:score_events", src);
+}
+std::string diva_experiment::get_score_events_executable() const
+{
+  return _pimpl->score_events_executable;
+}
+void diva_experiment::remove_score_events_executable()
+{
+  _pimpl->score_events_executable = "";
+  if (_pimpl->config->has_value("scoring:score_events"))
+    _pimpl->config->unset_value("scoring:score_events");
+}
+
+bool diva_experiment::has_scoring_reference_geometry() const
+{
+  return !_pimpl->scoring_reference_geometry.empty();
+}
+void diva_experiment::set_scoring_reference_geometry(const std::string& src)
+{
+  _pimpl->scoring_reference_geometry = src;
+  _pimpl->config->set_value<std::string>("scoring:ref_geom", src);
+}
+std::string diva_experiment::get_scoring_reference_geometry() const
+{
+  return _pimpl->scoring_reference_geometry;
+}
+void diva_experiment::remove_scoring_reference_geometry()
+{
+  _pimpl->scoring_reference_geometry = "";
+  if (_pimpl->config->has_value("scoring:ref_geom"))
+    _pimpl->config->unset_value("scoring:ref_geom");
+}
+
+bool diva_experiment::has_scoring_evaluation_output_dir() const
+{
+  return !_pimpl->scoring_evaluation_output_dir.empty();
+}
+void diva_experiment::set_scoring_evaluation_output_dir(const std::string& src)
+{
+  _pimpl->scoring_evaluation_output_dir = src;
+  _pimpl->config->set_value<std::string>("scoring:eval_output_dir", src);
+}
+std::string diva_experiment::get_scoring_evaluation_output_dir() const
+{
+  return _pimpl->scoring_evaluation_output_dir;
+}
+void diva_experiment::remove_scoring_evaluation_output_dir()
+{
+  _pimpl->scoring_evaluation_output_dir = "";
+  if (_pimpl->config->has_value("scoring:eval_output_dir"))
+    _pimpl->config->unset_value("scoring:eval_output_dir");
+}
+
+bool diva_experiment::has_scoring_object_detection_reference_types() const
+{
+  return !_pimpl->scoring_object_detection_reference_types.empty();
+}
+void diva_experiment::set_scoring_object_detection_reference_types(const std::string& src)
+{
+  _pimpl->scoring_object_detection_reference_types = src;
+  _pimpl->config->set_value<std::string>("scoring:object_detection:ref_types", src);
+}
+std::string diva_experiment::get_scoring_object_detection_reference_types() const
+{
+  return _pimpl->scoring_object_detection_reference_types;
+}
+void diva_experiment::remove_scoring_object_detection_reference_types()
+{
+  _pimpl->scoring_object_detection_reference_types = "";
+  if (_pimpl->config->has_value("scoring:object_detection:ref_types"))
+    _pimpl->config->unset_value("scoring:object_detection:ref_types");
+}
+
+bool diva_experiment::has_scoring_object_detection_target() const
+{
+  return !_pimpl->scoring_object_detection_reference_target.empty();
+}
+void diva_experiment::set_scoring_object_detection_target(const std::string& src)
+{
+  _pimpl->scoring_object_detection_reference_target = src;
+  _pimpl->config->set_value<std::string>("scoring:object_detection:target", src);
+}
+std::string diva_experiment::get_scoring_object_detection_target() const
+{
+  return _pimpl->scoring_object_detection_reference_target;
+}
+void diva_experiment::remove_scoring_object_detection_target()
+{
+  _pimpl->scoring_object_detection_reference_target = "";
+  if (_pimpl->config->has_value("scoring:object_detection:target"))
+    _pimpl->config->unset_value("scoring:object_detection:target");
+}
+
+bool diva_experiment::has_scoring_object_detection_iou() const
+{
+  return !_pimpl->scoring_object_detection_iou.empty();
+}
+void diva_experiment::set_scoring_object_detection_iou(const std::string& src)
+{
+  _pimpl->scoring_object_detection_iou = src;
+  _pimpl->config->set_value<std::string>("scoring:object_detection:iou", src);
+}
+std::string diva_experiment::get_scoring_object_detection_iou() const
+{
+  return _pimpl->scoring_object_detection_iou;
+}
+void diva_experiment::remove_scoring_object_detection_iou()
+{
+  _pimpl->scoring_object_detection_iou = "";
+  if (_pimpl->config->has_value("scoring:object_detection:iou"))
+    _pimpl->config->unset_value("scoring:object_detection:iou");
+}
+
+bool diva_experiment::has_scoring_object_detection_time_window() const
+{
+  return !_pimpl->scoring_object_detection_time_window.empty();
+}
+void diva_experiment::set_scoring_object_detection_time_window(const std::string& src)
+{
+  _pimpl->scoring_object_detection_time_window = src;
+  _pimpl->config->set_value<std::string>("scoring:object_detection:time_window", src);
+}
+std::string diva_experiment::get_scoring_object_detection_time_window() const
+{
+  return _pimpl->scoring_object_detection_time_window;
+}
+void diva_experiment::remove_scoring_object_detection_time_window()
+{
+  _pimpl->scoring_object_detection_time_window = "";
+  if (_pimpl->config->has_value("scoring:object_detection:time_window"))
+    _pimpl->config->unset_value("scoring:object_detection:time_window");
+}
+
+bool diva_experiment::has_algorithm_executable() const
+{
+  return !_pimpl->algorithm_executable.empty();
+}
+void diva_experiment::set_algorithm_executable(const std::string& src)
+{
+  _pimpl->algorithm_executable = src;
+  _pimpl->config->set_value<std::string>("algo:command", src);
+}
+std::string diva_experiment::get_algorithm_executable() const
+{
+  return _pimpl->algorithm_executable;
+}
+void diva_experiment::remove_algorithm_executable()
+{
+  _pimpl->algorithm_executable = "";
+  if (_pimpl->config->has_value("algo:command"))
+    _pimpl->config->unset_value("algo:command");
+}
+
 void diva_experiment::set_algorithm_parameter( const std::string& key, const std::string& val )
 {
   _pimpl->config->set_value< std::string >( "algo:"+key, val );
 }
-
 std::string diva_experiment::get_algorithm_parameter( const std::string& key ) const
 {
   return

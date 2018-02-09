@@ -1,0 +1,3 @@
+/etc/images/00025.png
+/etc/images/00050.png
+/etc/images/00075.png
