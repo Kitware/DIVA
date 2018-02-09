@@ -40,6 +40,8 @@ target_link_libraries( diva_python_utils
   PRIVATE              diva_utils pybind11::embed
 )
 
+install(TARGETS diva_python_utils DESTINATION ${CMAKE_INSTALL_PREFIX}/lib)
+
 if(WIN32)
   target_compile_definitions(diva_utils PRIVATE YAML_CPP_DLL)
 endif()

@@ -28,6 +28,17 @@ set( public_headers
   diva_activity.h
 )
 
+kwiver_install_headers(
+   ${public_headers}
+ )
+
+ kwiver_install_headers(
+   ${CMAKE_CURRENT_BINARY_DIR}/diva_utils_export.h
+   NOPATH
+   SUBDIR   utils
+ )
+ 
+
 set( private_headers
 )
 kwiver_add_library( diva_utils

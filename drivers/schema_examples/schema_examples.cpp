@@ -143,8 +143,6 @@ int main(int argc, const char* argv[])
   diva_experiment exp;
   std::stringstream exp_ss;
 
-  exp.read_experiment("./etc/image_experiment.yml");
-
   // This is a sample experiment file for the DIVA system.
   // This file can be used for
   //    1) Running and experiment
