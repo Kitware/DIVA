@@ -30,7 +30,7 @@ Building DIVA
 
 Dependencies
 ------------
-DIVA requires, at a minimum, Git, CMake, and a C++ compiler.
+DIVA requires, at a minimum, Git, CMake, a C++ compiler, and a Python 2.7 compiler.
 
 DIVA is built on top of the `KWIVER <https://github.com/Kitware/kwiver>`_ toolkit.
 which is in turn built on the `Fletch <https://github.com/Kitware/fletch>`_ super build system.
