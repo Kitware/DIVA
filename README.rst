@@ -101,15 +101,16 @@ Running DIVA
 ============
 
 Once you've built DIVA, you'll want to test that it's working on your system.
-From a command prompt execute the following command::
+DIVA will create an install directory inside the DIVA build location.
+From a command prompt change to this install directory and execute the following command::
 
   # via a bash shell
-  source </path/to/DIVA/build>/DIVA-build$ setup_DIVA.sh
+  </path/to/DIVA/build/install>$ source setup_DIVA.sh
   #
   # via a windows cmd prompt
-  </path/to/DIVA/build>/DIVA-build setup_DIVA.bat
+  </path/to/DIVA/build/install> setup_DIVA.bat
 
-Where `</path/to/DIVA/build>` is the actual path of your DIVA CMake build directory.
+Where ``</path/to/DIVA/build/install>`` is the install directory inside your DIVA CMake build directory.
 
 This will set up your PATH and other environment variables
 to allow DIVA to work conveniently within in the shell/cmd window.
@@ -117,10 +118,10 @@ to allow DIVA to work conveniently within in the shell/cmd window.
 You can run this simple driver to ensure your system is configured properly::
 
   # via a bash shell
-  </path/to/DIVA/build>/DIVA-build/driver$./diva_driver
+  </path/to/DIVA/build/install>$ ./bin/schema_examples
   #
   # on windows, you will need to also be in the proper folder
-  </path/to/DIVA/build>/DIVA-build/driver diva_driver
+  </path/to/DIVA/build/install> ./bin/diva_driver
 
 This will generate some KPF packet messages to the terminal/command window.
 
