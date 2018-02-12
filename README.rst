@@ -80,8 +80,16 @@ It assumes your terminal/command is working in the ``\DIVA\build\release`` direc
     $ cmake ../../src -DCMAKE_BUILD_TYPE=Release 
     # All binary and libraries will be built into the \DIVA\build\release\install directory
     # You can change the install directory like this
-    $ cmake ../../src --DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=/opt/kitware/DIVA
+    $ cmake ../../src -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=/opt/kitware/DIVA
     # Note you will need to create the kitware directory in /opt/ and give yourself permissions
+    #
+    # If you would like to build with CUDA
+    $ cmake ../../src -DCMAKE_BUILD_TYPE=Release -DDIVA_BUILD_WITH_CUDA=ON
+    # You can also build with CUDNN (which requires you also build with CUDA)
+    $ cmake ../../src -DCMAKE_BUILD_TYPE=Release -DDIVA_BUILD_WITH_CUDA=ON -DDIVA_BUILD_WITH_CUDNN=ON
+    # Note you will need to have CUDA and CUDNN installed
+    # If it is not in the expected location you will need to specify the flags
+    # CUDA_TOOLKIT_ROOT_DIR and CUDNN_TOOLKIT_ROOT_DIR
 
 Using a prebuilt Fletch
 ~~~~~~~~~~~~~~~~~~~~~~~
