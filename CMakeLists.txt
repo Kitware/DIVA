@@ -15,13 +15,19 @@ set(DIVA_STAMP_DIR ${DIVA_BINARY_DIR}/DIVA-ExternalProject-Stamps)
 
 set(CMAKE_MODULE_PATH ${DIVA_CMAKE_DIR} ${CMAKE_MODULE_PATH})
 
-# CMake flags
-if(APPLE)
-  set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11 -stdlib=libc++")
-elseif(WIN32)
-  set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /EHsc")
-elseif(UNIX)
-  set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11")
+# Option for CUDA
+option(DIVA_BUILD_WITH_CUDA "Build with CUDA support" FALSE)
+if (DIVA_BUILD_WITH_CUDA)
+  find_package( CUDA QUIET REQUIRED )
+# Option for CUDNN
+  option(DIVA_BUILD_WITH_CUDNN "Build with CUDNN support" FALSE)
+  if (DIVA_BUILD_WITH_CUDNN)
+    set( CUDNN_TOOLKIT_ROOT_DIR "" CACHE PATH "CUDNN root folder" )
+    find_package( CUDNN QUIET REQUIRED)
+  endif()
+elseif(DIVA_BUILD_WITH_CUDNN)
+  unset(DIVA_BUILD_WITH_CUDNN CACHE)
+  message(WARNING "Disabling DIVA_BUILD_WITH_CUDNN, You must have DIVA_BUILD_WITH_CUDA enabled for this to be enabled")
 endif()
 
 # Superbuild
