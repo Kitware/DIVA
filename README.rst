@@ -72,16 +72,32 @@ Basic CMake generation via command line
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 The following example will pull and build Fletch and KWIVER along with the DIVA code base.
-It assumes your terminal/command is working in the ``\DIVA\build\release`` directory. ::
+It assumes your terminal/command is working in the ``\DIVA\build\release`` directory.
 
-    # cmake usage : $ cmake </path/to/kwiver/source> -D<flags>
+.. code-block :: bash
+
+    # cmake usage : $ cmake </path/to/diva/source> -D<flags>
     $ cmake ../../src -DCMAKE_BUILD_TYPE=Release 
+    # All binary and libraries will be built into the \DIVA\build\release\install directory
+    # You can change the install directory like this
+    $ cmake ../../src -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=/opt/kitware/DIVA
+    # Note you will need to create the kitware directory in /opt/ and give yourself permissions
+    #
+    # If you would like to build with CUDA
+    $ cmake ../../src -DCMAKE_BUILD_TYPE=Release -DDIVA_BUILD_WITH_CUDA=ON
+    # You can also build with CUDNN (which requires you also build with CUDA)
+    $ cmake ../../src -DCMAKE_BUILD_TYPE=Release -DDIVA_BUILD_WITH_CUDA=ON -DDIVA_BUILD_WITH_CUDNN=ON
+    # Note you will need to have CUDA and CUDNN installed
+    # If it is not in the expected location you will need to specify the flags
+    # CUDA_TOOLKIT_ROOT_DIR and CUDNN_TOOLKIT_ROOT_DIR
 
 Using a prebuilt Fletch
 ~~~~~~~~~~~~~~~~~~~~~~~
 
 If you would like to point DIVA to a prebuilt version of Fletch, specify the fletch_DIR flag to cmake.
-The fletch_DIR is the fletch build directory root, which contains the fletchConfig.cmake file. ::
+The fletch_DIR is the fletch build directory root, which contains the fletchConfig.cmake file.
+
+.. code-block :: bash
 
     $ cmake ../../src -DCMAKE_BUILD_TYPE=Release -Dfletch_DIR:PATH=<path/to/fletch/build/dir> 
 
@@ -106,7 +122,7 @@ Compiling
 
 Once your CMake generation has completed and created the build files,
 compile in the standard way for your build environment.  On Linux
-this is typically running ``make``. Visual Studio users, open the <path/to/DIVA/build/dir>/DIVA.sln
+this is typically running ``make``. Visual Studio users, open and build the <path/to/DIVA/build/dir>/DIVA.sln
 
 Running DIVA
 ============
