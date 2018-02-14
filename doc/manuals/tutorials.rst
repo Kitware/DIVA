@@ -31,7 +31,7 @@ Note the above Build install directory will be refered to as ``</path/to/DIVA/in
 All the source code used to make these executables is provided in the `driver directory of the repository <https://github.com/Kitware/DIVA/tree/master/drivers>`_. 
 
 All of the provided C++ and Python executables that require the necessary DIVA environment variables set.
-To set-up your environment, run this setup_DIVA script from the Diva-build directory ::
+To set-up your environment, run this setup_DIVA script from the Diva-build directory :
 
 .. code-block:: bash
 
@@ -118,7 +118,7 @@ To run this example, do the following:
 As we mentioned above, the DIVA API can provide image frames from the input source specified for an experiment. |br|
 Two example experiment files are provided, one that sources a list of images, and another that sources a video file. |br|
 The intent of this example is to demonstrate the performer can use the API to easily get frames from any source and use them in their code. |br|
-To run this example, do the following from the BUILD directory ::
+To run this example, do the following from the BUILD directory :
 
 .. code-block:: bash
 
