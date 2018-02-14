@@ -11,6 +11,6 @@ DIVA provides the following tools
   scoring
 
 ================================================ ====================================================
-:doc:`VAUI</vaui>`                          Web based GUI to display and view truth data
-:doc:`Scoring</scoring>`                    Tools associated with algorithm evaluation
+:doc:`VAUI</vaui>`                                Web based GUI to display and view truth data
+:doc:`Scoring</scoring>`                          Tools associated with algorithm evaluation
 ================================================ ====================================================

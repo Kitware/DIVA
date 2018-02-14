@@ -33,6 +33,8 @@ All the source code used to make these executables is provided in the `driver di
 All of the provided C++ and Python executables that require the necessary DIVA environment variables set.
 To set-up your environment, run this setup_DIVA script from the Diva-build directory ::
 
+.. code-block:: bash
+
   </path/to/DIVA/install>$ source setup_DIVA.sh
 
 The following python packages are required:
@@ -61,6 +63,8 @@ C++
 A simple `C++ executable <https://github.com/Kitware/DIVA/blob/master/drivers/schema_examples/schema_examples.cpp>`_ is provided to generate some KPF objects. 
 To run this example, do the following:
 
+.. code-block:: bash
+
   </path/to/DIVA/install>$ ./bin/schema_examples
   # You will get the following output
   - { meta: Example geometry }
@@ -75,7 +79,9 @@ Python
 
 A simple `Python executable script <https://github.com/Kitware/DIVA/blob/master/drivers/schema_examples/schema_examples.py>`_ is provided to generate some KPF objects. 
 To run this example, do the following:
- 
+
+.. code-block:: bash
+
   </path/to/DIVA/install>$ python ./python/schema_examples.py
   # You will get the following output
   Geometry Content
@@ -104,6 +110,8 @@ C++
 A simple `C++ executable <https://github.com/Kitware/DIVA/blob/master/drivers/basic_experiment/basic_experiment.cpp>`_ is provided to read and write experiment files. 
 To run this example, do the following:
 
+.. code-block:: bash
+
   # This will write out a new file 'example.yml' experiment file in the current directory
   </path/to/DIVA/install>$ ./bin/basic_experiment -s example.yml
 
@@ -111,6 +119,8 @@ As we mentioned above, the DIVA API can provide image frames from the input sour
 Two example experiment files are provided, one that sources a list of images, and another that sources a video file. |br|
 The intent of this example is to demonstrate the performer can use the API to easily get frames from any source and use them in their code. |br|
 To run this example, do the following from the BUILD directory ::
+
+.. code-block:: bash
 
   # The image experiment displays frames from a list of images specified in a txt file
   </path/to/DIVA/install>$ ./bin/basic_experiment -d ./etc/image_experiment.yml
@@ -135,6 +145,8 @@ C++
 
 A simple `C++ executable <https://github.com/Kitware/DIVA/blob/master/drivers/darknet_detections/darknet_detections.cpp>`_ is provided for this example. 
 To run this example, do the following:
+
+.. code-block:: bash
 
   </path/to/DIVA/install>$ ./bin/darknet_detections -r ./etc/image_experiment.yml
   # Note the output 'darknet.geom.yml' file will be written to the algo-out directory under current directory
