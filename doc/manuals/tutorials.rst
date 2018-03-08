@@ -13,7 +13,14 @@ In this tutorial the ``</path/to/DIVA>`` will refer to one of two directories, d
 
 All the source code used to make these executables is provided in the `driver directory of the repository <https://github.com/Kitware/DIVA/tree/master/drivers>`_. 
 
+<<<<<<< HEAD
 Execute following script to create all of the necessary environment variables needed.:
+=======
+All of the provided C++ and Python executables that require the necessary DIVA environment variables set.
+To set-up your environment, run this setup_DIVA script from the Diva-build directory :
+
+.. code-block:: bash
+>>>>>>> branch 'master' of https://github.com/Kitware/DIVA.git
 
 .. code-block:: bash
 
@@ -44,7 +51,11 @@ To run this example, do the following:
 
 .. code-block:: bash
 
+<<<<<<< HEAD
   </path/to/DIVA/>$ ./bin/schema_examples
+=======
+  </path/to/DIVA/install>$ ./bin/schema_examples
+>>>>>>> branch 'master' of https://github.com/Kitware/DIVA.git
   # You will get the following output
   - { meta: Example geometry }
   - { meta: 1 tracks; 50 detection }
@@ -58,10 +69,17 @@ Python
 
 A simple `Python executable script <https://github.com/Kitware/DIVA/blob/master/drivers/schema_examples/schema_examples.py>`_ is provided to generate some KPF objects. 
 To run this example, do the following:
+<<<<<<< HEAD
  
  .. code-block:: bash
 
   </path/to/DIVA/>$ python ./python/schema_examples.py
+=======
+
+.. code-block:: bash
+
+  </path/to/DIVA/install>$ python ./python/schema_examples.py
+>>>>>>> branch 'master' of https://github.com/Kitware/DIVA.git
   # You will get the following output
   Geometry Content
   - { meta: Example geometry }
@@ -96,7 +114,11 @@ To run this example, do the following:
 
 As we mentioned above, the DIVA API can provide image frames from the input source specified for an experiment. |br|
 Two example experiment files are provided, one that sources a list of images, and another that sources a video file. |br|
+<<<<<<< HEAD
 The intent of this example is to demonstrate how the performer can use the API to easily get frames from any source and use them in their code. |br|
+=======
+The intent of this example is to demonstrate the performer can use the API to easily get frames from any source and use them in their code. |br|
+>>>>>>> branch 'master' of https://github.com/Kitware/DIVA.git
 To run this example, do the following from the BUILD directory :
 
 .. code-block:: bash
@@ -127,7 +149,11 @@ To run this example, do the following:
 
 .. code-block:: bash
 
+<<<<<<< HEAD
   </path/to/DIVA/>$ ./bin/darknet_detections -r ./etc/image_experiment.yml
+=======
+  </path/to/DIVA/install>$ ./bin/darknet_detections -r ./etc/image_experiment.yml
+>>>>>>> branch 'master' of https://github.com/Kitware/DIVA.git
   # Note the output 'darknet.geom.yml' file will be written to the algo-out directory under current directory
   # To run Darknet with a video source
   </path/to/DIVA/>$ ./bin/darknet_detections -r ./etc/video_experiment.yml

@@ -155,9 +155,8 @@ This will generate some KPF packet messages to the terminal/command window.
 Getting Help
 ============
 
-Please join the
-`kwiver-users <http://public.kitware.com/mailman/listinfo/kwiver-users>`_
-mailing list to discuss DIVA/KWIVER or to ask for help with using DIVA/KWIVER.
-For announcements about DIVA and other projects built on KWIVER, please join the
+For general build or code issues, please join the `kwiver-users
+<http://public.kitware.com/mailman/listinfo/kwiver-users>`_ mailing list. For discussions of the DIVA API, please contact diva-te <at> kitware.com to join the diva-API mailing list.
+For announcements about KWIVER in general, please join the
 `kwiver-announce <http://public.kitware.com/mailman/listinfo/kwiver-announce>`_
 mailing list.
