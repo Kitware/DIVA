@@ -12,7 +12,7 @@ list(APPEND DIVA_DEPENDENCIES fletch)
 ExternalProject_Add(fletch
   PREFIX ${DIVA_BINARY_DIR}
   GIT_REPOSITORY "git://github.com/Kitware/fletch.git"
-  GIT_TAG e758bf86b6487d43dca565d26a5cc5d321a92eea
+  GIT_TAG dbe6ae2fc228ba170cdd3a14e4996cda24ff6069
   SOURCE_DIR fletch
   BINARY_DIR fletch-build
   STAMP_DIR ${DIVA_STAMP_DIR}
