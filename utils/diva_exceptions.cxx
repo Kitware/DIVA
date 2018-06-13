@@ -38,13 +38,13 @@
 #include <sstream>
 
 malformed_diva_data_exception
-::malformed_diva_data_exception(const std::string& msg) VITAL_NOTHROW
+::malformed_diva_data_exception(const std::string& msg) noexcept
 {
   m_what = msg;
 }
 
 malformed_diva_data_exception
-::~malformed_diva_data_exception() VITAL_NOTHROW
+::~malformed_diva_data_exception() noexcept
 {
 }
 

@@ -32,12 +32,12 @@
 #include <utils/diva_utils_export.h>
 #include <vital/exceptions/base.h>
 
-class DIVA_UTILS_EXPORT malformed_diva_data_exception : public kwiver::vital::vital_core_base_exception
+class DIVA_UTILS_EXPORT malformed_diva_data_exception : public kwiver::vital::vital_exception
 {
 public:
   /** param message     Description of the parsing circumstances */
-  malformed_diva_data_exception(std::string const& message) VITAL_NOTHROW;
-  virtual ~malformed_diva_data_exception() VITAL_NOTHROW;
+  malformed_diva_data_exception(std::string const& message) noexcept;
+  virtual ~malformed_diva_data_exception() noexcept;
   /// Given error message string
   std::string m_message;
 };

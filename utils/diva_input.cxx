@@ -33,7 +33,8 @@
 #include "diva_input.h"
 #include "diva_experiment.h"
 #include <yaml-cpp/yaml.h>
-#include <vital/exceptions.h>
+#include <vital/exceptions/io.h>
+#include <vital/exceptions/video.h>
 #include <vital/types/image.h>
 #include <vital/types/image_container.h>
 #include <vital/algo/video_input.h>

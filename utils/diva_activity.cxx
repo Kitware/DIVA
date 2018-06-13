@@ -32,6 +32,8 @@
 #include "diva_exceptions.h"
 
 #include <yaml-cpp/yaml.h>
+#include <arrows/kpf/yaml/kpf_reader.h>
+#include <arrows/kpf/yaml/kpf_yaml_parser.h>
 #include <arrows/kpf/yaml/kpf_yaml_writer.h>
 #include <arrows/kpf/yaml/kpf_canonical_io_adapter.h>
 namespace KPF = kwiver::vital::kpf;
@@ -254,6 +256,17 @@ void diva_activity::set_activity_names(const std::map<std::string, double>& name
 {
   _pimpl->activity_names = names;
 }
+std::string diva_activity::get_max_activity_name() const
+{
+  if (!has_activity_names())
+    return "";
+  double max = -1;
+  std::string name;
+  for (auto c : _pimpl->activity_names)
+    if (c.second > max)
+      name = c.first;
+  return name;
+}
 void diva_activity::remove_activity_names()
 {
   _pimpl->activity_names.clear();
@@ -441,5 +454,72 @@ std::string diva_activity::to_string() const
   _pimpl->ss.str("");
   write(_pimpl->ss);
   return _pimpl->ss.str();
+}
+
+void diva_activity::from_string(const std::string& p)
+{
+  clear();
+
+  std::istringstream str(p);
+  namespace KPFC = KPF::canonical;
+  KPF::kpf_yaml_parser_t parser(str);
+  KPF::kpf_reader_t reader(parser);
+  const int DIVA_DOMAIN = 3; // DIVA objects
+
+  auto act = reader.transfer_packet_from_buffer(KPF::packet_header_t(KPF::packet_style::ACT, DIVA_ACTIVITY_DOMAIN));
+  if (act.first)
+  {
+    _pimpl->activity_id = act.second.activity.activity_id.t.d;
+    for (auto i : act.second.activity.activity_labels.d)
+      _pimpl->activity_names.insert(std::make_pair(i.first, i.second));
+    for (auto attr : act.second.activity.attributes)
+    {
+      if (attr.key == "src")
+      {
+        if (attr.val == "truth")
+          _pimpl->source = diva_activity::source::truth;
+        else
+          std::cout << "Unsupported src value " << attr.val << std::endl;
+      }
+    }
+    for (auto ts : act.second.activity.timespan)
+    {
+      switch(ts.domain)
+      {
+      case(0):
+        _pimpl->frame_id_span.push_back(std::pair<double, double>(ts.t.start, ts.t.stop));
+        break;
+      case(1):
+        _pimpl->frame_time_span.push_back(std::pair<double, double>(ts.t.start, ts.t.stop));
+        break;
+      case(2):
+        _pimpl->frame_absolute_time_span.push_back(std::pair<double, double>(ts.t.start, ts.t.stop));
+        break;
+      default:
+        std::cout << "Unsupported timespan domain " << ts.domain << std::endl;
+      }
+    }
+    for (auto actor : act.second.activity.actors)
+    {
+      // I am assuming actor.domain is in the DIVA domain
+      for (auto ts : actor.actor_timespan)
+      {
+        switch(ts.domain)
+        {
+        case(0):
+          _pimpl->actor_frame_id_span[actor.actor_id.t.d].push_back(std::pair<double, double>(ts.t.start,ts.t.stop));
+          break;
+        case(1):
+          _pimpl->actor_frame_time_span[actor.actor_id.t.d].push_back(std::pair<double, double>(ts.t.start, ts.t.stop));
+          break;
+        case(2):
+          _pimpl->actor_frame_absolute_time_span[actor.actor_id.t.d].push_back(std::pair<double, double>(ts.t.start, ts.t.stop));
+          break;
+        default:
+          std::cout << "Unsupported actor timespan domain " << ts.domain << std::endl;
+        }
+      }
+    }
+  }
 }
 

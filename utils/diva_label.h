@@ -45,13 +45,16 @@ public:
   void set_track_id(size_t track_id);
   void remove_track_id();
 
-  bool has_type() const;
-  std::string get_type() const;
-  void set_type(const std::string& label);
-  void remove_type();
+  bool has_classification() const;
+  std::map<std::string, double>& get_classification();
+  const std::map<std::string, double>& get_classification() const;
+  void add_classification(const std::string& name, double probability);
+  void remove_classification();
+  std::string get_max_classification() const; // Get the classification with the highest probability
 
   void write(std::ostream& os) const;
   std::string to_string() const;
+  void from_string(const std::string& p);
 private:
   class pimpl;
   pimpl* _pimpl;

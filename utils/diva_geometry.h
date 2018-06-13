@@ -45,8 +45,8 @@ public:
 
   enum class occlusion
   {
-    medium = 0,
-    heavy
+    partially = 0,
+    mostly = 1
   };
 
   enum class evaluation
@@ -133,11 +133,12 @@ public:
   void remove_keyframe();
 
   bool has_classification() const;
-  std::map<std::string,double>& get_classification();
+  std::map<std::string, double>& get_classification();
   const std::map<std::string, double>& get_classification() const;
   void add_classification(const std::string& name, double probability);
+  std::string get_max_classification_name() const;
   void remove_classification();
-  
+
   bool has_polygon() const;
   std::vector<std::pair<size_t, size_t>>& get_polygon();
   const std::vector<std::pair<size_t, size_t>>& get_polygon() const;
@@ -146,6 +147,7 @@ public:
 
   void write(std::ostream& os) const;
   std::string to_string() const;
+  void from_string(const std::string& p);
 private:
   diva_geometry_impl* _pimpl;
 };
