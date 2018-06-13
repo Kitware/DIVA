@@ -9,6 +9,7 @@ set(SOURCE "darknet_detections.cpp")
 include_directories(${OpenCV_INCLUDE_DIRS})
 include_directories("${CMAKE_BINARY_DIR}")
 include_directories("${CMAKE_SOURCE_DIR}/utils")
+include_directories("${KWIVER_INCLUDE_DIRS}")
 add_executable(darknet_detections ${SOURCE})
 target_link_libraries(darknet_detections 
                       diva_utils
@@ -18,10 +19,12 @@ target_link_libraries(darknet_detections
                       vital_config
                       vital_logger
                       vital_util
+                      vital_exceptions
                       vital_vpm
 # The next 3 lines are needed for the optional image display logic in some examples
                       kwiver_algo_ocv
-                      ${OpenCV_LIBS})
+                      ${OpenCV_LIBS}
+                      ${Boost_LIBS})
 link_directories(${OpenCV_LIB_DIR})
 add_custom_command(TARGET darknet_detections POST_BUILD
                    COMMAND ${CMAKE_COMMAND} -E copy $<TARGET_FILE:darknet_detections> ${CMAKE_INSTALL_PREFIX}/bin)

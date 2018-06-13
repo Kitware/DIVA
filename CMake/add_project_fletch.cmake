@@ -9,6 +9,8 @@ list(APPEND KWANT_DEPENDENCIES fletch)
 list(APPEND KWIVER_DEPENDENCIES fletch)
 list(APPEND DIVA_DEPENDENCIES fletch)
 
+set(CAFFE_SUPPORT ON)
+
 ExternalProject_Add(fletch
   PREFIX ${DIVA_BINARY_DIR}
   GIT_REPOSITORY "git://github.com/Kitware/fletch.git"
@@ -20,7 +22,7 @@ ExternalProject_Add(fletch
     -DBUILD_SHARED_LIBS:BOOL=ON
     -Dfletch_BUILD_CXX11:BOOL=ON
     -Dfletch_BUILD_WITH_CUDA:BOOL=OFF
-    -Dfletch_BUILD_WITH_PYTHON:BOOL=OFF
+    -Dfletch_BUILD_WITH_PYTHON:BOOL=${CAFFE_SUPPORT}
     -Dfletch_ENABLE_Boost:BOOL=ON
     -Dfletch_ENABLE_Caffe:BOOL=OFF
     -Dfletch_ENABLE_Ceres:BOOL=OFF
@@ -30,12 +32,15 @@ ExternalProject_Add(fletch
     -Dfletch_ENABLE_FFmpeg:BOOL=ON
     -Dfletch_ENABLE_GDAL:BOOL=OFF
     -Dfletch_ENABLE_GEOS:BOOL=OFF
-    -Dfletch_ENABLE_GFlags:BOOL=OFF
-    -Dfletch_ENABLE_GLog:BOOL=OFF
+    -Dfletch_ENABLE_GFlags:BOOL=${CAFFE_SUPPORT}
+    -Dfletch_ENABLE_GLog:BOOL=${CAFFE_SUPPORT}
     -Dfletch_ENABLE_GTest:BOOL=OFF
     -Dfletch_ENABLE_GeographicLib:BOOL=OFF
     -Dfletch_ENABLE_HDF5:BOOL=ON
     -Dfletch_ENABLE_ITK:BOOL=OFF
+    -Dfletch_ENABLE_LMDB:BOOL=${CAFFE_SUPPORT}
+    -Dfletch_ENABLE_LevelDB:BOOL=${CAFFE_SUPPORT}
+    -Dfletch_ENABLE_OpenBLAS:BOOL=${CAFFE_SUPPORT}
     -Dfletch_ENABLE_OpenCV:BOOL=ON
     -DOpenCV_SELECT_VERSION:STRING=3.4.0
     -Dfletch_ENABLE_OpenCV_FFmpeg:BOOL=ON
@@ -44,8 +49,10 @@ ExternalProject_Add(fletch
     -Dfletch_ENABLE_PNG:BOOL=ON
     -Dfletch_ENABLE_PROJ4:BOOL=ON
     -Dfletch_ENABLE_PostgresSQL:BOOL=OFF
+    -Dfletch_ENABLE_Protobuf:BOOL=${CAFFE_SUPPORT}
     -Dfletch_ENABLE_pybind11:BOOL=ON
     -Dfletch_ENABLE_Qt:BOOL=OFF
+    -Dfletch_ENABLE_Snappy:BOOL=${CAFFE_SUPPORT}
     -Dfletch_ENABLE_SuiteSparse:BOOL=OFF
     -Dfletch_ENABLE_TinyXML:BOOL=ON
     -Dfletch_ENABLE_VTK:BOOL=OFF

@@ -8,6 +8,7 @@ include_directories(${OpenCV_INCLUDE_DIRS})
 set(SOURCE "basic_experiment.cpp")
 include_directories("${CMAKE_BINARY_DIR}")
 include_directories("${CMAKE_SOURCE_DIR}/utils")
+include_directories("${KWIVER_INCLUDE_DIRS}")
 add_executable(basic_experiment ${SOURCE})
 target_link_libraries(basic_experiment 
                       diva_utils
@@ -17,6 +18,7 @@ target_link_libraries(basic_experiment
                       vital_config
                       vital_logger
                       vital_util
+                      vital_exceptions
                       vital_vpm
                       kwiver_algo_ocv
                       ${OpenCV_LIBS})
