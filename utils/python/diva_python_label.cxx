@@ -43,9 +43,12 @@ void diva_python_label(py::module &m)
     .def("get_track_id", &diva_label::get_track_id)
     .def("set_track_id", &diva_label::set_track_id)
     .def("remove_track_id", &diva_label::remove_track_id)
-    .def("has_type", &diva_label::has_type)
-    .def("get_type", &diva_label::get_type)
-    .def("set_type", &diva_label::set_type)
-    .def("remove_type", &diva_label::remove_type)
-    .def("to_string", &diva_label::to_string);
+    .def("has_classification", &diva_label::has_classification)
+    .def("get_classification", (std::map<std::string, double>&(diva_label::*)())&diva_label::get_classification)
+    .def("get_max_classification", &diva_label::get_max_classification)
+    .def("add_classification", &diva_label::add_classification)
+    .def("remove_classification", &diva_label::remove_classification)
+
+    .def("to_string", &diva_label::to_string)
+    .def("from_string", &diva_label::from_string);
 }

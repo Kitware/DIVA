@@ -81,8 +81,8 @@ void diva_python_geometry(py::module &m)
     .export_values();
 
   py::enum_<diva_geometry::occlusion>(m, "geometry_occlusion")
-    .value("medium", diva_geometry::occlusion::medium)
-    .value("heavy", diva_geometry::occlusion::heavy)
+    .value("partially", diva_geometry::occlusion::partially)
+    .value("mostly", diva_geometry::occlusion::mostly)
     .export_values();
 
   py::class_<diva_geometry>(m, "geometry")
@@ -141,5 +141,7 @@ void diva_python_geometry(py::module &m)
     .def("add_polygon_point", &diva_geometry::add_polygon_point)
     .def("get_polygon", (std::vector<std::pair<size_t, size_t>>&(diva_geometry::*)()) &diva_geometry::get_polygon)
     .def("remove_polygon", &diva_geometry::remove_polygon)
-    .def("to_string", &diva_geometry::to_string);
+
+    .def("to_string", &diva_geometry::to_string)
+    .def("from_string", &diva_geometry::from_string);
 }

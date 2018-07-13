@@ -32,6 +32,8 @@
 #include "diva_exceptions.h"
 
 #include <yaml-cpp/yaml.h>
+#include <arrows/kpf/yaml/kpf_reader.h>
+#include <arrows/kpf/yaml/kpf_yaml_parser.h>
 #include <arrows/kpf/yaml/kpf_yaml_writer.h>
 #include <arrows/kpf/yaml/kpf_canonical_io_adapter.h>
 #include <fstream> 
@@ -42,8 +44,8 @@ namespace KPF = kwiver::vital::kpf;
 class diva_label::pimpl
 {
 public:
-  size_t          track_id;
-  std::string     obj_type;
+  size_t                        track_id;
+  std::map<std::string, double> classification;
 
   std::stringstream ss;
 };
@@ -60,13 +62,13 @@ diva_label::~diva_label()
 void diva_label::clear()
 {
   _pimpl->track_id = -1;
-  _pimpl->obj_type = "";
+  _pimpl->classification.clear();
 }
 
 
 bool diva_label::is_valid() const
 {
-  if (_pimpl->track_id != -1 && !_pimpl->obj_type.empty())
+  if (_pimpl->track_id != -1 && !_pimpl->classification.empty())
     return true;
   return false;
 }
@@ -88,21 +90,34 @@ void diva_label::remove_track_id()
   _pimpl->track_id = -1;
 }
 
-bool diva_label::has_type() const
+bool diva_label::has_classification() const
 {
-  return !_pimpl->obj_type.empty();
+  return _pimpl->classification.size() > 0;
 }
-std::string diva_label::get_type() const
+std::map<std::string, double>& diva_label::get_classification()
 {
-  return _pimpl->obj_type;
+  return _pimpl->classification;
 }
-void diva_label::set_type(const std::string& l)
-{ 
-  _pimpl->obj_type = l; 
-}
-void diva_label::remove_type()
+const std::map<std::string, double>& diva_label::get_classification() const
 {
-  _pimpl->obj_type = "";
+  return _pimpl->classification;
+}
+void diva_label::add_classification(const std::string& name, double probability)
+{
+  _pimpl->classification.insert(std::pair <std::string, double>(name, probability));
+}
+void diva_label::remove_classification()
+{
+  _pimpl->classification.clear();
+}
+std::string diva_label::get_max_classification() const
+{
+  double prob=-1;
+  std::string type = "";
+  for (auto itr : _pimpl->classification)
+    if (itr.second > prob)
+      type = itr.first;
+  return type;
 }
 
 void diva_label::write(std::ostream& os) const
@@ -112,11 +127,15 @@ void diva_label::write(std::ostream& os) const
 
   namespace KPFC = KPF::canonical;
   KPF::record_yaml_writer w(os);
+  const int DIVA_DOMAIN = 3; // DIVA objects
 
   w.set_schema(KPF::schema_style::TYPES);
-  w << KPF::writer< KPFC::id_t >(_pimpl->track_id, KPFC::id_t::TRACK_ID)
-    << KPF::writer< KPFC::kv_t >("obj_type", _pimpl->obj_type)
-    << KPF::record_yaml_writer::endl;
+  w << KPF::writer< KPFC::id_t >(_pimpl->track_id, KPFC::id_t::TRACK_ID);
+  KPFC::cset_t type_map;
+  for (auto i : _pimpl->classification)
+    type_map.d.insert(std::make_pair(i.first, i.second));
+  w << KPF::writer< KPFC::cset_t>(type_map, DIVA_DOMAIN);
+  w << KPF::record_yaml_writer::endl;
 }
 
 std::string diva_label::to_string() const
@@ -124,4 +143,25 @@ std::string diva_label::to_string() const
   _pimpl->ss.str("");
   write(_pimpl->ss);
   return _pimpl->ss.str();
+}
+
+
+void diva_label::from_string(const std::string& p)
+{
+  clear();
+
+  std::istringstream str(p);
+  namespace KPFC = KPF::canonical;
+  KPF::kpf_yaml_parser_t parser(str);
+  KPF::kpf_reader_t reader(parser);
+  const int DIVA_DOMAIN = 3; // DIVA objects
+
+  reader >> KPF::reader< KPFC::id_t >(_pimpl->track_id, KPFC::id_t::TRACK_ID);
+  auto type_probe = reader.transfer_packet_from_buffer(
+    KPF::packet_header_t(KPF::packet_style::CSET, DIVA_DOMAIN));
+  if (type_probe.first)
+  {
+    for (auto i : type_probe.second.cset->d)
+      _pimpl->classification.insert(std::make_pair(i.first, i.second));
+  }
 }

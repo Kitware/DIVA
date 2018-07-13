@@ -69,6 +69,7 @@ void diva_python_activity(py::module &m)
     .def("is_valid", &diva_activity::is_valid)
     .def("has_activity_names", &diva_activity::has_activity_names)
     .def("get_activity_names", &diva_activity::get_activity_names)
+    .def("get_max_activity_name", &diva_activity::get_max_activity_name)
     .def("set_activity_names", &diva_activity::set_activity_names)
     .def("remove_activity_names", &diva_activity::remove_activity_names)
     .def("has_activity_id", &diva_activity::has_activity_id)
@@ -104,5 +105,7 @@ void diva_python_activity(py::module &m)
     .def("add_actor_frame_absolute_time_span", &diva_activity::add_actor_frame_absolute_time_span)
     .def("remove_actor_frame_absolute_time_span", &diva_activity::remove_actor_frame_absolute_time_span)
 
-    .def("to_string", &diva_activity::to_string);
+
+    .def("to_string", &diva_activity::to_string)
+    .def("from_string", &diva_activity::from_string);
 }

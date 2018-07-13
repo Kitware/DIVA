@@ -2,6 +2,7 @@
 set(SOURCE "schema_examples.cpp")
 include_directories("${CMAKE_BINARY_DIR}")
 include_directories("${CMAKE_SOURCE_DIR}/utils")
+include_directories("${KWIVER_INCLUDE_DIRS}")
 add_executable(schema_examples ${SOURCE})
 target_link_libraries(schema_examples 
                       diva_utils)

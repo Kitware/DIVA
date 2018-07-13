@@ -53,6 +53,7 @@ public:
   bool has_activity_names() const;
   std::map< std::string, double > get_activity_names() const;
   void set_activity_names(const std::map< std::string, double >& names);
+  std::string get_max_activity_name() const;
   void remove_activity_names();
 
   bool has_activity_id() const;
@@ -103,6 +104,7 @@ public:
 
   void write(std::ostream& os) const;
   std::string to_string() const;
+  void from_string(const std::string& p);
 private:
   diva_activity_impl* _pimpl;
 };
