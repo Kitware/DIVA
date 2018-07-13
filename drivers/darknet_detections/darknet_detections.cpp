@@ -39,7 +39,6 @@
 #include "diva_exceptions.h"
 
 // KWIVER Spcecific files to run darknet
-#include "vital/exceptions.h"
 #include "vital/types/image.h"
 #include "vital/types/image_container.h"
 #include "vital/types/detected_object.h"

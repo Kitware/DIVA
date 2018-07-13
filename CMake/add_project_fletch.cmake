@@ -88,5 +88,5 @@ ExternalProject_Add(fletch
   INSTALL_DIR "${CMAKE_INSTALL_PREFIX}"
 )
 
-set(fletch_DIR "${CMAKE_INSTALL_PREFIX}/lib/cmake/fletch")
+set(fletch_DIR "${CMAKE_INSTALL_PREFIX}/share/cmake")
 

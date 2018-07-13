@@ -3,7 +3,6 @@ add_subdirectory(schema_examples)
 add_subdirectory(basic_experiment)
 add_subdirectory(darknet_detections)
 add_subdirectory(darknet_training)
-add_subdirectory(C3D_training)
 
 add_custom_target(compile_python ALL)
 add_custom_command(TARGET compile_python POST_BUILD

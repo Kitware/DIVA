@@ -36,7 +36,6 @@
 #include "diva_exceptions.h"
 
 // KWIVER Spcecific files for images
-#include "vital/exceptions.h"
 #include "vital/types/image_container.h"
 #include "vital/plugin_loader/plugin_manager.h"
 

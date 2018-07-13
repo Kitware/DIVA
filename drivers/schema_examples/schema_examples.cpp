@@ -60,7 +60,7 @@ int main(int argc, const char* argv[])
     geom.set_frame_id(i);
     geom.set_frame_time(time_s);
     geom.set_evaluation(diva_geometry::evaluation::true_positive);
-    geom.set_occlusion(diva_geometry::occlusion::heavy);
+    geom.set_occlusion(diva_geometry::occlusion::mostly);
     geom.set_source(diva_geometry::source::truth);
     geom.set_bounding_box_pixels(104, 349, 210, 385);
     geom.get_polygon().push_back(std::pair<size_t, size_t>(100, 399));
@@ -84,10 +84,10 @@ int main(int argc, const char* argv[])
   meta.set_msg("Vehicle 1 ");
 
   label.set_track_id(66);
-  label.set_type("Dumpster");
+  label.add_classification("Dumpster",1.0);
   label.write(label_ss);
   label.set_track_id(67);
-  label.set_type("Vehicle");
+  label.add_classification("Vehicle",1.0);
   label.write(label_ss);
   meta.set_msg("eof");
   meta.write(label_ss);
