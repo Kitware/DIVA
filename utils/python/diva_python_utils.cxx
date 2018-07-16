@@ -33,6 +33,7 @@
 namespace py = pybind11;
 
 void diva_python_experiment(py::module&);
+void diva_python_input(py::module&);
 void diva_python_meta(py::module&);
 void diva_python_label(py::module&);
 void diva_python_geometry(py::module&);
@@ -41,6 +42,7 @@ void diva_python_activity(py::module&);
 PYBIND11_MODULE(diva_python_utils, m) 
 {
   diva_python_experiment(m);
+  diva_python_input(m);
   diva_python_meta(m);
   diva_python_label(m);
   diva_python_geometry(m);

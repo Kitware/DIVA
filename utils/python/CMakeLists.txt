@@ -13,6 +13,7 @@ set( sources
   diva_python_geometry.cxx
   diva_python_activity.cxx
   diva_python_experiment.cxx
+  diva_python_input.cxx
 )
 
 set( public_headers

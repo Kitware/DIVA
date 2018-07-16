@@ -181,6 +181,14 @@ run_experiment( const std::string& fn )
   // The following code loads the experiment, ensures that it's an object_detection
   // task, and opens our output file
   //
+  KV::plugin_manager::instance().load_all_plugins();
+
+  //
+  // Detector: initialization
+  //
+  // The following code initializes KWIVER, instantiates the darknet object
+  // detector, and configures it via the config file (named in the experiment file)
+  //
 
   diva_experiment ex;
   if (!ex.read_experiment( fn ))
@@ -193,20 +201,11 @@ run_experiment( const std::string& fn )
   }
   std::ofstream os( ex.get_output_prefix() +".geom.yml" );
 
-
-  //
-  // Detector: initialization
-  //
-  // The following code initializes KWIVER, instantiates the darknet object
-  // detector, and configures it via the config file (named in the experiment file)
-  //
-
-  KV::plugin_manager::instance().load_all_plugins();
   KV::algo::image_object_detector_sptr detector =
-    KV::algo::image_object_detector::create( "darknet" );
+    KV::algo::image_object_detector::create("darknet");
   KV::config_block_sptr config =
-    KV::read_config_file( ex.get_algorithm_parameter( "darknet_config_path" ));
-  detector->set_configuration( config );
+    KV::read_config_file(ex.get_algorithm_parameter("darknet_config_path"));
+  detector->set_configuration(config);
 
 #ifdef DISPLAY_FRAME
   kwiver::vital::algo::draw_detected_object_set_sptr drawer =
@@ -215,23 +214,11 @@ run_experiment( const std::string& fn )
 #endif
 
   //
-  // Framework: loading the experiment
-  //
-  // This code creates a diva input point and intializes it via the
-  // experiment file.
-
-  diva_input input;
-  if(!input.load_experiment( ex ))
-  {
-    throw malformed_diva_data_exception( "Failed to initialize experiment input source" );
-  }
-
-  //
   // Framework: writing some metadata
   //
 
   diva_meta meta;
-  meta.set_msg( "darknet geometry for dataset "+ex.get_dataset_id() );
+  meta.set_msg( "darknet geometry for dataset "+ex.get_input().get_dataset_id() );
   meta.write(os);
 
   //
@@ -248,10 +235,10 @@ run_experiment( const std::string& fn )
   // -- writing the detections to the framework
   //
 
-  while (input.has_next_frame())
+  while (ex.get_input().has_next_frame())
   {
-    frame = input.get_next_frame();
-    ts = input.get_next_frame_timestamp();
+    frame = ex.get_input().get_next_frame();
+    ts = ex.get_input().get_next_frame_timestamp();
 
     //
     // Call the detector on the current frame

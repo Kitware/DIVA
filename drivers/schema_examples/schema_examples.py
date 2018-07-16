@@ -22,7 +22,7 @@ for x in range(0,50):
   geom.set_frame_id(x)
   geom.set_frame_time(time_s)
   geom.set_evaluation(diva_python_utils.geometry_evaluation.true_positive)
-  geom.set_occlusion(diva_python_utils.geometry_occlusion.heavy)
+  geom.set_occlusion(diva_python_utils.geometry_occlusion.mostly)
   geom.set_source(diva_python_utils.geometry_source.truth)
   geom.set_bounding_box_pixels(104, 349, 210, 385)
   geom.add_polygon_point( (100,399) )
@@ -43,10 +43,11 @@ print meta.to_string(),
 
 label = diva_python_utils.label()
 label.set_track_id(66),
-label.set_type('Dumpster')
+label.add_classification('Dumpster',1.0)
 print label.to_string(),
+label.clear()
 label.set_track_id(67),
-label.set_type('Vehicle')
+label.add_classification('Vehicle',1.0)
 print label.to_string(),
 
 # Example of writing an activity file
@@ -76,7 +77,6 @@ print actv.to_string(),
 # Example of writing an experiment file
 print 'Experiment Content'
 exp = diva_python_utils.experiment()
-
 # This is a sample experiment file for the DIVA system.
 # This file can be used for
 #    1) Running and experiment
@@ -84,21 +84,16 @@ exp = diva_python_utils.experiment()
 
 # What is the purpose of this experiment?
 exp.set_type(diva_python_utils.experiment_type.object_detection)
+input = exp.get_input()
 
 # Describe the inputs :
 # the dataset ID is used as the prefix for output files
-exp.set_dataset_id('VIRAT_S_000206_04_000710_000779')
+input.set_dataset_id('VIRAT_S_000206_04_000710_000779')
 # frame_rate_Hz metadata; available via the API if you want it
-exp.set_frame_rate_Hz(30)
-# set how the input type is made available
-exp.set_transport_type(diva_python_utils.experiment_transport_type.disk)
-# local path to the input data
-exp.set_input_root_dir('./etc/')
-# input source type
-exp.set_input_type(diva_python_utils.experiment_input_type.file_list)
-# the instance of the input source, in this case, a file,
+input.set_frame_rate_Hz(30)
+# the instance of the input source, in this case, a file referencing image files,
 # located in ${root_dir}/${source}, with filepaths of images to be processed.
-exp.set_input_source('image_list.txt')
+input.set_image_list_source('./etc/','image_list.txt')
 
 # Describe the outputs :
 # How will your algorithm's output be transported?

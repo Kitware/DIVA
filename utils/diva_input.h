@@ -29,16 +29,61 @@
 */
 
 #pragma once
-#include "diva_experiment.h"
 #include <utils/diva_utils_export.h>
+#include <vital/exceptions/io.h>
+#include <vital/exceptions/video.h>
 #include <vital/types/image_container.h>
+#include <vital/config/config_block.h>
+#include <vital/config/config_block_io.h>
+
 class DIVA_UTILS_EXPORT diva_input
 {
+protected:
+  friend class diva_experiment;
+  void set_configuration(kwiver::vital::config_block_sptr config);
 public:
+
+  enum class type
+  {
+    none = 0,
+    image_list,
+    video_file,
+    rstp
+  };
+
   diva_input();
   virtual ~diva_input();
 
-  bool load_experiment(const diva_experiment& exp);
+  bool read(kwiver::vital::config_block_sptr config);
+
+public:
+  void clear();
+  bool is_valid();
+
+  bool has_dataset_id() const;
+  void set_dataset_id(const std::string& id);
+  std::string get_dataset_id() const;
+  void remove_dataset_id();
+
+  bool has_frame_rate_Hz() const;
+  void set_frame_rate_Hz(size_t hz);
+  size_t get_frame_rate_Hz() const;
+  void remove_frame_rate_Hz();
+
+  void clear_source();
+  bool has_source() const;
+  diva_input::type get_source() const;
+  // Image List File
+  std::string get_image_list_file() const;
+  std::string get_image_list_source_dir() const;
+  bool set_image_list_source(const std::string& source_dir, const std::string& list_file);
+  // Video File
+  std::string get_video_file_source() const;
+  std::string get_video_file_source_dir() const;
+  bool set_video_file_source(const std::string& source_dir, const std::string& video_file);
+  // RSTP Stream
+  bool set_rstp_source(const std::string& url);
+  std::string get_rstp_source() const;
 
   bool has_next_frame();
   kwiver::vital::image_container_sptr get_next_frame();
@@ -49,4 +94,3 @@ private:
   class pimpl;
   pimpl* _pimpl;
 };
-

@@ -58,6 +58,7 @@ target_link_libraries( diva_utils
                        vital_logger
                        vital_util
                        vital_exceptions
+                       vital_vpm
                        kwiversys
                  yaml-cpp kpf_yaml
 )
