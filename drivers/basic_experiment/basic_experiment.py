@@ -1,3 +1,4 @@
+import numpy as np, cv2
 import diva_python_utils
 from vital.types import ImageContainer
 
@@ -11,6 +12,7 @@ while(inp.has_next_frame()):
   print('Frame width : '+str(frame.width()))
   print('Frame height : ' + str(frame.height()))
   bits = frame.asarray()
-
+  cv2.imshow("Experiment Frames", bits)
+  cv2.waitKey(0)
 
 
