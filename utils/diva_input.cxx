@@ -147,6 +147,7 @@ bool diva_input::read(kwiver::vital::config_block_sptr config)
   }
   if (_pimpl->config->has_value("input:frame_rate_Hz"))
     set_frame_rate_Hz(_pimpl->config->get_value<size_t>("input:frame_rate_Hz"));
+  return true;
 }
 
 
