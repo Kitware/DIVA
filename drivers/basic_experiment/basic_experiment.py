@@ -1,19 +1,16 @@
-import vital
-import numpy as np
-from PIL import Image as PILImage
-from vital.types import ImageContainer
-from vital.util import VitalPIL
-from numpy.core.multiarray import array
-
 import diva_python_utils
+from vital.types import ImageContainer
 
 exp = diva_python_utils.experiment()
-exp.read_experiment('C:/Programming/builds/diva-release/install/etc/image_experiment.yml')
+exp.read_experiment('./etc/image_experiment.yml')
 inp = exp.get_input()
 
-print('I am looping frames')
-b = inp.has_next_frame()
-print b
-print('I am in the loop')
-img = inp.get_next_frame()
-print('Image width'+img.width)
+while(inp.has_next_frame()):
+  print('I am in the loop')
+  frame = inp.get_next_frame()
+  print('Frame width : '+str(frame.width()))
+  print('Frame height : ' + str(frame.height()))
+  bits = frame.asarray()
+
+
+
