@@ -21,7 +21,6 @@ ExternalProject_Add(fletch
   CMAKE_CACHE_ARGS
     -DBUILD_SHARED_LIBS:BOOL=ON
     -Dfletch_BUILD_CXX11:BOOL=ON
-    -Dfletch_BUILD_WITH_CUDA:BOOL=OFF
     -Dfletch_BUILD_WITH_PYTHON:BOOL=${CAFFE_SUPPORT}
     -Dfletch_ENABLE_Boost:BOOL=ON
     -Dfletch_ENABLE_Caffe:BOOL=OFF
