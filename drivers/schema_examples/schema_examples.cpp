@@ -33,9 +33,16 @@
 #include "diva_label.h"
 #include "diva_activity.h"
 #include "diva_experiment.h"
+#include "vital/plugin_loader/plugin_manager.h"
 
 int main(int argc, const char* argv[])
 {
+  //
+  // KWIVER: initialization
+  //
+  // The following code initializes KWIVER
+  kwiver::vital::plugin_manager::instance().load_all_plugins();
+
   diva_meta meta;// We will reuse this
 
   // Example of Detection/Track Logic creating a geometry file
@@ -86,6 +93,7 @@ int main(int argc, const char* argv[])
   label.set_track_id(66);
   label.add_classification("Dumpster",1.0);
   label.write(label_ss);
+  label.clear();
   label.set_track_id(67);
   label.add_classification("Vehicle",1.0);
   label.write(label_ss);
@@ -153,18 +161,11 @@ int main(int argc, const char* argv[])
 
   // Describe the inputs :
   // the dataset ID is used as the prefix for output files
-  exp.set_dataset_id("VIRAT_S_000206_04_000710_000779");
-  // frame_rate_Hz metadata; available via the API if you want it
-  exp.set_frame_rate_Hz(30);
-  // set how the input type is made available
-  exp.set_transport_type(diva_experiment::transport_type::disk);
-  // local path to the input data
-  exp.set_input_root_dir("./etc/");
-  // input source type
-  exp.set_input_type(diva_experiment::input_type::file_list);
-  // the instance of the input source, in this case, a file,
+  exp.get_input().set_dataset_id("VIRAT_S_000206_04_000710_000779");
+  // The rate at which to sample the data
+  exp.get_input().set_frame_rate_Hz(30);
   // located in ${root_dir}/${source}, with filepaths of images to be processed.
-  exp.set_input_source("image_list.txt");
+  exp.get_input().set_image_list_source("./etc/", "image_list.txt");
 
   // Describe the outputs :
   // How will your algorithm's output be transported?

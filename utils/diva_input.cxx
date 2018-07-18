@@ -31,22 +31,26 @@
 #include <fstream>
 
 #include "diva_input.h"
-#include "diva_experiment.h"
 #include <yaml-cpp/yaml.h>
-#include <vital/exceptions/io.h>
-#include <vital/exceptions/video.h>
 #include <vital/types/image.h>
 #include <vital/types/image_container.h>
 #include <vital/algo/video_input.h>
 #include <vital/algo/image_io.h>
 #include <vital/util/data_stream_reader.h>
+#include <vital/config/config_block.h>
+#include <vital/config/config_block_io.h>
 #include <kwiversys/SystemTools.hxx>
 #include <kwiversys/RegularExpression.hxx>
 
 class diva_input::pimpl
 {
 public:
-  const diva_experiment*                exp;
+
+  diva_input::type                      type;
+  std::string                           source;
+  std::string                           source_dir;
+  std::string                           dataset_id;
+  size_t                                frame_rate_Hz = 30;
 
   kwiver::vital::timestamp              ts;
   kwiver::vital::timestamp::frame_t     frame_number;
@@ -54,17 +58,20 @@ public:
   kwiver::vital::metadata_vector        metadata;
   kwiver::vital::metadata_vector        last_metadata;
 
-  kwiver::vital::algo::video_input_sptr video_reader; 
+  kwiver::vital::algo::video_input_sptr video_reader;
   kwiver::vital::algorithm_capabilities video_traits;
 
   kwiver::vital::algo::image_io_sptr    image_reader;
   std::vector < kwiver::vital::path_t > files;
   std::vector < kwiver::vital::path_t >::const_iterator current_file;
+
+  kwiver::vital::config_block_sptr      config;
 };
 
 diva_input::diva_input()
 {
   _pimpl = new pimpl();
+  _pimpl->config = kwiver::vital::config_block::empty_config("diva_input");
 }
 
 diva_input::~diva_input()
@@ -72,78 +79,248 @@ diva_input::~diva_input()
   delete _pimpl;
 }
 
-bool diva_input::load_experiment(const diva_experiment& exp)
+void diva_input::set_configuration(kwiver::vital::config_block_sptr c)
 {
-  _pimpl->exp = &exp;
+  _pimpl->config = c;
+}
 
-  _pimpl->frame_number = 0;
-  _pimpl->default_frame_time_step_usec = static_cast<kwiver::vital::timestamp::time_t>(.3333 * 1e6); // in usec;
-  switch (_pimpl->exp->get_input_type())
+void diva_input::clear()
+{
+  remove_dataset_id();
+  remove_frame_rate_Hz();
+  clear_source();
+}
+
+bool diva_input::is_valid()
+{
+  if (_pimpl->type == type::none)
+    return false;
+  switch (_pimpl->type)
   {
-  case diva_experiment::input_type::file_list:
-    {
-      std::vector< std::string > search_paths;
-      search_paths.push_back(exp.get_input_root_dir());
-      _pimpl->image_reader = kwiver::vital::algo::image_io::create("ocv");
-      // open file and read lines
-      std::ifstream ifs(exp.get_input_root_dir() + "/" + exp.get_input_source());
-      if (!ifs)
-        return false;
-
-      kwiver::vital::data_stream_reader stream_reader(ifs);
-      // verify and get file names in a list
-      for (std::string line; stream_reader.getline(line); /* null */)
-      {
-        std::string resolved_file = line;
-        if (!kwiversys::SystemTools::FileExists(line))
-        {
-          // Resolve against specified path
-          resolved_file = kwiversys::SystemTools::FindFile(line, search_paths, true);
-          if (resolved_file.empty())
-          {
-            throw kwiver::vital::file_not_found_exception(line, "could not locate file in path");
-          }
-        }
-
-        _pimpl->files.push_back(resolved_file);
-      } // end for
-      _pimpl->current_file = _pimpl->files.begin();
-      break;
-    }
-    case diva_experiment::input_type::video:
-    {
-      _pimpl->video_reader = kwiver::vital::algo::video_input::create("vidl_ffmpeg"); 
-      _pimpl->video_reader->set_configuration(_pimpl->video_reader->get_configuration());// This will default the configuration 
-      try
-      {
-        if (exp.get_transport_type() == diva_experiment::transport_type::disk)
-          _pimpl->video_reader->open(exp.get_input_root_dir() + "/" + exp.get_input_source()); // throws
-        else
-          return false;//TODO support other transport options
-      }
-      catch (std::exception& ex)
-      {
-        return false;
-      }
-      // Get the capabilities for the currently opened video.
-      _pimpl->video_traits = _pimpl->video_reader->get_implementation_capabilities();
-      break;
-    }
-    default:
-    {
+  case diva_input::type::image_list:
+    if (_pimpl->source.empty())
       return false;
-    }
+    if (_pimpl->source_dir.empty())
+      return false;
+    break;
+  case diva_input::type::video_file:
+
+    if (_pimpl->source.empty())
+      return false;
+    if (_pimpl->source_dir.empty())
+      return false;
+    break;
+  case diva_input::type::rstp:
+    if (_pimpl->source.empty())
+      return false;
+    break;
   }
+  if (!has_dataset_id())
+    return false;
+  if (!has_frame_rate_Hz())
+    return false;
+
   return true;
+}
+
+bool diva_input::read(kwiver::vital::config_block_sptr config)
+{
+  clear();
+  _pimpl->config = config;
+  if (_pimpl->config->has_value("input:dataset_id"))
+    set_dataset_id(_pimpl->config->get_value<std::string>("input:dataset_id"));
+  if (_pimpl->config->has_value("input:type"))
+  {
+    std::string t = _pimpl->config->get_value<std::string>("input:type");
+    if (t == "image_list")
+      if (_pimpl->config->has_value("input:source") && _pimpl->config->has_value("input:root_dir"))
+        set_image_list_source(_pimpl->config->get_value<std::string>("input:root_dir"), _pimpl->config->get_value<std::string>("input:source"));
+      else return false;
+    else if (t == "video_file")
+      if (_pimpl->config->has_value("input:source") && _pimpl->config->has_value("input:root_dir"))
+        set_video_file_source(_pimpl->config->get_value<std::string>("input:root_dir"), _pimpl->config->get_value<std::string>("input:source"));
+      else return false;
+    else if (t == "rstp")
+      if (_pimpl->config->has_value("input:source"))
+        set_rstp_source(_pimpl->config->get_value<std::string>("input:source"));
+      else return false;
+  }
+  if (_pimpl->config->has_value("input:frame_rate_Hz"))
+    set_frame_rate_Hz(_pimpl->config->get_value<size_t>("input:frame_rate_Hz"));
+  return true;
+}
+
+
+bool diva_input::has_dataset_id() const
+{
+  return !_pimpl->dataset_id.empty();
+}
+void diva_input::set_dataset_id(const std::string& src)
+{
+  _pimpl->dataset_id = src;
+  _pimpl->config->set_value<std::string>("input:dataset_id", src);
+}
+std::string diva_input::get_dataset_id() const
+{
+  return _pimpl->dataset_id;
+}
+void diva_input::remove_dataset_id()
+{
+  _pimpl->dataset_id = "";
+  if (_pimpl->config->has_value("input:dataset_id"))
+    _pimpl->config->unset_value("input:dataset_id");
+}
+
+bool diva_input::has_frame_rate_Hz() const
+{
+  return _pimpl->frame_rate_Hz > 0;
+}
+void diva_input::set_frame_rate_Hz(size_t hz)
+{
+  _pimpl->frame_rate_Hz = hz;
+  _pimpl->config->set_value<size_t>("input:frame_rate_Hz", hz);
+}
+size_t diva_input::get_frame_rate_Hz() const
+{
+  return _pimpl->frame_rate_Hz;
+}
+void diva_input::remove_frame_rate_Hz()
+{
+  _pimpl->frame_rate_Hz = 0;
+  if (_pimpl->config->has_value("input:frame_rate_Hz"))
+    _pimpl->config->unset_value("input:frame_rate_Hz");
+}
+
+void diva_input::clear_source()
+{
+  _pimpl->type = type::none;
+  _pimpl->source = "";
+  _pimpl->source_dir = "";
+
+  if (_pimpl->config->has_value("input:type"))
+    _pimpl->config->unset_value("input:type");
+  if (_pimpl->config->has_value("input:root_dir"))
+    _pimpl->config->unset_value("input:root_dir");
+  if (_pimpl->config->has_value("input:source"))
+    _pimpl->config->unset_value("input:source");
+
+  // TODO clear out all the vital objects
+}
+bool diva_input::has_source() const
+{
+  return _pimpl->type != type::none;
+}
+diva_input::type diva_input::get_source() const
+{
+  return _pimpl->type;
+}
+
+#include "vital/plugin_loader/plugin_manager.h"
+bool diva_input::set_image_list_source(const std::string& source_dir, const std::string& list_file)
+{
+  clear_source();
+  kwiver::vital::plugin_manager::instance().load_all_plugins();
+  std::vector< std::string > search_paths;
+  search_paths.push_back(source_dir);
+  _pimpl->image_reader = kwiver::vital::algo::image_io::create("ocv");
+  // open file and read lines
+  std::ifstream ifs(source_dir+ list_file);
+  if (!ifs)
+    return false;
+
+  kwiver::vital::data_stream_reader stream_reader(ifs);
+  // verify and get file names in a list
+  for (std::string line; stream_reader.getline(line); /* null */)
+  {
+#ifdef _WIN32
+    line = "." + line;
+#endif
+    std::string resolved_file = line;
+    if (!kwiversys::SystemTools::FileExists(line))
+    {
+      // Resolve against specified path
+      resolved_file = kwiversys::SystemTools::FindFile(line, search_paths, true);
+      if (resolved_file.empty())
+      {
+        throw kwiver::vital::file_not_found_exception(line, "could not locate file in path");
+      }
+    }
+    _pimpl->files.push_back(resolved_file);
+  } // end for
+  _pimpl->current_file = _pimpl->files.begin();
+
+  _pimpl->type = type::image_list;
+  _pimpl->source = list_file;
+  _pimpl->source_dir = source_dir;
+  _pimpl->default_frame_time_step_usec = static_cast<kwiver::vital::timestamp::time_t>(.3333 * 1e6); // in usec;
+  _pimpl->config->set_value<std::string>("input:source", list_file);
+  _pimpl->config->set_value<std::string>("input:root_dir", source_dir);
+  return true;
+}
+// Note this is how you load an image/frame off disk, if that is something you would want to do
+//kwiver::vital::algo::image_io_sptr ocv_io = kwiver::vital::algo::image_io::create("ocv");
+//kwiver::vital::image_container_sptr ocv_img = ocv_io->load("./image.png");
+std::string diva_input::get_image_list_file() const
+{
+  return _pimpl->source;
+}
+std::string diva_input::get_image_list_source_dir() const
+{
+  return _pimpl->source_dir;
+}
+
+bool diva_input::set_video_file_source(const std::string& source_dir, const std::string& video_file)
+{
+  clear_source();
+  _pimpl->video_reader = kwiver::vital::algo::video_input::create("vidl_ffmpeg");
+  _pimpl->video_reader->set_configuration(_pimpl->video_reader->get_configuration());// This will default the configuration 
+  try
+  {
+    _pimpl->video_reader->open(source_dir+ video_file); // throws
+  }
+  catch (std::exception& ex)
+  {
+    return false;
+  }
+  // Get the capabilities for the currently opened video.
+  _pimpl->video_traits = _pimpl->video_reader->get_implementation_capabilities();
+  
+  _pimpl->type = type::video_file;
+  _pimpl->source = video_file;
+  _pimpl->source_dir = source_dir;
+  _pimpl->frame_rate_Hz = 0;// TODO Get this from kwiver
+  _pimpl->default_frame_time_step_usec = static_cast<kwiver::vital::timestamp::time_t>(.3333 * 1e6); // in usec;
+  _pimpl->config->set_value<std::string>("input:source", video_file);
+  _pimpl->config->set_value<std::string>("input:root_dir", source_dir);
+  return true;
+}
+std::string diva_input::get_video_file_source() const
+{
+  return _pimpl->source;
+}
+std::string diva_input::get_video_file_source_dir() const
+{
+  return _pimpl->source_dir;
+}
+
+bool diva_input::set_rstp_source(const std::string& url)
+{
+  clear_source();
+  throw kwiver::vital::video_stream_exception("Unsupported method");
+  _pimpl->config->set_value<std::string>("input:source", url);
+}
+std::string diva_input::get_rstp_source() const
+{
+  return _pimpl->source;
 }
 
 bool diva_input::has_next_frame()
 {
-  switch (_pimpl->exp->get_input_type())
+  switch (_pimpl->type)
   {
-  case diva_experiment::input_type::file_list:
+  case diva_input::type::image_list:
     return _pimpl->current_file != _pimpl->files.end();
-  case diva_experiment::input_type::video:
+  case diva_input::type::video_file:
     return _pimpl->video_reader->next_frame(_pimpl->ts);
   }
   return false;
@@ -152,21 +329,21 @@ bool diva_input::has_next_frame()
 kwiver::vital::image_container_sptr diva_input::get_next_frame()
 {
   kwiver::vital::image_container_sptr frame;
-  switch (_pimpl->exp->get_input_type())
+  switch (_pimpl->type)
   {
-    case diva_experiment::input_type::file_list:
+    case diva_input::type::image_list:
     {
       std::string a_file = *_pimpl->current_file;
       frame = _pimpl->image_reader->load(a_file);
       // update timestamp
-      kwiversys::RegularExpression frame_num_re( "([0-9]+)\\.[^\\.]+$" );
-      if ( ! frame_num_re.find( a_file ) )
+      kwiversys::RegularExpression frame_num_re("([0-9]+)\\.[^\\.]+$");
+      if (!frame_num_re.find(a_file))
       {
         ++_pimpl->frame_number;
       }
       else
       {
-        _pimpl->frame_number = std::stoi( frame_num_re.match( 1 ));
+        _pimpl->frame_number = std::stoi(frame_num_re.match(1));
       }
       _pimpl->ts.set_frame(_pimpl->frame_number);
       _pimpl->ts.set_time_usec(_pimpl->frame_number * _pimpl->default_frame_time_step_usec);
@@ -174,7 +351,7 @@ kwiver::vital::image_container_sptr diva_input::get_next_frame()
       // TODO meta data?
       break;
     }
-    case diva_experiment::input_type::video:
+    case diva_input::type::video_file:
     {
       if (!_pimpl->video_traits.capability(kwiver::vital::algo::video_input::HAS_FRAME_DATA))
       {
@@ -218,6 +395,10 @@ kwiver::vital::image_container_sptr diva_input::get_next_frame()
       }
       break;
     }
+    case diva_input::type::rstp:
+    {
+      break;
+    }
   }
   return frame;
 }
@@ -231,9 +412,5 @@ kwiver::vital::metadata_vector diva_input::get_next_frame_metadata() const
 {
   return _pimpl->metadata;
 }
-
-  // Note this is how you load an image/frame off disk, if that is something you would want to do
-  //kwiver::vital::algo::image_io_sptr ocv_io = kwiver::vital::algo::image_io::create("ocv");
-  //kwiver::vital::image_container_sptr ocv_img = ocv_io->load("./image.png");
 
 

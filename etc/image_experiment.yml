@@ -27,15 +27,11 @@ block input
    # frame_rate_Hz metadata; available via the API if you want it
    frame_rate_Hz = 30.0
 
-   # transport_type: how the input type is made available
-   # currently only 'disk' is supported
-   transport_type = disk
-
    # local path to the input data
    root_dir = ./
 
    # input source type; currently either 'file_list' or 'video'
-   type = file_list
+   type = image_list
 
    # the instance of the input source, in this case, a file,
    # located in ${root_dir}/${source}, with filepaths of images to be

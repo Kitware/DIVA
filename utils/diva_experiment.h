@@ -30,6 +30,7 @@
 
 #pragma once
 #include <utils/diva_utils_export.h>
+#include "diva_input.h"
 #include <string>
 
 class DIVA_UTILS_EXPORT diva_experiment
@@ -39,19 +40,6 @@ public:
   {
     object_detection = 0,
     activity_detection
-  };
-
-  enum class input_type
-  {
-    file_list = 0,
-    video
-  };
-
-  enum class transport_type
-  {
-    disk = 0,
-    girder,
-    rstp
   };
 
   enum class output_type
@@ -74,35 +62,9 @@ public:
   void set_type(type s);
   void remove_type();
 
-  bool has_input_type() const;
-  input_type get_input_type() const;
-  void set_input_type(input_type s);
-  void remove_input_type();
-
-  bool has_transport_type() const;
-  transport_type get_transport_type() const;
-  void set_transport_type(transport_type s);
-  void remove_transport_type();
-
-  bool has_dataset_id() const;
-  void set_dataset_id(const std::string& id);
-  std::string get_dataset_id() const;
-  void remove_dataset_id();
-
-  bool has_input_source() const;
-  void set_input_source(const std::string& id);
-  std::string get_input_source() const;
-  void remove_input_source();
-
-  bool has_input_root_dir() const;
-  void set_input_root_dir(const std::string& id);
-  std::string get_input_root_dir() const;
-  void remove_input_root_dir();
-
-  bool has_frame_rate_Hz() const;
-  void set_frame_rate_Hz(size_t hz);
-  size_t get_frame_rate_Hz() const;
-  void remove_frame_rate_Hz();
+  bool has_input() const;
+  diva_input& get_input();
+  const diva_input& get_input() const;
 
   bool has_output_type() const;
   output_type get_output_type() const;

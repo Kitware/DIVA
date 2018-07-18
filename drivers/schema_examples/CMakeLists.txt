@@ -5,7 +5,15 @@ include_directories("${CMAKE_SOURCE_DIR}/utils")
 include_directories("${KWIVER_INCLUDE_DIRS}")
 add_executable(schema_examples ${SOURCE})
 target_link_libraries(schema_examples 
-                      diva_utils)
+                      diva_utils
+                      kwiversys
+                      vital
+                      vital_algo
+                      vital_config
+                      vital_logger
+                      vital_util
+                      vital_exceptions
+                      vital_vpm)
 
 add_custom_command(TARGET schema_examples POST_BUILD
                    COMMAND ${CMAKE_COMMAND} -E copy $<TARGET_FILE:schema_examples> ${CMAKE_INSTALL_PREFIX}/bin)

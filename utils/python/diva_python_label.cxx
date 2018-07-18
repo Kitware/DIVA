@@ -30,6 +30,7 @@
 
 #include <pybind11/pybind11.h>
 #include "diva_label.h"
+#include "diva_input.h"
 
 namespace py = pybind11;
 
