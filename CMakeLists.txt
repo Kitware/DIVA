@@ -47,6 +47,7 @@ find_package(fletch REQUIRED)
 add_subdirectory(utils)
 add_subdirectory(drivers)
 add_subdirectory(external)
+add_subdirectory(algo)
 
 set(LIBRARY_PATH_VAR "LD_LIBRARY_PATH")
 if( APPLE )
