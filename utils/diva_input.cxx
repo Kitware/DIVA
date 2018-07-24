@@ -94,31 +94,55 @@ void diva_input::clear()
 bool diva_input::is_valid()
 {
   if (_pimpl->type == type::none)
+  {
+    std::cerr << "Input invalid: Input cannot be None" << std::endl;
     return false;
+  }
   switch (_pimpl->type)
   {
   case diva_input::type::image_list:
     if (_pimpl->source.empty())
+    {
+      std::cerr << "Input invalid: Image list file not provided" << std::endl;
       return false;
+    }
     if (_pimpl->source_dir.empty())
+    {
+      std::cerr << "Input invalid: Image list source directory is not provided" << std::endl;
       return false;
+    }
     break;
   case diva_input::type::video_file:
 
     if (_pimpl->source.empty())
+    {
+      std::cerr << "Input invalid: Video file not provided" << std::endl;
       return false;
+    }
     if (_pimpl->source_dir.empty())
+    {
+      std::cerr << "Input invalid: Video file source directory is not provided" << std::endl;
       return false;
+    }
     break;
   case diva_input::type::rstp:
     if (_pimpl->source.empty())
+    {
+      std::cerr << "Input invalid: RSTP source URL is not provided" << std::endl;
       return false;
+    }
     break;
   }
   if (!has_dataset_id())
+  {
+    std::cerr << "Input invalid: Dataset id is not provided" << std::endl;
     return false;
+  }
   if (!has_frame_rate_Hz())
+  {
+    std::cerr << "Input invalid: Frame rate not provided" << std::endl;
     return false;
+  }
 
   return true;
 }

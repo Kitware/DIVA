@@ -92,13 +92,25 @@ void diva_experiment::clear()
 bool diva_experiment::is_valid()
 {
   if (!has_type())
+  {
+    std::cerr << "Experiment invalid: Does not have type" << std::endl;
     return false;
+  }
   if (!_pimpl->input.is_valid())
+  {
+    std::cerr << "Experiment invalid: Input objec is not valid" << std::endl;
     return false;
+  }
   if (!has_output_type())
+  {
+    std::cerr << "Experiment invalid: Does not have ouput type" << std::endl;
     return false;
+  }
   if (!has_output_root_dir())
+  {
+    std::cerr << "Experiment invalid: Does not have output root dir" << std::endl;
     return false;
+  }
   // TODO more checks for directories and files exist... 
   return true;
 }
