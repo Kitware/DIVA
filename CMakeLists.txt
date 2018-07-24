@@ -47,6 +47,7 @@ find_package(fletch REQUIRED)
 add_subdirectory(utils)
 add_subdirectory(drivers)
 add_subdirectory(external)
+add_subdirectory(processes)
 
 set(LIBRARY_PATH_VAR "LD_LIBRARY_PATH")
 if( APPLE )
@@ -84,5 +85,3 @@ file(COPY ${CMAKE_SOURCE_DIR}/etc/ref-geom DESTINATION ${CMAKE_INSTALL_PREFIX}/e
 file(COPY ${CMAKE_SOURCE_DIR}/etc/video    DESTINATION ${CMAKE_INSTALL_PREFIX}/etc)
 configure_file(${CMAKE_SOURCE_DIR}/drivers/schema_examples/schema_examples.py ${CMAKE_INSTALL_PREFIX}/python/schema_examples.py COPYONLY)
 configure_file(${CMAKE_SOURCE_DIR}/drivers/system_script/diva_system.py       ${CMAKE_INSTALL_PREFIX}/python/diva_system.py COPYONLY)
-
-
