@@ -139,7 +139,7 @@ class ViratOpticalFlow{
          * Recursively iterate through directories to find files that match the 
          * mask
          */
-        void ListFiles(const std::string& dir, 
+        void ListFilePairs(const std::string& dir, 
                 std::vector<std::pair<std::string,std::string>>& image_pairs, 
                 const std::string& mask)
         {
@@ -158,7 +158,7 @@ class ViratOpticalFlow{
                 file_path += "/" + file;
                 if (ST::FileIsDirectory(file_path))
                 {
-                    ListFiles(file_path, image_pairs, mask);
+                    ListFilePairs(file_path, image_pairs, mask);
                 }else
                 {
                     std::string prev_file = get_prev_image(file);
@@ -243,7 +243,7 @@ class ViratOpticalFlow{
 
             // Create image pair
             std::vector<std::pair<std::string, std::string>> image_pairs;
-            ListFiles(video_dir_, image_pairs, img_extension_);
+            ListFilePairs(video_dir_, image_pairs, img_extension_);
             
             // Iterate through image pairs
             std::vector<std::pair<std::string, std::string>>::iterator 
@@ -257,6 +257,10 @@ class ViratOpticalFlow{
                 // Output has same path except different root directory
                 ST::ReplaceString(output_path, video_dir_, 
                         output_dir_);
+                if (ST::FileExists(output_path, true)){
+                    //std::cout << output_path << " already exits." << std::endl;
+                    continue;
+                }
            
                 auto start = std::chrono::high_resolution_clock::now();
                 // Read image and appropriate convert the matrix into 
@@ -323,6 +327,7 @@ class ViratOpticalFlow{
                     cv::cuda::OpticalFlowDual_TVL1::create();
             std::vector<std::string> flow_paths;
             ListFiles(output_dir_, flow_paths, img_extension_);
+            std::cout << "Number of images: " << flow_paths.size() << std::endl;
             std::vector<std::string>::iterator flow_iterator;
             std::string current_path, previous_path, flow_path;
             for (flow_iterator=flow_paths.begin(); flow_iterator<flow_paths.end();
@@ -330,7 +335,10 @@ class ViratOpticalFlow{
                 flow_path = *flow_iterator;
                 if (ST::FileExists(flow_path, true)){
                     flow_image = cv::imread(flow_path.c_str());
-                    if (flow_image.empty()){
+                    
+                    if (flow_image.data == NULL){
+                        std::cout << "Corrupt image" << flow_path << std::endl;
+                        auto start = std::chrono::high_resolution_clock::now();
                         current_path = flow_path;
                         ST::ReplaceString(current_path, output_dir_, 
                                 video_dir_);
@@ -342,50 +350,61 @@ class ViratOpticalFlow{
                             ST::GetParentDirectory(current_path);
                         std::string prev_image_path = parent_directory + "/" +
                                                     prev_image_name;
+                        std::cout << "flow path:" << flow_path << std::endl;
+                        std::cout << "image path: " << current_path << std::endl;
+                        std::cout << "previous image path: " << prev_image_path <<
+                            std::endl;
                         if (!ST::FileExists(prev_image_path, true)){
                             ST::ReplaceString(prev_image_path, prev_image_name,
                                                 current_image_name);
-                            frame0 = cv::imread(prev_image_path.c_str(), 
+                        }
+                        frame0 = cv::imread(prev_image_path.c_str(), 
                                             CV_LOAD_IMAGE_GRAYSCALE);
-                            frame1 = cv::imread(current_path.c_str(),
+                        frame1 = cv::imread(current_path.c_str(),
                                              CV_LOAD_IMAGE_GRAYSCALE);
-                            if (frame0.empty() || frame1.empty()){
-                                std::cerr << "Skipping: " << current_image_name
-                                              << std::endl;
-                                continue;
-                            }
+                        if (frame0.empty() || frame1.empty()){
+                            std::cerr << "Skipping: " << current_image_name
+                                          << std::endl;
+                            continue;
+                        }
 
-                            frame0.convertTo(frame0, CV_32F, 1.0/255.0);
-                            frame1.convertTo(frame1, CV_32F, 1.0/255.0);
+                        frame0.convertTo(frame0, CV_32F, 1.0/255.0);
+                        frame1.convertTo(frame1, CV_32F, 1.0/255.0);
 
-                            frame0.convertTo(frame0_32FC1, CV_32FC1);
-                            frame1.convertTo(frame1_32FC1, CV_32FC1);
-                            frame0_gpu.upload(frame0_32FC1);
-                            frame1_gpu.upload(frame1_32FC1);
-                            // Computing optical flow
-                            if (flow_type == 0){
-                                brox_flow_instance->calc(frame0_gpu, frame1_gpu, 
-                                        flow_gpu_out);
+                        frame0.convertTo(frame0_32FC1, CV_32FC1);
+                        frame1.convertTo(frame1_32FC1, CV_32FC1);
+                        frame0_gpu.upload(frame0_32FC1);
+                        frame1_gpu.upload(frame1_32FC1);
+                        // Computing optical flow
+                        if (flow_type == 0){
+                            brox_flow_instance->calc(frame0_gpu, frame1_gpu, 
+                                    flow_gpu_out);
+                        }else{
+                            tvl_flow_instance->calc(frame0_gpu, frame1_gpu, 
+                                    flow_gpu_out);
+                        }
+                        cv::cuda::split(flow_gpu_out, flow_planes);
+                        flow_planes[0].download(u_out);
+                        flow_planes[1].download(v_out); 
+                        // Create flow images and write them
+                        if (!u_out.empty() and !v_out.empty()){
+                            color_code(u_out, v_out, img_out, 20.0);
+                            bool write_successful = write_image(img_out, 
+                                                              flow_path);
+                            if (!write_successful){
+                                std::cerr << "Failed to write " << 
+                                          flow_path << std::endl;
                             }else{
-                                tvl_flow_instance->calc(frame0_gpu, frame1_gpu, 
-                                        flow_gpu_out);
+                                std::cout << "Writing: " << 
+                                        flow_path << std::endl;
                             }
-                            cv::cuda::split(flow_gpu_out, flow_planes);
-                            flow_planes[0].download(u_out);
-                            flow_planes[1].download(v_out); 
-                            // Create flow images and write them
-                            if (!u_out.empty() and !v_out.empty()){
-                                color_code(u_out, v_out, img_out, 20.0);
-                                bool write_successful = write_image(img_out, 
-                                                                  flow_path);
-                                if (!write_successful){
-                                    std::cerr << "Failed to write " << 
-                                              flow_path << std::endl;
-                                }
-                            }else{
-                                std::cerr << "No flow image created" << std::endl;
-                            }
-                        }    
+                        }else{
+                            std::cerr << "No flow image created" << std::endl;
+                        }
+                        
+                        auto finish = std::chrono::high_resolution_clock::now();
+                        std::chrono::duration<double> elapsed = finish - start;
+                        std::cout << "Elapsed time: " << elapsed.count() << " s\n";
 
                     }
                 }
@@ -410,6 +429,7 @@ int main(int argc, char *argv[]){
                                     options.output_directory, options.image_extension,
                                     options.gpu_id, options.skip_frames);
     virat_optical_flow.compute_flow(options.flow_type);
+    std::cout << "Verifying flow images" << std::endl;
     virat_optical_flow.verify_flow(options.flow_type);
 }
 
