@@ -34,7 +34,6 @@
 #include <vital/types/timestamp.h>
 #include <vital/types/image_container.h>
 #include <vital/types/image.h>
-//+ #include <vital/exceptions.h>
 
 #include <sprokit/processes/kwiver_type_traits.h>
 
@@ -42,17 +41,11 @@
 #include <sprokit/pipeline/datum.h>
 
 #include <utils/diva_experiment.h>
-  // #include <kwiversys/SystemTools.hxx>
-
-  //#include <vector>
-  //#include <stdint.h>
-  //#include <fstream>
 
 // -- DEBUG
 #if defined DEBUG
-#include <arrows/algorithms/ocv/image_container.h>
 #include <opencv2/highgui/highgui.hpp>
-using namespace cv;
+#include <arrows/ocv/image_container.h>
 #endif
 
 namespace diva {
@@ -130,23 +123,20 @@ void diva_experiment_process
     return;
   }
 
-  kwiver::vital::timestamp ts;
-  kwiver::vital::image_container_sptr frame;
-
-  frame = d->experiment.get_input().get_next_frame();
-  ts = d->experiment.get_input().get_next_frame_timestamp();
+  kwiver::vital::timestamp ts = d->experiment.get_input().get_next_frame_timestamp();
+  kwiver::vital::image_container_sptr frame = d->experiment.get_input().get_next_frame();
 
   // --- debug
 #if defined DEBUG
-  cv::Mat image = algorithms::ocv::image_container::vital_to_ocv( frame->get_image() );
-  namedWindow( "Display window", cv::WINDOW_NORMAL );// Create a window for display.
-  imshow( "Display window", image ); // Show our image inside it.
+  cv::Mat cv_image = kwiver::arrows::ocv::image_container::vital_to_ocv( frame->get_image() );
+  cv::namedWindow( "Display window", cv::WINDOW_NORMAL );// Create a window for display.
+  cv::imshow( "Display window", cv_image ); // Show our image inside it.
 
-  waitKey(0);                 // Wait for a keystroke in the window
+  cv::waitKey(0);                 // Wait for a keystroke in the window
 #endif
   // -- end debug
 
-    push_to_port_using_trait( timestamp, ts );
+  push_to_port_using_trait( timestamp, ts );
   push_to_port_using_trait( image, frame );
 
 }

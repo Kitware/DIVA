@@ -25,4 +25,9 @@ kwiver_add_plugin( diva_processes
   PRIVATE          sprokit_pipeline
                    diva_utils
                    vital vital_vpm vital_logger vital_config
+   kwiver_algo_ocv
+   ${OpenCV_LIBS}
+
 )
+
+add_subdirectory( python )
