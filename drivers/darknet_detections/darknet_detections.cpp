@@ -193,11 +193,11 @@ run_experiment( const std::string& fn )
   diva_experiment ex;
   if (!ex.read_experiment( fn ))
   {
-    throw malformed_diva_data_exception("Invalid experiment configuration");
+    VITAL_THROW( malformed_diva_data_exception,  "Invalid experiment configuration");
   }
   if (ex.get_type() != diva_experiment::type::object_detection)
   {
-    throw malformed_diva_data_exception("Invalid experiment type; should be object_detection");
+    VITAL_THROW( malformed_diva_data_exception, "Invalid experiment type; should be object_detection");
   }
   std::ofstream os( ex.get_output_prefix() +".geom.yml" );
 
@@ -210,7 +210,7 @@ run_experiment( const std::string& fn )
 #ifdef DISPLAY_FRAME
   kwiver::vital::algo::draw_detected_object_set_sptr drawer =
     kwiver::vital::algo::draw_detected_object_set::create("ocv");
-  drawer->set_configuration(drawer->get_configuration()); // This will default the configuration 
+  drawer->set_configuration(drawer->get_configuration()); // This will default the configuration
 #endif
 
   //
@@ -293,5 +293,3 @@ run_experiment( const std::string& fn )
 
   return true;
 }
-
-

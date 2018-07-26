@@ -1,0 +1,5 @@
+#
+# Pipe file to test diva_experiment_process
+#
+process exp :: diva_experiment
+  experiment_file_name = image_experiment.yml

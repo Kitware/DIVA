@@ -42,7 +42,14 @@ include(kwiver-cmake-future)
 include(kwiver-utils)
 include(kwiver-flags)
 include(kwiver-configcheck)
+
 find_package(fletch REQUIRED)
+
+###
+# Set location for process plugins
+set( diva_plugin_process_subdir diva/processes )
+set( diva_plugin_module_subdir  diva/modules )
+
 # DIVA specific code (inner build)
 add_subdirectory(utils)
 add_subdirectory(drivers)

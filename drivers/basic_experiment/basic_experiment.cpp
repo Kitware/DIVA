@@ -68,7 +68,7 @@ display_experiment_frames( const std::string& fn )
   diva_experiment ex;
   if (!ex.read_experiment( fn ))
   {
-    throw malformed_diva_data_exception("Invalid experiment configuration");
+    VITAL_THROW( malformed_diva_data_exception, "Invalid experiment configuration");
   }
 
   //
@@ -212,5 +212,3 @@ options_t
 
   return main_should_exit;
 }
-
-

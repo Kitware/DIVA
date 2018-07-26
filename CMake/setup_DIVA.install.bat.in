@@ -7,7 +7,7 @@
 :: where as an install directory does not (bin/*.dlls)
 if exist %~dp0/bin/diva_utils.dll (
   set config=
-  
+
   if not [%1] == [] echo setting up an install directory, ignoring provided configuration.
   GOTO Start
 )
@@ -23,3 +23,4 @@ set config=release
 
 call setup_KWIVER.bat %config%
 set PATH=%PATH%;%~dp0/bin/%config%
+set KWIVER_PLUGIN_PATH=@CMAKE_INSTALL_PREFIX@/lib/@diva_plugin_process_subdir@;@CMAKE_INSTALL_PREFIX@/lib/@diva_plugin_module_subdir@;@CMAKE_INSTALL_PREFIX@/lib/processes;%KWIVER_PLUGIN_PATH%
