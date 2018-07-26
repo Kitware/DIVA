@@ -37,11 +37,13 @@ if(DIVA_SUPERBUILD)
 endif()
 
 find_package(kwiver REQUIRED)
+set(KWIVER_ENABLE_PYTHON true)
 link_directories("${KWIVER_LIBRARY_DIRS}")
 include(kwiver-cmake-future)
 include(kwiver-utils)
 include(kwiver-flags)
 include(kwiver-configcheck)
+set(kwiver_python_output_path  "${CMAKE_BINARY_DIR}/${python_lib_subdir}")
 
 find_package(fletch REQUIRED)
 

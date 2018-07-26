@@ -282,7 +282,8 @@ run_experiment( const std::string& fn )
     // Draw the detections onto the image and show it via kwiver and the opencv api
     kwiver::vital::image_container_sptr detections_img = drawer->draw(detections, frame);
     // Let's see what it looks like
-    cv::Mat _mat = kwiver::arrows::ocv::image_container::vital_to_ocv(detections_img->get_image());
+    cv::Mat _mat = kwiver::arrows::ocv::image_container::vital_to_ocv(detections_img->get_image(),
+                   kwiver::arrows::ocv::image_container::BGR_COLOR );
     cv::namedWindow("Darknet Detections", cv::WINDOW_AUTOSIZE);// Create a window for display.
     cv::imshow("Darknet Detections", _mat);                    // Show our image inside it.
     cv::waitKey(2000);                                         // Wait for 2s

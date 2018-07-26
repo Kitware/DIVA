@@ -82,7 +82,8 @@ display_experiment_frames( const std::string& fn )
     ts = ex.get_input().get_next_frame_timestamp();
 
     // Convert the frame to opencv formate and display
-    cv::Mat _mat = kwiver::arrows::ocv::image_container::vital_to_ocv(frame->get_image());
+    cv::Mat _mat = kwiver::arrows::ocv::image_container::vital_to_ocv(frame->get_image(),
+                   kwiver::arrows::ocv::image_container::BGR_COLOR);
     cv::namedWindow("Input Frame", cv::WINDOW_AUTOSIZE);// Create a window for display.
     cv::imshow("Input Frame", _mat);                    // Show our image inside it.
     cv::waitKey(2000);                                  // Wait for 2s

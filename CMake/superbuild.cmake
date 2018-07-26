@@ -14,7 +14,7 @@ find_package(Git REQUIRED)
 set( fletch_DIR "" CACHE PATH "Path to FLETCH" )
 set( kwiver_DIR "" CACHE PATH "Path to KWIVER" )
 #set( kwant_DIR  "" CACHE PATH "Path to KWANT" )
-# We can use this when we can find_package(kwant) 
+# We can use this when we can find_package(kwant)
 # but it currently does not provide a kwantConfig.cmake file
 
 set( kwiver_FOUND FALSE)
@@ -39,14 +39,14 @@ if(kwiver_DIR)
      set( fletch_DIR ${user_fletch_DIR} CACHE PATH "Path to FLETCH" )
     endif()
   else()
-    message(STATUS "I could not find your kwiver!")
+    message(STATUS "I could not find your kwiver!!")
     set( kwiver_FOUND FALSE)
   endif()
 endif()
 
 if(NOT kwiver_FOUND)
   set( kwiver_DIR "" CACHE PATH "Path to KWIVER" )
-  
+
   set( fletch_FOUND FALSE)
   if(fletch_DIR)
     ## Make sure this is a good fletch directory
@@ -63,7 +63,7 @@ if(NOT kwiver_FOUND)
       set( fletch_FOUND FALSE)
     endif()
   endif()
-  
+
   if(NOT fletch_FOUND)
     set( fletch_DIR "" CACHE PATH "Path to FLETCH" )
     include(CMake/add_project_fletch.cmake)
