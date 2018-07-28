@@ -76,10 +76,10 @@ display_experiment_frames( const std::string& fn )
   // -- looping over input frames specified by the experiment
   kwiver::vital::timestamp ts;
   kwiver::vital::image_container_sptr frame;
-  while (ex.get_input().has_next_frame())
+  while (ex.get_input()->has_next_frame())
   {
-    frame = ex.get_input().get_next_frame();
-    ts = ex.get_input().get_next_frame_timestamp();
+    frame = ex.get_input()->get_next_frame();
+    ts = ex.get_input()->get_next_frame_timestamp();
 
     // Convert the frame to opencv formate and display
     cv::Mat _mat = kwiver::arrows::ocv::image_container::vital_to_ocv(frame->get_image());

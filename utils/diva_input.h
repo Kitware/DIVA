@@ -94,3 +94,6 @@ private:
   class pimpl;
   pimpl* _pimpl;
 };
+
+/// Shared pointer for base image_container type
+typedef std::shared_ptr<diva_input> diva_input_sptr;

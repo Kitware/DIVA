@@ -39,7 +39,7 @@ public:
 
   diva_experiment::type            type;
 
-  diva_input                       input;
+  diva_input_sptr                  input;
   
   diva_experiment::output_type     output_type;
   std::string                      output_root_dir;
@@ -61,7 +61,8 @@ diva_experiment::diva_experiment()
 {
   _pimpl = new pimpl();
   _pimpl->config = kwiver::vital::config_block::empty_config("diva_experiment");
-  _pimpl->input.set_configuration(_pimpl->config);
+  _pimpl->input = std::make_shared<diva_input>();
+  _pimpl->input->set_configuration(_pimpl->config);
 }
 
 diva_experiment::~diva_experiment()
@@ -72,7 +73,7 @@ diva_experiment::~diva_experiment()
 void diva_experiment::clear()
 {
   remove_type();
-  _pimpl->input.clear();
+  _pimpl->input->clear();
   
   remove_output_type();
   remove_output_root_dir();
@@ -96,7 +97,7 @@ bool diva_experiment::is_valid()
     std::cerr << "Experiment invalid: Does not have type" << std::endl;
     return false;
   }
-  if (!_pimpl->input.is_valid())
+  if (!_pimpl->input->is_valid())
   {
     std::cerr << "Experiment invalid: Input objec is not valid" << std::endl;
     return false;
@@ -128,7 +129,7 @@ bool diva_experiment::read_experiment(const std::string& filename)
       set_type( diva_experiment::type::object_detection);
   }
 
-  _pimpl->input.read(_pimpl->config);
+  _pimpl->input->read(_pimpl->config);
 
   if (_pimpl->config->has_value("output:type"))
   {
@@ -205,16 +206,16 @@ void diva_experiment::remove_type()
 
 bool diva_experiment::has_input() const
 {
-  return _pimpl->input.is_valid();
+  return _pimpl->input->is_valid();
 }
-diva_input& diva_experiment::get_input()
+diva_input_sptr diva_experiment::get_input()
 {
   return _pimpl->input;
 }
-const diva_input& diva_experiment::get_input() const
-{
-  return _pimpl->input;
-}
+//const diva_input& diva_experiment::get_input() const
+//{
+//  return *_pimpl->input.get();
+//}
 
 bool diva_experiment::has_output_type() const
 {
@@ -263,7 +264,7 @@ void diva_experiment::remove_output_root_dir()
 
 std::string diva_experiment::get_output_prefix() const
 {
-  return _pimpl->output_root_dir + "/" + _pimpl->input.get_dataset_id();
+  return _pimpl->output_root_dir + "/" + _pimpl->input->get_dataset_id();
 }
 
 bool diva_experiment::has_score_events_executable() const

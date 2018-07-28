@@ -63,8 +63,8 @@ public:
   void remove_type();
 
   bool has_input() const;
-  diva_input& get_input();
-  const diva_input& get_input() const;
+  diva_input_sptr get_input();
+  //const diva_input& get_input() const;
 
   bool has_output_type() const;
   output_type get_output_type() const;

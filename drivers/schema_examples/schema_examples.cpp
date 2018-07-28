@@ -161,11 +161,11 @@ int main(int argc, const char* argv[])
 
   // Describe the inputs :
   // the dataset ID is used as the prefix for output files
-  exp.get_input().set_dataset_id("VIRAT_S_000206_04_000710_000779");
+  exp.get_input()->set_dataset_id("VIRAT_S_000206_04_000710_000779");
   // The rate at which to sample the data
-  exp.get_input().set_frame_rate_Hz(30);
+  exp.get_input()->set_frame_rate_Hz(30);
   // located in ${root_dir}/${source}, with filepaths of images to be processed.
-  exp.get_input().set_image_list_source("./etc/", "image_list.txt");
+  exp.get_input()->set_image_list_source("./etc/", "image_list.txt");
 
   // Describe the outputs :
   // How will your algorithm's output be transported?
