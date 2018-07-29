@@ -42,7 +42,7 @@ void diva_python_input(py::module &m)
     .value("rstp", diva_input::type::rstp)
     .export_values();
 
-  py::class_<diva_input>(m, "input")
+  py::class_<diva_input, std::shared_ptr<diva_input>>(m, "input")
     .def(py::init<>())
     .def("clear", &diva_input::clear)
     .def("is_valid", &diva_input::is_valid)

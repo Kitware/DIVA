@@ -32,8 +32,9 @@
 #include <utils/diva_utils_export.h>
 #include "diva_input.h"
 #include <string>
+#include <memory>
 
-class DIVA_UTILS_EXPORT diva_experiment
+class DIVA_UTILS_EXPORT diva_experiment : public std::enable_shared_from_this<diva_experiment>
 {
 public:
   enum class type
@@ -49,6 +50,10 @@ public:
 
   diva_experiment();
   virtual ~diva_experiment();
+
+  std::shared_ptr<diva_experiment> getptr() {
+    return shared_from_this();
+  }
 
   void clear();
   bool is_valid();

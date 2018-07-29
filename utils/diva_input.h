@@ -35,8 +35,9 @@
 #include <vital/types/image_container.h>
 #include <vital/config/config_block.h>
 #include <vital/config/config_block_io.h>
+#include <memory>
 
-class DIVA_UTILS_EXPORT diva_input
+class DIVA_UTILS_EXPORT diva_input : public std::enable_shared_from_this<diva_input>
 {
 protected:
   friend class diva_experiment;
@@ -53,6 +54,10 @@ public:
 
   diva_input();
   virtual ~diva_input();
+
+  std::shared_ptr<diva_input> getptr() {
+    return shared_from_this();
+  }
 
   bool read(kwiver::vital::config_block_sptr config);
 

@@ -44,7 +44,7 @@ void diva_python_experiment(py::module &m)
     .value("file", diva_experiment::output_type::file)
     .export_values();
 
-  py::class_<diva_experiment>(m, "experiment")
+  py::class_<diva_experiment, std::shared_ptr<diva_experiment>>(m, "experiment")
     .def(py::init<>())
     .def("clear", &diva_experiment::clear)
     .def("is_valid", &diva_experiment::is_valid)
