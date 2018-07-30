@@ -43,7 +43,7 @@ class FrameIterator(object):
         self.video_path = "pipeline-streamint-input"
         self.stride = 1
 
-        self.current_image_index = ts.
+        self.current_image_index = ts.get_frame()
         self.current_frame = image
 
     def has_next_frame(self):
@@ -69,17 +69,15 @@ class RC3DProcess(KwiverProcess):
     def __init__(self, conf):
         KwiverProcess.__init__(self, conf)
 
-	# Add trait for our output port
-        ## don't know output ports yet
-        ## self.add_port_trait( 'vector', 'double_vector', 'Output descriptor vector' )
-
         # set up required flags
         required = process.PortFlags()
         required.add(self.flag_required)
 
         #  declare our ports ( port-name, flags)
         self.declare_input_port_using_trait('image', required)
-        self.declare_output_port_using_trait('timestamp', required )
+        self.declare_input_port_using_trait('timestamp', required )
+
+        self.declare_output_port_using_trait('detected_object_set', process.PortFlags() )
 
         self.all_logs = []
         self.previous_buffer = None
@@ -130,7 +128,21 @@ class RC3DProcess(KwiverProcess):
                 all_logs[len(all_logs)-1] = last_log
             else:
                 all_logs.pop()
+
             all_logs.append(current_test_log)
+
+        # process log and make detections for this frame.
+        det_set = DetectedObjectSet()
+
+
+        # TBD - scan log and create detected objects
+        # bbox = BoundingBox(minx, miny, maxx, maxy)
+        # dot = DetectedObjectType()
+        # dot.set_score(name, score)
+        #
+        # DetectedObject(bbox, dot)
+
+        push_to_port_using_trait('detected_object_set', det_set)
 
 
 # ==================================================================
