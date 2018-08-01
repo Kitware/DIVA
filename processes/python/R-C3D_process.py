@@ -132,15 +132,20 @@ class RC3DProcess(KwiverProcess):
             all_logs.append(current_test_log)
 
         # process log and make detections for this frame.
-        det_set = DetectedObjectSet()
 
 
         # TBD - scan log and create detected objects
-        # bbox = BoundingBox(minx, miny, maxx, maxy)
-        # dot = DetectedObjectType()
-        # dot.set_score(name, score)
+        bbox = BoundingBox(0, 0, in_img_c.width(), in_img_c.height())
+        dot = DetectedObjectType()
+
+        # add all labels for this image. 'name' is the label, 'score' is the confidence
+        # but could be any constant. Repeat set_score() call for each label.
+        dot.set_score(name, score)
         #
-        # DetectedObject(bbox, dot)
+        do = DetectedObject(bbox, dot)
+
+        det_set = DetectedObjectSet()
+        det_set.add(do)
 
         push_to_port_using_trait('detected_object_set', det_set)
 

@@ -1,0 +1,22 @@
+#
+# Pipe file to test diva_experiment_process
+#
+process exp :: diva_experiment
+  experiment_file_name = etc/image_experiment.yml
+
+process sink::image_viewer
+  connect from exp.image to sink.image
+
+process rc3d :: RC3DProcess
+  experiment_file_name = etc/image_experiment.yml
+
+  connect from exp.image     to rc3d.image
+  connect from exp.timestamp to rc3d.timestamp
+
+# ------------------------------------------------------------------
+# use python scheduler
+config _scheduler
+  type = pythread_per_process
+
+config _pipeline:_edge
+  capacity = 1     # set default edge capacity
