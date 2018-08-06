@@ -74,20 +74,20 @@ class NISTJSONWriter(KwiverProcess):
 
     def _step(self):
         # Dump to json file in the end
-        edat = self.peek_at_datum_on_port('timestamp')
-        if edat.type == datum.complete:
-            video_processed = ["test"]
-            results = {'filesProcessed': video_processed, 
-                        'activities': self.segments}
-            print results
-            json.dump(open(self.config_value('json_path'), 'w'), results, indent=2)
+        # edat = self.grab_datum_from_port('timestamp')
+        # if edat.type is datum.complete:
+        #    video_processed = ["test"]
+        #    results = {'filesProcessed': video_processed, 
+        #                'activities': self.segments}
+        #    print results
+        #    json.dump(open(self.config_value('json_path'), 'w'), results, indent=2)
 
         # Read detected object set and timestamp
         detected_object_set = self.grab_input_using_trait('detected_object_set')
         ts = self.grab_input_using_trait('timestamp')
         if len(detected_object_set) > 0:
             for i in range(len(detected_object_set)):
-                print "Detected set: " + str(detected_object_set[i].type().all_class_names())
+                print "Detected set: " + str(detected_object_set[i].type().class_names(0.0))
                 detected_object = detected_object_set[i]
                 object_type = detected_object.type()
                 if len(object_type.class_names(0.0)) > 0:
