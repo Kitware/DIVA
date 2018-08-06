@@ -11,6 +11,7 @@ Kwiver process based on Wrapper without roidb
 from sprokit.pipeline import process
 from kwiver.kwiver_process import KwiverProcess
 from vital.util.VitalPIL import from_pil, get_pil_image
+from vital.types import DetectedObjectSet, BoundingBox, DetectedObject, DetectedObjectType
 
 import os
 import cv2
@@ -26,39 +27,16 @@ import _init_paths
 from ActEV_Scorer import score_basic
 from actev18_ad import ActEV18_AD
 # DIVA support scripts
-import _init_paths
 from tdcnn.exp_config import expcfg_from_file, experiment_config
 from log_to_nist import sys_to_res, generate_classes
 from roidb_generation import generate_testing_video_db
 # R-C3D (https://gitlab.kitware.com/kwiver/R-C3D)
-os.environ['GLOG_minloglevel'] = '2'
 import caffe
 from tdcnn.config import cfg_from_file, cfg
 from tdcnn.test_online import test_net_online
+import diva_python_utils
 
 
-
-class FrameIterator(object):
-    def __init__(self, image, ts):
-        self.video_path = "pipeline-streamint-input"
-        self.stride = 1
-
-        self.current_image_index = ts.get_frame()
-        self.current_frame = image
-
-    def has_next_frame(self):
-        return True
-
-    # return image from container.
-    def get_next_frame(self):
-        ## current_frame = cv2.imread(self.all_images[self.current_image_index])
-        return current_frame.image()
-
-    def reset(self):
-        self.current_image_index = 0
-
-
-# ------------------------------------------------------------------
 # Now for the process
 class RC3DProcess(KwiverProcess):
     """
@@ -68,42 +46,49 @@ class RC3DProcess(KwiverProcess):
     # ----------------------------------------------
     def __init__(self, conf):
         KwiverProcess.__init__(self, conf)
+        self.add_config_trait("experiment_file_name", "experiment_file_name",
+                            '.', 'experiment configuration for RC3D')
+        self.declare_config_using_trait('experiment_file_name')
+        self.add_config_trait("stride", "stride",
+                            '8', 'Temporal Stride for RC3D')
+        self.declare_config_using_trait('stride')
 
         # set up required flags
         required = process.PortFlags()
         required.add(self.flag_required)
-
         #  declare our ports ( port-name, flags)
         self.declare_input_port_using_trait('image', required)
         self.declare_input_port_using_trait('timestamp', required )
 
         self.declare_output_port_using_trait('detected_object_set', process.PortFlags() )
-
-        self.all_logs = []
-        self.previous_buffer = None
+        
 
     # ----------------------------------------------
     def _configure(self):
         # look for 'experiment_file_name' key in the config
         expcfg_from_file(self.config_value('experiment_file_name'))
 
+        # merge experiment configuration and network configuration
         if experiment_config.cnn_config is not None:
             cfg_from_file(os.path.join(experiment_config.experiment_root,
                                        experiment_config.cnn_config))
-
+        self.classes = generate_classes(os.path.join(
+                                        experiment_config.data_root,
+                                        experiment_config.class_index))
         window_length = cfg.TRAIN.LENGTH[0]
         cfg.GPU_ID = experiment_config.gpu
         print 'Testing the network'
-        caffe.set_device(experiment_config.gpu)
+        # Set device and load the network
         caffe.set_mode_gpu()
+        caffe.set_device(experiment_config.gpu)
         self.net = caffe.Net(os.path.join(experiment_config.experiment_root,
                                      experiment_config.test.network),
                         os.path.join(experiment_config.experiment_root,
                                      experiment_config.results_path,
                                      experiment_config.test.model), caffe.TEST)
         self.net.name = os.path.splitext(os.path.basename(experiment_config.test.model))[0]
-
-
+        # Initialize buffer for RC3D
+        self.previous_buffer = None
 
     # ----------------------------------------------
     def _step(self):
@@ -111,38 +96,37 @@ class RC3DProcess(KwiverProcess):
         in_img_c = self.grab_input_using_trait('image')
         ts = self.grab_input_using_trait('timestamp')
 
-        frame_iterator = FrameIterator(in_img_c, ts)
+        # Set device configuration for the thread 
+        caffe.set_mode_gpu()
+        caffe.set_device(experiment_config.gpu)
 
-
-        current_test_log, self.previous_buffer = test_net_online(net, frame_iterator,
-                               max_per_image=experiment_config.test.max_detections,
-                               vis=experiment_config.test.visualize,
-                               previous_buffer=self.previous_buffer,
-                               use_running_frames=args.True)
-
-        if len(all_logs) > 1:
-            current_test_log, last_log = \
-                current_test_log.combine_logs(all_logs[len(all_logs)-1],
-                args.temporal_threshold)
-            if len(last_log.activities) > 0:
-                all_logs[len(all_logs)-1] = last_log
-            else:
-                all_logs.pop()
-
-            all_logs.append(current_test_log)
-
-        # process log and make detections for this frame.
+        # Get numpy array from the image container
+        current_image = in_img_c.image().asarray().astype(np.uint8, copy=True)
         det_set = DetectedObjectSet()
 
-
-        # TBD - scan log and create detected objects
-        # bbox = BoundingBox(minx, miny, maxx, maxy)
-        # dot = DetectedObjectType()
-        # dot.set_score(name, score)
-        #
-        # DetectedObject(bbox, dot)
-
-        push_to_port_using_trait('detected_object_set', det_set)
+        # Strided execution (temporal stride of 8)
+        if ts.get_frame()%int(self.config_value('stride')) == 0:
+             logs, self.previous_buffer = test_net_online(self.net, 
+                                    current_image, ts.get_frame(), 
+                                    int(self.config_value('stride')),
+                                    max_per_image=experiment_config.test.max_detections,
+                                    vis=experiment_config.test.visualize,
+                                    previous_buffer=self.previous_buffer,
+                                    use_running_frames=True, 
+                                    dataset_id="pipeline-streamint-input")
+             # Add temporal annotation to detected object set
+             for activity_id, bboxes in logs.activities.iteritems():
+                 for bbox in bboxes:
+                     start_frame, end_frame, conf = bbox
+                     if ts.get_frame() > start_frame and ts.get_frame() < end_frame:
+                         box = BoundingBox(0, 0, current_image.shape[1], 
+                                                 current_image.shape[0])
+                         dot = DetectedObjectType()
+                         dot.set_score(generate_classes[activity_id], conf)
+                         det_set.add(DetectedObject(box, conf, dot))
+                        break
+        # push the set to port
+        self.push_to_port_using_trait('detected_object_set', det_set)
 
 
 # ==================================================================
