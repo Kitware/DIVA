@@ -218,7 +218,7 @@ run_experiment( const std::string& fn )
   //
 
   diva_meta meta;
-  meta.set_msg( "darknet geometry for dataset "+ex.get_input().get_dataset_id() );
+  meta.set_msg( "darknet geometry for dataset "+ex.get_input()->get_dataset_id() );
   meta.write(os);
 
   //
@@ -235,10 +235,10 @@ run_experiment( const std::string& fn )
   // -- writing the detections to the framework
   //
 
-  while (ex.get_input().has_next_frame())
+  while (ex.get_input()->has_next_frame())
   {
-    frame = ex.get_input().get_next_frame();
-    ts = ex.get_input().get_next_frame_timestamp();
+    frame = ex.get_input()->get_next_frame();
+    ts = ex.get_input()->get_next_frame_timestamp();
 
     //
     // Call the detector on the current frame
