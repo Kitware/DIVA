@@ -65,7 +65,7 @@ class NISTJSONWriter(KwiverProcess):
                                        experiment_config.cnn_config))
         self.activity_id = 0
         self.classes = generate_classes(os.path.join(experiment_config.data_root,
-                                    experiment_config.class_index))
+                                     experiment_config.class_index))
         self.current_activity_frames = [-1]*len(self.classes)
         self.start_frames = [0]*len(self.classes)
         video_processed = []
@@ -80,44 +80,47 @@ class NISTJSONWriter(KwiverProcess):
             results = {'filesProcessed': video_processed, 
                         'activities': self.segments}
             print results
-            # TODO: write the json file
-            #json.dump(open(self.config_value('json_path'), 'w'), results, indent=2)
+            json.dump(open(self.config_value('json_path'), 'w'), results, indent=2)
 
         # Read detected object set and timestamp
         detected_object_set = self.grab_input_using_trait('detected_object_set')
         ts = self.grab_input_using_trait('timestamp')
-
         if len(detected_object_set) > 0:
-            for detected_object in detected_object_set:
-                object_type = detected_object.type
-                if object_type.has_class_name():
+            for i in range(len(detected_object_set)):
+                print "Detected set: " + str(detected_object_set[i].type().all_class_names())
+                detected_object = detected_object_set[i]
+                object_type = detected_object.type()
+                if len(object_type.class_names(0.0)) > 0:
                     # Get class name and scores for the activity
-                    class_name = object_type.class_name
-                    score = object_type.score
-                    act_id = self.classes.keys()[self.classes.values().
+                    for class_name in object_type.class_names(0.0):
+                        score = object_type.score(class_name)
+                        act_id = self.classes.keys()[self.classes.values().
                                                         index(class_name)]
-                    # If the activity was on the last frame and is on the current
-                    # frame then increase the activity frame else create a new 
-                    # segment
-                    if (ts.get_frame() - \
-                            int(self.config_value["temporal_stride"])> \
-                            self.current_activity_frames[act_id]):
-                        self.current_activity_frames[act_id] = ts.get_frame()
-                    else:
-                        if score > float(self.config_value['confidence_threshold']):
-                            self.segments.append({
-                                'activity': class_name,
-                                'activityID': self.activity_id,
-                                'presenceConf': float(score),
-                                'alert_frame': self.current_activity_frames[act_id],
-                                'localization': {"test" : {self.start_frames[act_id]: 0, 
-                                                self.current_activity_frames[act_id]: 1}}
-                                })
-                            self.activity_id += 1
-                            self.start_frames[act_id] = ts.get_frame()
+                        
+                        # If the activity was on the last frame and is on the current
+                        # frame then increase the activity frame else create a new 
+                        # segment
+                        if (ts.get_frame() - \
+                                int(self.config_value("stride"))> \
+                                self.current_activity_frames[act_id]):
+                            self.current_activity_frames[act_id] = ts.get_frame()
+                        else:
+                            if score > float(self.config_value('confidence_threshold')):
+                                self.segments.append({
+                                    'activity': class_name,
+                                    'activityID': self.activity_id,
+                                    'presenceConf': float(score),
+                                    'alert_frame': self.current_activity_frames[act_id],
+                                    'localization': {"test" : {self.start_frames[act_id]: 0, 
+                                                    self.current_activity_frames[act_id]: 1}}
+                                    })
+                                self.activity_id += 1
+                                self.start_frames[act_id] = ts.get_frame()
+                        
                 else:
                     # This should not execute (Added for debugging purposes)
                     print "Missing object class"
+                
             
         
 def __sprokit_register__():

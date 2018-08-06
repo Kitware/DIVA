@@ -13,20 +13,23 @@ process exp :: diva_experiment
 
 # ------------------------------------------------------------------
 process rc3d :: RC3DProcess
-  stride = 8
-  experiment_file_name = $CONFIG{rc3d:exp_file}
+  stride = 1
+  experiment_file_name = experiment.yml #$CONFIG{rc3d:exp_file}
   connect from exp.image     to rc3d.image
   connect from exp.timestamp to rc3d.timestamp
 
+#process detset_receiver :: DetsetReceiverProcess
+#  connect from rc3d.detected_object_set to detset_receiver.detected_object_set
+#  connect from exp.timestamp to detset_receiver.timestamp
 process json_writter :: NISTJSONWriterProcess
   experiment_file_name = experiment.yml
   connect from rc3d.detected_object_set to json_writter.detected_object_set
   connect from exp.timestamp            to json_writter.timestamp
 
 # ------------------------------------------------------------------
-process sink::image_viewer
+#process sink::image_viewer
 
-  connect from exp.image to sink.image
+#  connect from exp.image to sink.image
 
 # ------------------------------------------------------------------
 # use python scheduler

@@ -103,28 +103,34 @@ class RC3DProcess(KwiverProcess):
         # Get numpy array from the image container
         current_image = in_img_c.image().asarray().astype(np.uint8, copy=True)
         det_set = DetectedObjectSet()
-
         # Strided execution (temporal stride of 8)
         if ts.get_frame()%int(self.config_value('stride')) == 0:
-             logs, self.previous_buffer = test_net_online(self.net, 
-                                    current_image, ts.get_frame(), 
-                                    int(self.config_value('stride')),
-                                    max_per_image=experiment_config.test.max_detections,
-                                    vis=experiment_config.test.visualize,
-                                    previous_buffer=self.previous_buffer,
-                                    use_running_frames=True, 
-                                    dataset_id="pipeline-streamint-input")
-             # Add temporal annotation to detected object set
-             for activity_id, bboxes in logs.activities.iteritems():
-                 for bbox in bboxes:
-                     start_frame, end_frame, conf = bbox
-                     if ts.get_frame() > start_frame and ts.get_frame() < end_frame:
-                         box = BoundingBox(0, 0, current_image.shape[1], 
-                                                 current_image.shape[0])
-                         dot = DetectedObjectType()
-                         dot.set_score(generate_classes[activity_id], conf)
-                         det_set.add(DetectedObject(box, conf, dot))
+            logs, self.previous_buffer = test_net_online(self.net, 
+                                current_image, ts.get_frame(), 
+                                int(self.config_value('stride')),
+                                max_per_image=experiment_config.test.max_detections,
+                                vis=experiment_config.test.visualize,
+                                previous_buffer=self.previous_buffer,
+                                use_running_frames=True, 
+                                dataset_id="pipeline-streamint-input")
+            # Add temporal annotation to detected object set
+            classes = []
+            scores = []
+            for activity_id, bboxes in logs.activities.iteritems():
+                for bbox in bboxes:
+                    start_frame, end_frame, conf = bbox
+                    if ts.get_frame() >= start_frame and ts.get_frame() <= end_frame:
+                        classes.append(self.classes[activity_id])
+                        scores.append(conf)
                         break
+            assert len(classes)==len(scores),"Print classes and scores should have same length"
+            if len(classes) > 0:
+                print "Length: " + str(len(det_set))
+                print "Classes: " + str(classes) + " Scores: " + str(scores)
+                box = BoundingBox(0, 0, current_image.shape[1], 
+                                current_image.shape[0])
+                dot = DetectedObjectType(classes, scores)
+                det_set.add(DetectedObject(box, 0.0, dot))
         # push the set to port
         self.push_to_port_using_trait('detected_object_set', det_set)
 
