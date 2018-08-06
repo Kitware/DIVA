@@ -12,3 +12,11 @@ kwiver_add_python_module(${CMAKE_CURRENT_SOURCE_DIR}/R-C3D_process.py
 kwiver_add_python_module(${CMAKE_CURRENT_SOURCE_DIR}/nist_json_writter.py
     DIVA/processes
     nist_json_writer)
+
+kwiver_add_python_module(${CMAKE_CURRENT_SOURCE_DIR}/detset_sender_process.py
+    DIVA/processes
+    detset_sender_process)
+
+kwiver_add_python_module(${CMAKE_CURRENT_SOURCE_DIR}/detset_receiver_process.py
+    DIVA/processes
+    detset_receiver_process)
