@@ -73,15 +73,6 @@ class NISTJSONWriter(KwiverProcess):
 
 
     def _step(self):
-        # Dump to json file in the end
-        # edat = self.grab_datum_from_port('timestamp')
-        # if edat.type is datum.complete:
-        #    video_processed = ["test"]
-        #    results = {'filesProcessed': video_processed, 
-        #                'activities': self.segments}
-        #    print results
-        #    json.dump(open(self.config_value('json_path'), 'w'), results, indent=2)
-
         # Read detected object set and timestamp
         detected_object_set = self.grab_input_using_trait('detected_object_set')
         ts = self.grab_input_using_trait('timestamp')
@@ -97,30 +88,46 @@ class NISTJSONWriter(KwiverProcess):
                         act_id = self.classes.keys()[self.classes.values().
                                                         index(class_name)]
                         
-                        # If the activity was on the last frame and is on the current
-                        # frame then increase the activity frame else create a new 
-                        # segment
-                        if (ts.get_frame() - \
-                                int(self.config_value("stride"))> \
-                                self.current_activity_frames[act_id]):
-                            self.current_activity_frames[act_id] = ts.get_frame()
-                        else:
-                            if score > float(self.config_value('confidence_threshold')):
+                        if score > float(self.config_value('confidence_threshold')):
+                            if int(ts.get_frame()) > 0:
                                 self.segments.append({
-                                    'activity': class_name,
-                                    'activityID': self.activity_id,
+                                    'activity': str(class_name),
+                                    'activityID': int(self.activity_id),
                                     'presenceConf': float(score),
-                                    'alert_frame': self.current_activity_frames[act_id],
-                                    'localization': {"test" : {self.start_frames[act_id]: 0, 
-                                                    self.current_activity_frames[act_id]: 1}}
-                                    })
-                                self.activity_id += 1
-                                self.start_frames[act_id] = ts.get_frame()
-                        
+                                    'alert_frame': int(ts.get_frame()), 
+                                    'localization': {"test" : {int(ts.get_frame()): 0, 
+                                            int(ts.get_frame())- \
+                                                    int(self.config_value("stride"))+1: 1}}
+                                })
+                            else:
+                                self.segments.append({
+                                    'activity': str(class_name),
+                                    'activityID': int(self.activity_id),
+                                    'presenceConf': float(score),
+                                    'alert_frame': int(ts.get_frame()), 
+                                    'localization': {"test" : {int(ts.get_frame())+1: 0, 
+                                                                int(ts.get_frame()): 1}}
+                                })
+                            self.activity_id += 1
+                            self.start_frames[act_id] = ts.get_frame()
+
                 else:
                     # This should not execute (Added for debugging purposes)
                     print "Missing object class"
-                
+            if len(self.segments) > 0:
+                if os.path.exists(self.config_value("json_path")):
+                    json_dict = json.load(open(self.config_value('json_path')))
+                    json_dict['activities'] = self.segments
+                    json.dump(json_dict, open(self.config_value('json_path'), 'w'), 
+                            indent=2)
+                else:
+                    video_processed = ["test"]
+                    results = {'filesProcessed': video_processed, 
+                                   'activities': self.segments}
+                    print results
+                    json.dump(results, open(self.config_value('json_path'), 'w'),  
+                            indent=2)
+
             
         
 def __sprokit_register__():
