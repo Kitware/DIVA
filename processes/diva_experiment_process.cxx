@@ -110,7 +110,7 @@ void diva_experiment_process
 ::_step()
 {
   // Test for end of input
-  if ( ! d->experiment.get_input().has_next_frame())
+  if ( ! d->experiment.get_input()->has_next_frame())
   {
     LOG_DEBUG( logger(), "End of input reached, process terminating" );
 
@@ -123,8 +123,8 @@ void diva_experiment_process
     return;
   }
 
-  kwiver::vital::timestamp ts = d->experiment.get_input().get_next_frame_timestamp();
-  kwiver::vital::image_container_sptr frame = d->experiment.get_input().get_next_frame();
+  kwiver::vital::timestamp ts = d->experiment.get_input()->get_next_frame_timestamp();
+  kwiver::vital::image_container_sptr frame = d->experiment.get_input()->get_next_frame();
 
   // --- debug
 #if defined DEBUG
