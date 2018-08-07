@@ -61,13 +61,13 @@ class RC3DProcess(KwiverProcess):
         self.declare_input_port_using_trait('timestamp', required )
 
         self.declare_output_port_using_trait('detected_object_set', process.PortFlags() )
+
         
 
-    # ----------------------------------------------
+    # ---------------------------------------------
     def _configure(self):
         # look for 'experiment_file_name' key in the config
         expcfg_from_file(self.config_value('experiment_file_name'))
-
         # merge experiment configuration and network configuration
         if experiment_config.cnn_config is not None:
             cfg_from_file(os.path.join(experiment_config.experiment_root,
@@ -89,6 +89,9 @@ class RC3DProcess(KwiverProcess):
         self.net.name = os.path.splitext(os.path.basename(experiment_config.test.model))[0]
         # Initialize buffer for RC3D
         self.previous_buffer = None
+        
+    def compute_absolute_frame(self, frame, buffer_start):
+        return buffer_start + frame * int(self.config_value("stride"))
 
     # ----------------------------------------------
     def _step(self):
@@ -101,24 +104,32 @@ class RC3DProcess(KwiverProcess):
         caffe.set_device(experiment_config.gpu)
 
         # Get numpy array from the image container
-        current_image = in_img_c.image().asarray().astype(np.uint8, copy=True)
+        image = in_img_c.image().asarray()
         det_set = DetectedObjectSet()
         # Strided execution (temporal stride of 8)
+        
         if ts.get_frame()%int(self.config_value('stride')) == 0:
             logs, self.previous_buffer = test_net_online(self.net, 
-                                current_image, ts.get_frame(), 
+                                in_img_c.image().asarray(), ts.get_frame(), 
                                 int(self.config_value('stride')),
                                 max_per_image=experiment_config.test.max_detections,
                                 vis=experiment_config.test.visualize,
                                 previous_buffer=self.previous_buffer,
                                 use_running_frames=True, 
                                 dataset_id="pipeline-streamint-input")
+            buffer_start = ts.get_frame() - \
+                            int(self.config_value('stride')) * cfg.TEST.LENGTH[0]
+            if buffer_start <= 0:
+                buffer_start = 0
+
             # Add temporal annotation to detected object set
             classes = []
             scores = []
             for activity_id, bboxes in logs.activities.iteritems():
                 for bbox in bboxes:
                     start_frame, end_frame, conf = bbox
+                    start_frame = self.compute_absolute_frame(start_frame, buffer_start)
+                    end_frame = self.compute_absolute_frame(end_frame, buffer_start)
                     if ts.get_frame() >= start_frame and ts.get_frame() <= end_frame:
                         classes.append(self.classes[activity_id])
                         scores.append(conf)
@@ -127,8 +138,8 @@ class RC3DProcess(KwiverProcess):
             if len(classes) > 0:
                 print "Length: " + str(len(det_set))
                 print "Classes: " + str(classes) + " Scores: " + str(scores)
-                box = BoundingBox(0, 0, current_image.shape[1], 
-                                current_image.shape[0])
+                box = BoundingBox(0, 0, image.shape[1], 
+                                image.shape[0])
                 dot = DetectedObjectType(classes, scores)
                 det_set.add(DetectedObject(box, 0.0, dot))
         # push the set to port
