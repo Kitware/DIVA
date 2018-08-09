@@ -58,7 +58,9 @@ class NISTJSONWriter(KwiverProcess):
     def _configure(self):
         # look for 'experiment_file_name' key in the config
         expcfg_from_file(self.config_value('experiment_file_name'))
-        
+        if os.path.exists(self.config_value("json_path")):
+            print ("Removing old system output file")
+            os.remove(self.config_value("json_path"))
         # experiment configuration
         if experiment_config.cnn_config is not None:
             cfg_from_file(os.path.join(experiment_config.experiment_root,
@@ -124,7 +126,6 @@ class NISTJSONWriter(KwiverProcess):
                     video_processed = ["test"]
                     results = {'filesProcessed': video_processed, 
                                    'activities': self.segments}
-                    print results
                     json.dump(results, open(self.config_value('json_path'), 'w'),  
                             indent=2)
 

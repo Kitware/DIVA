@@ -22,10 +22,7 @@ import cPickle as pkl
 import sys
 import datetime
 import json
-# From NIST (https://github.com/usnistgov/ActEV_Scorer)
 import _init_paths
-from ActEV_Scorer import score_basic
-from actev18_ad import ActEV18_AD
 # DIVA support scripts
 from tdcnn.exp_config import expcfg_from_file, experiment_config
 from log_to_nist import sys_to_res, generate_classes
@@ -106,8 +103,8 @@ class RC3DProcess(KwiverProcess):
         # Get numpy array from the image container
         image = in_img_c.image().asarray()
         det_set = DetectedObjectSet()
+
         # Strided execution (temporal stride of 8)
-        
         if ts.get_frame()%int(self.config_value('stride')) == 0:
             logs, self.previous_buffer = test_net_online(self.net, 
                                 in_img_c.image().asarray(), ts.get_frame(), 
