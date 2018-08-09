@@ -1,0 +1,73 @@
+#
+# This is an experiment file for RC3D pipeline.
+#
+# This file is used for providing sample input to rc3d.
+  
+type = activity_detection
+
+
+block input
+
+   # the dataset ID is used as the prefix for output files
+   dataset_id = VIRAT_S_040102_05_000692_000756
+
+   # frame_rate_Hz metadata; available via the API if you want it
+   frame_rate_Hz = 30.0
+
+   # local path to the input data
+   root_dir = ./
+
+   type = image_list
+
+   # the instance of the input source, in this case, a file,
+   # located in ${root_dir}/${source}, with filepaths of images to be
+   # processed.
+   source = etc/rc3d_imglist.txt
+
+endblock
+
+
+block output
+
+   # How will your algorithm's output be transported?
+   type = file
+
+   # Where will the output be written?
+   root_dir = ./etc/algo-out
+
+endblock
+
+#
+# scoring
+#
+
+block scoring
+
+    score_events = ./bin/score_events
+    ref_geom = ./etc/ref-geom/VIRAT_S_000206_04_000710_000779.reduced.geom.yml
+
+    eval_output_dir = ./etc/eval-out
+
+    block object_detection
+        ref_types = ./etc/ref-geom/VIRAT_S_000206_04_000710_000779.types.yml
+        target = Person
+        iou = 0.5
+        time_window = 25:75
+    endblock
+
+    roc_plot_opts =
+
+endblock
+
+#
+# These parameters are specific to your algorithm and available
+# via the API
+#
+
+block algo
+
+   command = ./bin/darknet_detections -r $expfn
+
+   darknet_config_path = ./etc/darknet.config
+
+endblock
