@@ -8,7 +8,7 @@ config exp
 
 # RC3D experiment configuration
 config rc3d
- exp_file = /home/local/KHQ/ameya.shringi/R-C3D/experiments/virat/experiment.yml
+ exp_file = /diva/R-C3D/experiments/virat/experiment.yml
 
 # ------------------------------------------------------------------
 process exp :: diva_experiment
@@ -37,14 +37,14 @@ process swimlane :: SwimlaneProcess
   connect from exp.timestamp            to swimlane.timestamp
 
 # ------------------------------------------------------------------
-#process activity_visualizer::image_viewer
-#  pause_time = 0.01
-#  header = activity
-#  connect from visualize.image to activity_visualizer.image
+process activity_visualizer::image_viewer
+  pause_time = 0.01
+  title = activity
+  connect from visualize.image to activity_visualizer.image
 
 process swimlane_visualizer::image_viewer
   pause_time = 0.01
-  header = swimlane
+  title = swimlane
   connect from swimlane.image to swimlane_visualizer.image
 
 # ------------------------------------------------------------------

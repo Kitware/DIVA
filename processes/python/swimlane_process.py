@@ -10,7 +10,7 @@ from sprokit.pipeline import process, datum
 from kwiver.kwiver_process import KwiverProcess
 from vital.types import ImageContainer
 from vital.util import VitalPIL
-
+import _init_paths
 from tdcnn.exp_config import expcfg_from_file, experiment_config
 from log_to_nist import sys_to_res, generate_classes
 from PIL import Image
