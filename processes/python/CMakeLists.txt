@@ -20,3 +20,11 @@ kwiver_add_python_module(${CMAKE_CURRENT_SOURCE_DIR}/detset_sender_process.py
 kwiver_add_python_module(${CMAKE_CURRENT_SOURCE_DIR}/detset_receiver_process.py
     DIVA/processes
     detset_receiver_process)
+
+kwiver_add_python_module(${CMAKE_CURRENT_SOURCE_DIR}/visualize_process.py
+    DIVA/processes
+    visualize_process)
+
+kwiver_add_python_module(${CMAKE_CURRENT_SOURCE_DIR}/swimlane_process.py
+    DIVA/processes
+    swimlane_process)
