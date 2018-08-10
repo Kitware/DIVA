@@ -13,6 +13,7 @@ from vital.util import VitalPIL
 
 from PIL import Image
 
+import threading
 import os
 import cv2
 import numpy as np
@@ -42,7 +43,7 @@ class VisualizeProcess(KwiverProcess):
         self.declare_input_port_using_trait("timestamp", required)
 
         self.declare_output_port_using_trait('image', process.PortFlags())
-
+	self.lock = threading.Lock()
 
     def _configure(self):
         self.previous_classes = []
@@ -93,12 +94,15 @@ class VisualizeProcess(KwiverProcess):
                             text_height*(class_index+1)), font, 1, 
                             (255, 0, 0), 4)
         
-        # Pass the image to the viewer
         self.previous_classes = current_classes
-        pil_image = Image.fromarray(output_image)
-        vital_image = VitalPIL.from_pil(pil_image)
-        image_container = ImageContainer(vital_image)
-        self.push_to_port_using_trait('image', image_container)
+        # Pass the image to the viewer
+	if (self.lock.acquire(False)):
+	    pil_image = Image.fromarray(output_image)
+	    vital_image = VitalPIL.from_pil(pil_image)
+	    image_container = ImageContainer(vital_image)
+	    self.push_to_port_using_trait('image', image_container)
+	    self.lock.release()
+		
         
         
 def __sprokit_register__():

@@ -11,6 +11,7 @@ from kwiver.kwiver_process import KwiverProcess
 from vital.types import ImageContainer
 from vital.util import VitalPIL
 import _init_paths
+import threading
 from tdcnn.exp_config import expcfg_from_file, experiment_config
 from log_to_nist import sys_to_res, generate_classes
 from PIL import Image
@@ -41,7 +42,7 @@ class SwimlaneProcess(KwiverProcess):
         self.add_config_trait("text_width", "text_width", "90", 
                                 "width of the text")
         self.declare_config_using_trait("text_width")
-        self.add_config_trait("text_buffer", "text_buffer", "90", 
+        self.add_config_trait("text_buffer", "text_buffer", "5", 
                                 "buffer between text")
         self.declare_config_using_trait("text_buffer")
 
@@ -52,6 +53,7 @@ class SwimlaneProcess(KwiverProcess):
         self.declare_input_port_using_trait("timestamp", required)
 
         self.declare_output_port_using_trait('image', process.PortFlags())
+	self.lock = threading.Lock()
 
 
     def _configure(self):
@@ -113,11 +115,11 @@ class SwimlaneProcess(KwiverProcess):
         # Compute total lane size and cell size
         lane_size = image_width - largest_width - 2*text_buffer
         cell_size = lane_size // len(self.swimlanes[0])
-
+	
         # Color the lanes (Red signifies no activity and blue signifies activity)
         for index, swimlanes in enumerate(self.swimlanes):
             start_point_x = largest_width + 2*text_buffer
-            start_point_y = (index+1) * text_height + index * text_buffer
+            start_point_y = (index+1) * text_height + index * text_buffer - 15
             end_point_y = start_point_y
             for cell_value in swimlanes:
                 end_point_x = start_point_x + cell_size
@@ -128,14 +130,16 @@ class SwimlaneProcess(KwiverProcess):
                 else:
                     line_color = (0, 0, 0)
                 cv2.line(image, (start_point_x, start_point_y), \
-                                (end_point_x, end_point_y), line_color, 25)
+                                (end_point_x, end_point_y), line_color, 15)
                 start_point_x = end_point_x
 
         # Pass the image to the image viewer
-        pil_image = Image.fromarray(image)
-        vital_image = VitalPIL.from_pil(pil_image)
-        image_container = ImageContainer(vital_image)
-        self.push_to_port_using_trait('image', image_container)
+	if self.lock.acquire(False):
+            pil_image = Image.fromarray(image)
+            vital_image = VitalPIL.from_pil(pil_image)
+            image_container = ImageContainer(vital_image)
+            self.push_to_port_using_trait('image', image_container)
+	    self.lock.release()
         
         
 def __sprokit_register__():

@@ -31,10 +31,11 @@ process visualize :: VisualizeProcess
   connect from exp.timestamp            to visualize.timestamp
   connect from exp.image                to visualize.image
 
-process swimlane :: SwimlaneProcess
-  experiment_file_name = $CONFIG{rc3d:exp_file}
-  connect from rc3d.detected_object_set to swimlane.detected_object_set
-  connect from exp.timestamp            to swimlane.timestamp
+#process swimlane :: SwimlaneProcess
+#  experiment_file_name = $CONFIG{rc3d:exp_file}
+#  text_buffer = 10
+#  connect from rc3d.detected_object_set to swimlane.detected_object_set
+#  connect from exp.timestamp            to swimlane.timestamp
 
 # ------------------------------------------------------------------
 process activity_visualizer::image_viewer
@@ -42,10 +43,10 @@ process activity_visualizer::image_viewer
   title = activity
   connect from visualize.image to activity_visualizer.image
 
-process swimlane_visualizer::image_viewer
-  pause_time = 0.01
-  title = swimlane
-  connect from swimlane.image to swimlane_visualizer.image
+#process swimlane_visualizer::image_viewer
+#  pause_time = 0.01
+#  title = swimlane
+#  connect from swimlane.image to swimlane_visualizer.image
 
 # ------------------------------------------------------------------
 # use python scheduler
