@@ -345,6 +345,7 @@ bool diva_input::set_image_list_source(const std::string& source_dir, const std:
   _pimpl->source = list_file;
   _pimpl->source_dir = source_dir;
   _pimpl->default_frame_time_step_usec = static_cast<kwiver::vital::timestamp::time_t>(.3333 * 1e6); // in usec;
+  _pimpl->config->set_value<std::string>("input:type", "image_list");
   _pimpl->config->set_value<std::string>("input:source", list_file);
   _pimpl->config->set_value<std::string>("input:root_dir", source_dir);
   return true;
@@ -387,6 +388,7 @@ bool diva_input::set_video_file_source(const std::string& source_dir, const std:
   _pimpl->source_dir = source_dir;
   _pimpl->frame_rate_Hz = 0;// TODO Get this from kwiver
   _pimpl->default_frame_time_step_usec = static_cast<kwiver::vital::timestamp::time_t>(.3333 * 1e6); // in usec;
+  _pimpl->config->set_value<std::string>("input:type", "video_file");
   _pimpl->config->set_value<std::string>("input:source", video_file);
   _pimpl->config->set_value<std::string>("input:root_dir", source_dir);
 
@@ -407,6 +409,7 @@ bool diva_input::set_rstp_source(const std::string& url)
 {
   clear_source();
   throw kwiver::vital::video_stream_exception("Unsupported method");
+  _pimpl->config->set_value<std::string>("input:type", "rstp");
   _pimpl->config->set_value<std::string>("input:source", url);
 }
 
