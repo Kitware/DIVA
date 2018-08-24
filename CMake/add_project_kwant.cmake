@@ -9,7 +9,7 @@ ExternalProject_Add(kwant
   DEPENDS ${KWANT_DEPENDENCIES}
   PREFIX ${DIVA_BINARY_DIR}
   GIT_REPOSITORY "git://github.com/Kitware/kwant.git"
-  GIT_TAG 48555efdda860e81b44a1f7a07bcdbbfb6ef244f
+  GIT_TAG 6b9af6a3cbdda3aaa1d47d3bdb5a8a35a5ff350b
   SOURCE_DIR kwant
   BINARY_DIR kwant-build
   STAMP_DIR ${DIVA_STAMP_DIR}
