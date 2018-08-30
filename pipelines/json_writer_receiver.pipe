@@ -1,0 +1,30 @@
+#
+# Pipe to write json data in NIST specified format 
+#
+
+config rc3d
+ exp_file = /home/local/KHQ/ameya.shringi/R-C3D/experiments/virat/experiment.yml
+# -----------------------------------------------------------------
+# Deserialize message
+
+process zmq :: zmq_transport_receive
+  port = 5560
+
+process protobuf_dser :: deserializer
+  serialization_type = protobuf 
+
+connect from zmq.serialized_message to protobuf_dser.test
+
+# ------------------------------------------------------------------
+process json_writter :: NISTJSONWriterProcess
+  experiment_file_name = $CONFIG{rc3d:exp_file}
+
+connect from protobuf_dser.test/timestamp_detected_object_set/detected_object_set to json_writter.detected_object_set
+connect from protobuf_dser.test/timestamp_detected_object_set/timestamp to json_writter.timestamp
+# ------------------------------------------------------------------
+# use python scheduler
+config _scheduler
+  type = pythread_per_process
+
+config _pipeline:_edge
+  capacity = 1     # set default edge capacity
