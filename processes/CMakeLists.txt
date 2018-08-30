@@ -3,6 +3,8 @@
 #
 project( diva_processes )
 
+find_package(kwiver REQUIRED)
+
 set( sources
   register_processes.cxx
 

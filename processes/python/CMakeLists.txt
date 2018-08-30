@@ -1,6 +1,8 @@
 #
 # DIVA Python processes
 #
+find_package(kwiver REQUIRED)
+
 kwiver_create_python_plugin_init(DIVA)
 kwiver_create_python_plugin_init(DIVA/processes)
 
