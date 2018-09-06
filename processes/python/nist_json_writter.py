@@ -14,6 +14,7 @@ import os
 import numpy
 import json
 import math
+import threading
 
 # RC3D imports
 import _init_paths
@@ -52,6 +53,7 @@ class NISTJSONWriter(KwiverProcess):
         # set up required flags
         required = process.PortFlags()
         required.add(self.flag_required)
+        self.lock = threading.Lock()
         self.declare_input_port_using_trait("detected_object_set", required)
         self.declare_input_port_using_trait('timestamp', required )
 
@@ -79,55 +81,58 @@ class NISTJSONWriter(KwiverProcess):
         detected_object_set = self.grab_input_using_trait('detected_object_set')
         ts = self.grab_input_using_trait('timestamp')
         if len(detected_object_set) > 0:
-            for i in range(len(detected_object_set)):
-                print "Detected set: " + str(detected_object_set[i].type().class_names(0.0))
-                detected_object = detected_object_set[i]
-                object_type = detected_object.type()
-                if len(object_type.class_names(0.0)) > 0:
-                    # Get class name and scores for the activity
-                    for class_name in object_type.class_names(0.0):
-                        score = object_type.score(class_name)
-                        act_id = self.classes.keys()[self.classes.values().
+            if (self.lock.acquire()):
+                for i in range(len(detected_object_set)):
+                    print "Detected set: " + str(detected_object_set[i].type().class_names(0.0))
+                    detected_object = detected_object_set[i]
+                    object_type = detected_object.type()
+                    if len(object_type.class_names(0.0)) > 0:
+                        # Get class name and scores for the activity
+                        for class_name in object_type.class_names(0.0):
+                            score = object_type.score(class_name)
+                            act_id = self.classes.keys()[self.classes.values().
                                                         index(class_name)]
                         
-                        if score > float(self.config_value('confidence_threshold')):
-                            if int(ts.get_frame()) > 0:
-                                self.segments.append({
-                                    'activity': str(class_name),
-                                    'activityID': int(self.activity_id),
-                                    'presenceConf': float(score),
-                                    'alert_frame': int(ts.get_frame()), 
-                                    'localization': {"test" : {int(ts.get_frame()): 0, 
-                                            int(ts.get_frame())- \
-                                                    int(self.config_value("stride"))+1: 1}}
-                                })
-                            else:
-                                self.segments.append({
-                                    'activity': str(class_name),
-                                    'activityID': int(self.activity_id),
-                                    'presenceConf': float(score),
-                                    'alert_frame': int(ts.get_frame()), 
-                                    'localization': {"test" : {int(ts.get_frame())+1: 0, 
-                                                                int(ts.get_frame()): 1}}
-                                })
-                            self.activity_id += 1
-                            self.start_frames[act_id] = ts.get_frame()
+                            if score > float(self.config_value('confidence_threshold')):
+                                if int(ts.get_frame()) > 0:
+                                    self.segments.append({
+                                        'activity': str(class_name),
+                                        'activityID': int(self.activity_id),
+                                        'presenceConf': float(score),
+                                        'alert_frame': int(ts.get_frame()), 
+                                        'localization': {"test" : {int(ts.get_frame()): 0, 
+                                                int(ts.get_frame())- \
+                                                        int(self.config_value("stride"))+1: 1}}
+                                    })
+                                else:
+                                    self.segments.append({
+                                        'activity': str(class_name),
+                                        'activityID': int(self.activity_id),
+                                        'presenceConf': float(score),
+                                        'alert_frame': int(ts.get_frame()), 
+                                        'localization': {"test" : {int(ts.get_frame())+1: 0, 
+                                                                    int(ts.get_frame()): 1}}
+                                    })
+                                self.activity_id += 1
+                                self.start_frames[act_id] = ts.get_frame()
 
-                else:
-                    # This should not execute (Added for debugging purposes)
-                    print "Missing object class"
-            if len(self.segments) > 0:
-                if os.path.exists(self.config_value("json_path")):
-                    json_dict = json.load(open(self.config_value('json_path')))
-                    json_dict['activities'] = self.segments
-                    json.dump(json_dict, open(self.config_value('json_path'), 'w'), 
-                            indent=2)
-                else:
-                    video_processed = ["test"]
-                    results = {'filesProcessed': video_processed, 
+                    else:
+                        # This should not execute (Added for debugging purposes)
+                        print "Missing object class"
+
+                if len(self.segments) > 0:
+                    if os.path.exists(self.config_value("json_path")):
+                        json_dict = json.load(open(self.config_value('json_path')))
+                        json_dict['activities'] = self.segments
+                        json.dump(json_dict, open(self.config_value('json_path'), 'w'), 
+                                    indent=2)
+                    else:
+                        video_processed = ["test"]
+                        results = {'filesProcessed': video_processed, 
                                    'activities': self.segments}
-                    json.dump(results, open(self.config_value('json_path'), 'w'),  
-                            indent=2)
+                        json.dump(results, open(self.config_value('json_path'), 'w'),  
+                                indent=2)
+                self.lock.release()
 
             
         

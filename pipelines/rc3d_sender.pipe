@@ -3,7 +3,7 @@
 #
 
 # Image configuration
-config exp 
+config input 
  exp_file = etc/rc3d_experiment.yml 
 
 # RC3D experiment configuration
@@ -12,13 +12,14 @@ config rc3d
 
 # ------------------------------------------------------------------
 process exp :: diva_experiment
-  experiment_file_name = $CONFIG{exp:exp_file}
+  experiment_file_name = $CONFIG{input:exp_file}
 
 # ------------------------------------------------------------------
 # RC3D instance
 process rc3d :: RC3DProcess
   stride = 8
   experiment_file_name = $CONFIG{rc3d:exp_file}
+  gpu = 3
   
 connect from exp.image     to rc3d.image
 connect from exp.timestamp to rc3d.timestamp

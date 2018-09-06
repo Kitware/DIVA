@@ -49,6 +49,9 @@ class RC3DProcess(KwiverProcess):
         self.add_config_trait("stride", "stride",
                             '8', 'Temporal Stride for RC3D')
         self.declare_config_using_trait('stride')
+        
+        self.add_config_trait("gpu", "gpu", "0", "gpu for rc3d")
+        self.declare_config_using_trait("gpu")
 
         # set up required flags
         required = process.PortFlags()
@@ -73,11 +76,13 @@ class RC3DProcess(KwiverProcess):
                                         experiment_config.data_root,
                                         experiment_config.class_index))
         window_length = cfg.TRAIN.LENGTH[0]
-        cfg.GPU_ID = experiment_config.gpu
+        self.gpu_id = int(self.config_value('gpu'))
+        cfg.GPU_ID = self.gpu_id
+        experiment_config.gpu = self.gpu_id
         print 'Testing the network'
         # Set device and load the network
         caffe.set_mode_gpu()
-        caffe.set_device(experiment_config.gpu)
+        caffe.set_device(self.gpu_id)
         self.net = caffe.Net(os.path.join(experiment_config.experiment_root,
                                      experiment_config.test.network),
                         os.path.join(experiment_config.experiment_root,
@@ -98,7 +103,7 @@ class RC3DProcess(KwiverProcess):
 
         # Set device configuration for the thread 
         caffe.set_mode_gpu()
-        caffe.set_device(experiment_config.gpu)
+        caffe.set_device(self.gpu_id)
 
         # Get numpy array from the image container
         image = in_img_c.image().asarray()
