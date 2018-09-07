@@ -1,0 +1,19 @@
+#
+# Testing connections to serializer process
+#
+process zmq :: zmq_transport_receive
+  port = 5560
+  num_publishers = 1
+
+# --------------------------------------------------
+process dser :: deserializer
+        serialization_type = protobuf 
+
+connect from zmq.serialized_message to dser.dos
+
+# --------------------------------------------------
+process sink :: image_viewer
+       pause_time = 0.01
+       title = activity
+
+connect from dser.dos to sink.image
