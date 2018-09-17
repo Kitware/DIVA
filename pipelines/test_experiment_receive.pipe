@@ -12,8 +12,13 @@ process dser :: deserializer
 connect from zmq.serialized_message to dser.dos
 
 # --------------------------------------------------
-process sink :: image_viewer
-       pause_time = 0.01
-       title = activity
+#process sink :: image_viewer
+#       pause_time = 0.01
+#       title = activity
+
+process sink
+  :: image_writer
+  file_name_template = image%04d.jpg
+  image_writer:type  = ocv
 
 connect from dser.dos to sink.image

@@ -5,19 +5,13 @@ process exp :: diva_experiment
   experiment_file_name = etc/rc3d_experiment.yml
 
 # --------------------------------------------------
-# process sim :: detected_object_input
-#        file_name = dos
-#        reader:type = csv
-# --------------------------------------------------
-
-# --------------------------------------------------
-process ser :: serializer
+ process ser :: serializer
         serialization_type = protobuf 
 
-connect from exp.image to ser.dos
-
+ connect from exp.image to ser.dos
+ 
 # --------------------------------------------------
-process zmq :: zmq_transport_send
+ process zmq :: zmq_transport_send
         port = 5560
 
-connect from ser.dos to zmq.serialized_message
+ connect from ser.dos to zmq.serialized_message
