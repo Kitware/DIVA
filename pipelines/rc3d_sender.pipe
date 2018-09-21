@@ -27,18 +27,30 @@ connect from exp.timestamp to rc3d.timestamp
 # Serialized message for the json writer
 process protobuf_ser :: serializer
   serialization_type = protobuf 
-  
-connect from rc3d.detected_object_set to protobuf_ser.test/timestamp_detected_object_set/detected_object_set
-connect from exp.timestamp to protobuf_ser.test/timestamp_detected_object_set/timestamp
+
+# Message for rc3d  
+connect from rc3d.detected_object_set to protobuf_ser.tdos/detected_object_set
+connect from exp.timestamp to protobuf_ser.tdos/timestamp
+
+# Message for visualizer
+connect from rc3d.detected_object_set to protobuf_ser.img_tdos/detected_object_set
+connect from exp.timestamp to protobuf_ser.img_tdos/timestamp
+connect from exp.image to protobuf_ser.img_tdos/image
 
 process zmq_dos :: zmq_transport_send
   port = 5560
+  expected_subscribers=2
 
-connect from protobuf_ser.test to zmq_dos.serialized_message
+connect from protobuf_ser.tdos to zmq_dos.serialized_message
+
+process zmq_img_dos :: zmq_transport_send
+  port = 6560
+
+connect from protobuf_ser.img_tdos to zmq_img_dos.serialized_message
 
 # ------------------------------------------------------------------
 # Visualizers
-#process visualize :: VisualizeProcess
+# process visualize :: VisualizeProcess
 #  connect from rc3d.detected_object_set to visualize.detected_object_set
 #  connect from exp.timestamp            to visualize.timestamp
 #  connect from exp.image                to visualize.image

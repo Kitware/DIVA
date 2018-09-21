@@ -1,0 +1,28 @@
+process zmq :: zmq_transport_receive
+  port = 6560
+
+process protobuf_dser :: deserializer
+  serialization_type = protobuf 
+
+connect from zmq.serialized_message to protobuf_dser.img_tdos
+
+# ------------------------------------------------------------------
+# Visualizers
+process visualize :: VisualizeProcess
+  connect from protobuf_dser.img_tdos/detected_object_set to visualize.detected_object_set
+  connect from protobuf_dser.img_tdos/timestamp           to visualize.timestamp
+  connect from protobuf_dser.img_tdos/image               to visualize.image
+
+# ------------------------------------------------------------------
+process activity_visualizer::image_viewer
+  pause_time = 0.01
+  title = activity
+  connect from visualize.image to activity_visualizer.image
+
+# ------------------------------------------------------------------
+# use python scheduler
+config _scheduler
+  type = pythread_per_process
+
+config _pipeline:_edge
+  capacity = 1     # set default edge capacity

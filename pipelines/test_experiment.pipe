@@ -8,7 +8,7 @@ process exp :: diva_experiment
  process ser :: serializer
         serialization_type = protobuf 
 
- connect from exp.image to ser.dos
+ connect from exp.image to ser.dos/image
  
 # --------------------------------------------------
  process zmq :: zmq_transport_send

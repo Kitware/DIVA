@@ -21,4 +21,4 @@ process sink
   file_name_template = image%04d.jpg
   image_writer:type  = ocv
 
-connect from dser.dos to sink.image
+connect from dser.dos/image to sink.image
