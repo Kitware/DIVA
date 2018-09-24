@@ -5,20 +5,21 @@ process zmq :: zmq_transport_receive
   port = 5560
   num_publishers = 1
 
-# --------------------------------------------------
 process dser :: deserializer
         serialization_type = protobuf 
 
-connect from zmq.serialized_message to dser.dos
+connect from zmq.serialized_message to dser.img
 
 # --------------------------------------------------
-#process sink :: image_viewer
-#       pause_time = 0.01
-#       title = activity
+process sink_img :: image_viewer
+       pause_time = 0.01
+       title = activity
 
-process sink
-  :: image_writer
-  file_name_template = image%04d.jpg
-  image_writer:type  = ocv
+connect from dser.img/image to sink_img.image
 
-connect from dser.dos/image to sink.image
+process sink_dos :: detected_object_output
+        file_name = received_dos_imgtdos.csv
+        writer:type = csv
+
+connect from dser.img/detected_object_set to sink_dos.detected_object_set
+# -------------------------------------------------
