@@ -9,16 +9,11 @@ process zmq :: zmq_transport_receive
 process dser :: deserializer
         serialization_type = protobuf 
 
-connect from zmq.serialized_message to dser.dos
+connect from zmq.serialized_message to dser.img
 
 # --------------------------------------------------
-#process sink :: image_viewer
-#       pause_time = 0.01
-#       title = activity
+process sink :: image_viewer
+       pause_time = 0.01
+       title = activity
 
-process sink
-  :: image_writer
-  file_name_template = image%04d.jpg
-  image_writer:type  = ocv
-
-connect from dser.dos/image to sink.image
+connect from dser.img/image to sink.image

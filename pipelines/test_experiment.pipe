@@ -20,12 +20,15 @@ process sim :: detected_object_input
         serialization_type = protobuf 
 
  connect from exp.image to ser.img/image
- connect from sim.detected_object_set   to ser.dos/detected_object_set 
+ connect from exp.timestamp to ser.img/timestamp
+ connect from sim.detected_object_set to ser.img/detected_object_set
 
+ connect from sim.detected_object_set   to ser.dos/detected_object_set 
+ connect from exp.timestamp             to ser.dos/timestamp
 # --------------------------------------------------
  process zmq :: zmq_transport_send
         port = 5560
-
+        expected_subscribers = 2
  connect from ser.img to zmq.serialized_message
 
 # -------------------------------------------------
