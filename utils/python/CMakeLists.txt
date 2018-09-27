@@ -2,7 +2,7 @@
 
 set(PYBIND11_PYTHON_VERSION 2.7 CACHE STRING "")
 find_package(pybind11 CONFIG REQUIRED)
-
+find_package(kwiver REQUIRED)
 include_directories("${CMAKE_BINARY_DIR}")
 include_directories("${CMAKE_SOURCE_DIR}/utils")
 
@@ -35,6 +35,7 @@ set_target_properties( diva_python_utils
 )
 
 target_include_directories(diva_python_utils PRIVATE ${CMAKE_BINARY_DIR})
+target_include_directories(diva_python_utils PRIVATE ${KWIVER_INCLUDE_DIR})
 
 message(STATUS "Pylibs : ${pybind11_LIBRARIES}")
 target_link_libraries( diva_python_utils

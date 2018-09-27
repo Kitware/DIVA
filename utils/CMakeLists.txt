@@ -4,7 +4,7 @@ if(fletch_ENABLED_YAMLCPP) #KWIVER_ENABLE_KPF)
 else()
   message(FATAL_ERROR "DIVA requires the KWIVER KPF arrow, please enable it and rebuild kwiver")
 endif()
-
+find_package( kwiver REQUIRED)
 
 set( DIVA_BUILD_PYTHON_BINDINGS ON CACHE PATH "Generate Python Bindings" )
 
@@ -50,6 +50,7 @@ kwiver_add_library( diva_utils
 target_include_directories(diva_utils PRIVATE ${CMAKE_BINARY_DIR})
 target_include_directories(diva_utils PRIVATE ${YAML_CPP_INCLUDE_DIR})
 target_include_directories(diva_utils PRIVATE ${Boost_INCLUDE_DIR})
+target_include_directories(diva_utils PRIVATE ${KWIVER_INCLUDE_DIR})
 
 target_link_libraries( diva_utils
   PRIVATE              vital

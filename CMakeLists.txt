@@ -37,16 +37,26 @@ if(DIVA_SUPERBUILD)
 endif()
 
 find_package(kwiver REQUIRED)
+set(KWIVER_ENABLE_PYTHON true)
 link_directories("${KWIVER_LIBRARY_DIRS}")
 include(kwiver-cmake-future)
 include(kwiver-utils)
 include(kwiver-flags)
 include(kwiver-configcheck)
+set(kwiver_python_output_path  "${CMAKE_BINARY_DIR}/${python_lib_subdir}")
+
 find_package(fletch REQUIRED)
+
+###
+# Set location for process plugins
+set( diva_plugin_process_subdir diva/processes )
+set( diva_plugin_module_subdir  diva/modules )
+
 # DIVA specific code (inner build)
 add_subdirectory(utils)
 add_subdirectory(drivers)
 add_subdirectory(external)
+add_subdirectory(processes)
 
 set(LIBRARY_PATH_VAR "LD_LIBRARY_PATH")
 if( APPLE )
@@ -84,5 +94,3 @@ file(COPY ${CMAKE_SOURCE_DIR}/etc/ref-geom DESTINATION ${CMAKE_INSTALL_PREFIX}/e
 file(COPY ${CMAKE_SOURCE_DIR}/etc/video    DESTINATION ${CMAKE_INSTALL_PREFIX}/etc)
 configure_file(${CMAKE_SOURCE_DIR}/drivers/schema_examples/schema_examples.py ${CMAKE_INSTALL_PREFIX}/python/schema_examples.py COPYONLY)
 configure_file(${CMAKE_SOURCE_DIR}/drivers/system_script/diva_system.py       ${CMAKE_INSTALL_PREFIX}/python/diva_system.py COPYONLY)
-
-
