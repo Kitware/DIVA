@@ -36,7 +36,7 @@ block input
    # the instance of the input source, in this case, a file,
    # located in ${root_dir}/${source}, with filepaths of images to be
    # processed.
-   source = /etc/image_list.txt
+   source = etc/image_list.txt
 
 endblock
 
@@ -73,7 +73,7 @@ block scoring
         time_window = 25:75
     endblock
 
-    roc_plot_opts = 
+    roc_plot_opts =
 
 endblock
 
@@ -89,6 +89,3 @@ block algo
    darknet_config_path = ./etc/darknet.config
 
 endblock
-
-
-

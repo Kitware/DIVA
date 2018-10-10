@@ -68,7 +68,7 @@ display_experiment_frames( const std::string& fn )
   diva_experiment ex;
   if (!ex.read_experiment( fn ))
   {
-    throw malformed_diva_data_exception("Invalid experiment configuration");
+    VITAL_THROW( malformed_diva_data_exception, "Invalid experiment configuration");
   }
 
   //
@@ -76,13 +76,14 @@ display_experiment_frames( const std::string& fn )
   // -- looping over input frames specified by the experiment
   kwiver::vital::timestamp ts;
   kwiver::vital::image_container_sptr frame;
-  while (ex.get_input().has_next_frame())
+  while (ex.get_input()->has_next_frame())
   {
-    frame = ex.get_input().get_next_frame();
-    ts = ex.get_input().get_next_frame_timestamp();
+    frame = ex.get_input()->get_next_frame();
+    ts = ex.get_input()->get_next_frame_timestamp();
 
     // Convert the frame to opencv formate and display
-    cv::Mat _mat = kwiver::arrows::ocv::image_container::vital_to_ocv(frame->get_image());
+    cv::Mat _mat = kwiver::arrows::ocv::image_container::vital_to_ocv(frame->get_image(),
+                   kwiver::arrows::ocv::image_container::BGR_COLOR);
     cv::namedWindow("Input Frame", cv::WINDOW_AUTOSIZE);// Create a window for display.
     cv::imshow("Input Frame", _mat);                    // Show our image inside it.
     cv::waitKey(2000);                                  // Wait for 2s
@@ -212,5 +213,3 @@ options_t
 
   return main_should_exit;
 }
-
-

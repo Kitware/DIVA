@@ -14,7 +14,7 @@ set(CAFFE_SUPPORT ON)
 ExternalProject_Add(fletch
   PREFIX ${DIVA_BINARY_DIR}
   GIT_REPOSITORY "git://github.com/Kitware/fletch.git"
-  GIT_TAG dbe6ae2fc228ba170cdd3a14e4996cda24ff6069
+  GIT_TAG 9e54795ff5cd8192e68b6d4d47e349d2d4e5f933
   SOURCE_DIR fletch
   BINARY_DIR fletch-build
   STAMP_DIR ${DIVA_STAMP_DIR}
@@ -65,6 +65,8 @@ ExternalProject_Add(fletch
     -Dfletch_ENABLE_libtiff:BOOL=ON
     -Dfletch_ENABLE_log4cplus:BOOL=ON
     -Dfletch_ENABLE_shapelib:BOOL=OFF
+    -Dfletch_ENABLE_ZeroMQ:BOOL=ON
+    -Dfletch_ENABLE_cppzmq:BOOL=ON
     -Dfletch_BUILD_WITH_CUDA:BOOL=${DIVA_BUILD_WITH_CUDA}
     -DCUDA_TOOLKIT_ROOT_DIR:PATH=${CUDA_TOOLKIT_ROOT_DIR}
     -Dfletch_BUILD_WITH_CUDNN:BOOL=${DIVA_BUILD_WITH_CUDNN}

@@ -7,7 +7,7 @@
 :: where as an install directory does not (bin/*.dlls)
 if exist %~dp0/bin/diva_utils.dll (
   set config=
-  
+
   if not [%1] == [] echo setting up an install directory, ignoring provided configuration.
   GOTO Start
 )
@@ -25,3 +25,5 @@ cd @kwiver_DIR@
 call setup_KWIVER.bat %config%
 cd @DIVA_BINARY_DIR@
 set PATH=%PATH%;%~dp0/bin/%config%
+set KWIVER_PLUGIN_PATH=@DIVA_BINARY_DIR@/lib/@diva_plugin_process_subdir@;@DIVA_BINARY_DIR@/lib/@diva_plugin_module_subdir@;%KWIVER_PLUGIN_PATH%
+set SPROKIT_PYTHON_MODULES=DIVA.processes:%SPROKIT_PYTHON_MODULES%

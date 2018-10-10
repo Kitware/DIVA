@@ -1,0 +1,25 @@
+#
+# Testing connections to serializer process
+#
+process zmq :: zmq_transport_receive
+  port = 5560
+  num_publishers = 1
+
+process dser :: deserializer
+        serialization_type = protobuf 
+
+connect from zmq.serialized_message to dser.img
+
+# --------------------------------------------------
+process sink_img :: image_viewer
+       pause_time = 0.01
+       title = activity
+
+connect from dser.img/image to sink_img.image
+
+process sink_dos :: detected_object_output
+        file_name = received_dos_imgtdos.csv
+        writer:type = csv
+
+connect from dser.img/detected_object_set to sink_dos.detected_object_set
+# -------------------------------------------------

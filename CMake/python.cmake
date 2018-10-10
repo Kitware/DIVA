@@ -12,5 +12,5 @@ function(py_compile filename rel_path)
   file(RENAME "${SOURCE_DIR}/${rel_path}/${filename}c" "${BINARY_DIR}/${rel_path}/${filename}c")
 endfunction()
 
-py_compile(schema_examples.py "drivers/schema_examples/")
-py_compile(diva_system.py "drivers/system_script/")
+py_compile(schema_examples.py "drivers/schema_examples")
+py_compile(diva_system.py "drivers/system_script")
