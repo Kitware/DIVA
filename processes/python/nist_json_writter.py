@@ -18,7 +18,7 @@ import threading
 
 # RC3D imports
 import _init_paths
-from log_to_nist import generate_classes
+from log_to_nist import generate_classes, generate_classes_from_json
 from tdcnn.exp_config import expcfg_from_file, experiment_config
 from tdcnn.config import cfg_from_file, cfg
 
@@ -34,6 +34,10 @@ class NISTJSONWriter(KwiverProcess):
                                 "experiment.yml",
                                 "experiment configuration")
         self.declare_config_using_trait('experiment_file_name')
+        self.add_config_trait("model_cfg", "model_cfg", \
+                                "td_cnn_end2ed.yml",
+                                "model configuration")
+        self.declare_config_using_trait('model_cfg')
         # Temporal Buffer used for merging frames (Not used yet)
         self.add_config_trait("temporal_buffer", "temporal_buffer", \
                                 "8", "Allow for some buffer when merging frames")
@@ -64,11 +68,13 @@ class NISTJSONWriter(KwiverProcess):
             print ("Removing old system output file")
             os.remove(self.config_value("json_path"))
         # experiment configuration
-        if experiment_config.cnn_config is not None:
-            cfg_from_file(os.path.join(experiment_config.experiment_root,
-                                       experiment_config.cnn_config))
+        cfg_from_file(self.config_value('model_cfg'))
         self.activity_id = 0
-        self.classes = generate_classes(os.path.join(experiment_config.data_root,
+        if experiment_config.json:
+            self.classes = generate_classes_from_json(os.path.join(experiment_config.data_root,
+                                     experiment_config.class_index))
+        else:
+            self.classes = generate_classes(os.path.join(experiment_config.data_root,
                                      experiment_config.class_index))
         self.current_activity_frames = [-1]*len(self.classes)
         self.start_frames = [0]*len(self.classes)
