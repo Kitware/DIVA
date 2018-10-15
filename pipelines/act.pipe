@@ -1,0 +1,34 @@
+#
+# Pipe file to test ACT
+#
+
+# Image configuration
+config input 
+ exp_file = /data/diva/baselines/activity_localization/act_detector/virat-act-detector-scripts/rgb_eval_1b.yml
+
+# ------------------------------------------------------------------
+process act_reader :: ACTImageReader
+  experiment_file_name = $CONFIG{input:exp_file}
+
+# ------------------------------------------------------------------
+process act_process :: ACTProcess
+  exp = $CONFIG{input:exp_file}
+
+  connect from act_reader.rgb_image to act_process.rgb_image
+  connect from act_reader.flow_image_1 to act_process.flow_image_1
+  connect from act_reader.flow_image_2 to act_process.flow_image_2
+  connect from act_reader.flow_image_3 to act_process.flow_image_3
+  connect from act_reader.flow_image_4 to act_process.flow_image_4
+  connect from act_reader.flow_image_5 to act_process.flow_image_5
+  connect from act_reader.timestamp to act_process.timestamp
+
+process test_reader :: TestReader
+
+  connect from act_process.object_track_set to test_reader.object_track_set
+# ------------------------------------------------------------------
+# use python scheduler
+config _scheduler
+  type = pythread_per_process
+
+config _pipeline:_edge
+  capacity = 1     # set default edge capacity
