@@ -56,6 +56,7 @@ set( diva_plugin_module_subdir  diva/modules )
 add_subdirectory(utils)
 add_subdirectory(drivers)
 add_subdirectory(external)
+add_subdirectory(algo)
 add_subdirectory(processes)
 
 set(LIBRARY_PATH_VAR "LD_LIBRARY_PATH")
