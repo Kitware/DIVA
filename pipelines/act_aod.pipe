@@ -5,7 +5,7 @@
 # Image configuration
 config input 
  exp_file = /data/diva/baselines/activity_localization/act_detector/virat-act-detector-scripts/rgb_eval_1b.yml
-
+ darknet_root = /home/local/KHQ/ameya.shringi/ipc/darknet
 # ------------------------------------------------------------------
 process act_reader :: ACTImageReader
   exp = $CONFIG{input:exp_file}
@@ -29,12 +29,41 @@ process merge_tubes :: MergeTubes
   connect from act_process.object_track_set to merge_tubes.object_track_set
   connect from act_reader.timestamp to merge_tubes.timestamp
 
+
+# -------------------------------------------------------------------
+process yolo_v2
+  :: image_object_detector
+  :detector:type    darknet
+
+  # Network config, weights, and names
+  :detector:darknet:net_config   $CONFIG{input:darknet_root}/models/virat.cfg
+  :detector:darknet:weight_file  $CONFIG{input:darknet_root}/models/virat.weights
+  :detector:darknet:class_names  $CONFIG{input:darknet_root}/models/virat.names
+
+  # Detector parameters
+  :detector:darknet:thresh       0.10
+  :detector:darknet:hier_thresh  0.1
+  :detector:darknet:gpu_index    0
+
+  # Image scaling parameters
+  #:detector:darknet:resize_option maintain_ar
+  #:detector:darknet:resize_ni     544
+  #:detector:darknet:resize_nj     544
+  #:detector:darknet:scale         1.0
+  connect from act_reader.rgb_image to yolo_v2.image
+
+# -------------------------------------------------------------------
+process expand_bbox :: ModifyBboxResolution
+  connect from yolo_v2.detected_object_set to expand_bbox.detected_object_set 
+
 # -------------------------------------------------------------------
 process json_writer :: ACTJsonWriter
   exp = $CONFIG{input:exp_file}
-
+  is_aod = True 
+  confidence_threshold = 0.01 
   connect from merge_tubes.object_track_set to json_writer.object_track_set
   connect from act_reader.timestamp to json_writer.timestamp
+  connect from expand_bbox.detected_object_set to json_writer.detected_object_set
 # ------------------------------------------------------------------
 # use python scheduler
 config _scheduler
