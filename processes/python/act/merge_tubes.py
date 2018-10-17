@@ -76,7 +76,11 @@ class MergeTubes(KwiverProcess):
                 else:
                     intersection = (ymax-ymin)*(xmax-xmin)
                     union = first_bbox.area() + last_bbox.area() - intersection
-                    return float(intersection)/union
+                    try:
+                        iou =  float(intersection)/union
+                        return iou
+                    except ZeroDivisionError:
+                        return 0.0
             else:
                 return 0.0
         else:

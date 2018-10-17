@@ -102,11 +102,15 @@ class ACTJsonWriter(KwiverProcess):
             union = activity_detection.area() + \
                     object_detection.area() - \
                     intersection
-            return float(intersection)/union
-
+            try:
+                iou = float(intersection)/union
+            except ZeroDivisionError:
+                iou = 0.0
+            return iou
 
     def _compute_participating_objects(self, track):
         object_annotations = []
+        object_id = 1
         for track_state in track:
             frame_id = track_state.frame_id
             track_detection = track_state.detection.bounding_box()
@@ -114,29 +118,30 @@ class ACTJsonWriter(KwiverProcess):
                 object_detections = self.detected_object_sets[frame_id]
             else:
                 continue
-            object_id = 1
             for object_detection in object_detections:
                 if self._iou(track_detection, object_detection.bounding_box()) > 0.5:
                     object_annotation = {
                         "objectType": object_detection.type().get_most_likely_class(),
                         "objectID": int(object_id),
                         "localization": {
-                                self._video_name_from_path(self.video_path): {
-                                    str(int(frame_id)): {
-                                        "presenceConf": float(object_detection.confidence()),
-                                        "boundingBox": {
-                                            "x": int(object_detection.bounding_box().min_x()),
-                                            "y": int(object_detection.bounding_box().min_y()),
-                                            "w": int(object_detection.bounding_box().width()),
-                                            "h": int(object_detection.bounding_box().height())
-                                        }
-                                    },
-                                    str(int(frame_id + 1)): {}
-                                }
+                            self._video_name_from_path(self.video_path): {
+                                str(int(frame_id)): {
+                                    "presenceConf": float(object_detection.confidence()),
+                                    "boundingBox": {
+                                        "x": int(object_detection.bounding_box().min_x()),
+                                        "y": int(object_detection.bounding_box().min_y()),
+                                        "w": int(object_detection.bounding_box().width()),
+                                        "h": int(object_detection.bounding_box().height())
+                                    }
+                                },
+                                str(int(frame_id + 1)): {}
+                            }
                         }
                     }
                     object_id += 1
                     object_annotations.append(object_annotation)
+        if len(object_annotations) > 0:
+            print "Added object annotations"
         return object_annotations
 
     def _create_annotation_from_track(self, track, activity_id, 
