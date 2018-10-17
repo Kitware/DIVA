@@ -116,7 +116,8 @@ class ACTProcess(KwiverProcess):
                                             all_bounding_boxes[box_index + 3])
                     detected_obj = DetectedObject(vital_bbox, class_score, \
                                                     detected_obj_type)
-                    frame_id = last_frame_id - experiment_config.data.num_frames + box_index
+                    frame_id = last_frame_id - experiment_config.data.num_frames + \
+                                box_index/4
                     obj_track_state = ObjectTrackState(frame_id, frame_id, \
                                                         detected_obj)
                     obj_track.append(obj_track_state)
@@ -136,8 +137,8 @@ class ACTProcess(KwiverProcess):
         inp_ts = self.grab_input_using_trait("timestamp")
 
         # New video is starting
-        if inp_ts.get_frame == 1:
-            self_reset_image_buffers()
+        if inp_ts.get_frame() == 1:
+            self._reset_image_buffers()
        
         rgb_image = inp_rgb_img.image().asarray()
 

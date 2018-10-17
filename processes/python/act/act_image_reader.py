@@ -25,14 +25,14 @@ class ACTImageReader(KwiverProcess):
     def __init__(self, conf):
         KwiverProcess.__init__(self, conf)
         # Experiment configuration
-        self.add_config_trait("experiment_file_name", "experiment_file_name", \
+        self.add_config_trait("exp", "exp", \
                                 "experiment.yml",
                                 "path to experiment configuration")
-        self.declare_config_using_trait('experiment_file_name')
+        self.declare_config_using_trait('exp')
         required = process.PortFlags()
         required.add(self.flag_required)
-        if os.path.exists(self.config_value("experiment_file_name")):
-            expcfg_from_file(self.config_value("experiment_file_name"))
+        if os.path.exists(self.config_value("exp")):
+            expcfg_from_file(self.config_value("exp"))
         self.add_port_trait("rgb_image", "image", "rgb image used by ACT")
         for i in range(experiment_config.test.number_flow):
             self.add_port_trait("flow_image_" + str(i+1), "image", 
@@ -66,7 +66,7 @@ class ACTImageReader(KwiverProcess):
         if self.frame_index == self.virat_dataset.test_num_frames(
                                     self.all_videos_list[self.video_index]):
             self.video_index += 1
-            self.frame_index = 1
+            self.frame_index = 0
             
         if self.video_index == len(self.all_videos_list):
             from sprokit.pipeline import datum
@@ -75,6 +75,7 @@ class ACTImageReader(KwiverProcess):
             for i in range(experiment_config.test.number_flow):
                 self.push_datum_to_port("flow_image_" + str(i+1), datum.complete())
             self.push_datum_to_port("timestamp", datum.complete())
+            
         rgb_image = cv2.imread(self.virat_dataset.imfile(self.
                                     all_videos_list[self.video_index],
                                     self._get_image_name(self.frame_index+1)))
