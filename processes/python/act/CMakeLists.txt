@@ -23,3 +23,7 @@ kwiver_add_python_module(${CMAKE_CURRENT_SOURCE_DIR}/act_json_writer.py
 kwiver_add_python_module(${CMAKE_CURRENT_SOURCE_DIR}/modify_bbox_resolution.py
     DIVA/processes
     modify_bbox_resolution)
+
+kwiver_add_python_module(${CMAKE_CURRENT_SOURCE_DIR}/act_visualize.py
+    DIVA/processes
+    act_visualize)

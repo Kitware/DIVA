@@ -102,10 +102,16 @@ class MergeTubes(KwiverProcess):
         expcfg_from_file(self.config_value("exp"))
         required = process.PortFlags()
         required.add(self.flag_required)
+
+        self.add_port_trait("current_object_track_set", "object_track_set", 
+                            "Set of incomplete action tubes")
         #  declare our ports ( port-name, flags)
         self.declare_input_port_using_trait('object_track_set', required )
         self.declare_input_port_using_trait('timestamp', required)
-        self.declare_output_port_using_trait('object_track_set', process.PortFlags() )
+        self.declare_output_port_using_trait('object_track_set', 
+                                            process.PortFlags() )
+        self.declare_output_port_using_trait('current_object_track_set', 
+                                            process.PortFlags())
 
 
     def _configure(self):
@@ -144,7 +150,7 @@ class MergeTubes(KwiverProcess):
                 if label_id == 0:
                     continue
                 nms_ids.extend(self._nms_tracks(object_track_set.tracks(), label_id, \
-                                                0.3, top_k=10))
+                                                0.3, top_k=2))
 
             #TODO: Switch to track id rather than track index 
             new_tracks = []
@@ -156,6 +162,8 @@ class MergeTubes(KwiverProcess):
                 self.current_tracks = pruned_tracks
                 self.push_to_port_using_trait("object_track_set", 
                         ObjectTrackSet(self.finished_tracks))
+                self.push_to_port_using_trait("current_object_track_set", 
+                        ObjectTrackSet(self.current_tracks))
             else:
                 merged_ids = []
                 for track_id, track in enumerate(self.current_tracks):
@@ -181,9 +189,12 @@ class MergeTubes(KwiverProcess):
                 self.current_tracks = new_tracks
                 self.push_to_port_using_trait("object_track_set", 
                                             ObjectTrackSet(self.finished_tracks))
+                self.push_to_port_using_trait("current_object_track_set", 
+                                            ObjectTrackSet(self.current_tracks))
                 self.finished_tracks = []
         else:   
             self.push_to_port_using_trait("object_track_set", ObjectTrackSet())
+            self.push_to_port_using_trait("current_object_track_set", ObjectTrackSet())
 
 # ==================================================================
 def __sprokit_register__():

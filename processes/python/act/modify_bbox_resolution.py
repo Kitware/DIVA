@@ -40,14 +40,19 @@ class ModifyBboxResolution(KwiverProcess):
         modified_dos = DetectedObjectSet()
         for det_index, detected_object in enumerate(dos):
             bbox = detected_object.bounding_box()
-            new_xmin = bbox.min_x()/float(self.config_value("input_image_width")) * \
-                            float(self.config_value("output_image_width"))
-            new_ymin = bbox.min_y()/float(self.config_value("input_image_height")) * \
-                            float(self.config_value("output_image_height"))
-            new_xmax = bbox.max_x()/float(self.config_value("input_image_width")) * \
-                            float(self.config_value("output_image_width"))
-            new_ymax = bbox.max_y()/float(self.config_value("input_image_height")) * \
-                            float(self.config_value("output_image_height"))
+            bbox_center = bbox.center()
+            width_ratio = float(self.config_value("output_image_width"))/\
+                                float(self.config_value("input_image_width"))
+            height_ratio = float(self.config_value("output_image_height"))/\
+                                float(self.config_value("input_image_height"))
+            scaled_bbox_center = (bbox_center[0]*width_ratio, 
+                                    bbox_center[1]*height_ratio)
+            scaled_width = bbox.width()*width_ratio
+            scaled_height = bbox.height()*height_ratio
+            new_xmin = scaled_bbox_center[0]-scaled_width//2
+            new_ymin = scaled_bbox_center[1]-scaled_height//2
+            new_xmax = scaled_bbox_center[0]+scaled_width//2
+            new_ymax = scaled_bbox_center[1]+scaled_height//2
             new_bbox = BoundingBox(new_xmin, new_ymin, new_xmax, new_ymax)
             detected_object.set_bounding_box(new_bbox)
             modified_dos.add(detected_object)
