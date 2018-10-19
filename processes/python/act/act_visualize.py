@@ -106,8 +106,8 @@ class ACTVisualize(KwiverProcess):
                              tuple(map(int, (detection.bounding_box().max_x(), 
                                  detection.bounding_box().min_y()))), color, 3)
         font = cv2.FONT_HERSHEY_SIMPLEX
-       
-        text_size, _ = cv2.getTextSize(label, font, 0.8, 1)
+        label += " ({:4.4f})".format(detection.confidence())
+        text_size, _ = cv2.getTextSize(label, font, 0.5, 1)
         text_width, text_height = text_size
         label_top = detection.bounding_box().max_x() - text_width - 2, \
                         detection.bounding_box().min_y() - text_height - 2
@@ -117,7 +117,7 @@ class ACTVisualize(KwiverProcess):
                 ( label_top[0] + text_width + 2, label_top[1] + text_height + 2 ))), 
                 color, cv2.FILLED)
             cv2.putText(image, label, tuple(map(int, (label_top[0]+1, 
-                        label_top[1]+text_height+1))), font, 0.8, (255, 255, 255), 1)
+                        label_top[1]+text_height+1))), font, 0.5, (255, 255, 255), 1)
         return image
 
     def _draw_track(self, image, track):
