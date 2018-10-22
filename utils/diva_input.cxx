@@ -368,6 +368,7 @@ std::string diva_input::get_image_list_source_dir() const
 bool diva_input::set_video_file_source(const std::string& source_dir, const std::string& video_file)
 {
   clear_source();
+  kwiver::vital::plugin_manager::instance().load_all_plugins();
   _pimpl->video_reader = kwiver::vital::algo::video_input::create("vidl_ffmpeg");
   _pimpl->video_reader->set_configuration(_pimpl->video_reader->get_configuration());// This will default the configuration
   try
