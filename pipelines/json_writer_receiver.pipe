@@ -16,7 +16,7 @@ process protobuf_dser :: deserializer
 connect from zmq.serialized_message to protobuf_dser.tdos
 
 # ------------------------------------------------------------------
-process json_writer :: NISTJSONWriterProcess
+process json_writer :: Rc3dJsonWriterProcess
   experiment_file_name = $CONFIG{rc3d:exp_file}
 
 connect from protobuf_dser.tdos/detected_object_set to json_writer.detected_object_set

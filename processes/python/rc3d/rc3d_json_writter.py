@@ -22,7 +22,7 @@ from log_to_nist import generate_classes, generate_classes_from_json
 from tdcnn.exp_config import expcfg_from_file, experiment_config
 from tdcnn.config import cfg_from_file, cfg
 
-class NISTJSONWriter(KwiverProcess):
+class Rc3DJsonWriter(KwiverProcess):
     """
     This process takes the detected object sets and converts them into NIST
     specified JSON format
@@ -145,13 +145,13 @@ class NISTJSONWriter(KwiverProcess):
 def __sprokit_register__():
     from sprokit.pipeline import process_factory
 
-    module_name = 'python:kwiver.NISTJSONWriterProcess'
+    module_name = 'python:kwiver.Rc3dJsonWriterProcess'
 
     if process_factory.is_process_module_loaded(module_name):
         return
 
-    process_factory.add_process('NISTJSONWriterProcess', 
-                                'Write detected object set to NIST specification', 
-                                NISTJSONWriter)
+    process_factory.add_process('Rc3dJsonWriterProcess', 
+                                'Write detected object set to NIST specificationfor rc3d', 
+                                Rc3dJsonWriter)
 
     process_factory.mark_process_module_as_loaded(module_name)

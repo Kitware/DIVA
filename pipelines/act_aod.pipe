@@ -1,0 +1,98 @@
+#
+# Pipe file to test ACT
+#
+
+# Image configuration
+config input 
+ exp_file = /data/diva/baselines/activity_localization/act_detector/virat-act-detector-scripts/rgb_eval_1b.yml
+ darknet_root = /home/local/KHQ/ameya.shringi/ipc/darknet
+# ------------------------------------------------------------------
+process act_reader :: ACTImageReader
+  exp = $CONFIG{input:exp_file}
+
+# ------------------------------------------------------------------
+process act_process :: ACTProcess
+  exp = $CONFIG{input:exp_file}
+
+  connect from act_reader.rgb_image to act_process.rgb_image
+  connect from act_reader.flow_image_1 to act_process.flow_image_1
+  connect from act_reader.flow_image_2 to act_process.flow_image_2
+  connect from act_reader.flow_image_3 to act_process.flow_image_3
+  connect from act_reader.flow_image_4 to act_process.flow_image_4
+  connect from act_reader.flow_image_5 to act_process.flow_image_5
+  connect from act_reader.timestamp to act_process.timestamp
+
+# -------------------------------------------------------------------
+process merge_tubes :: MergeTubes
+  exp = $CONFIG{input:exp_file}
+  
+  connect from act_process.object_track_set to merge_tubes.object_track_set
+  connect from act_reader.timestamp to merge_tubes.timestamp
+
+
+# -------------------------------------------------------------------
+process yolo_v2
+  :: image_object_detector
+  :detector:type    darknet
+
+  # Network config, weights, and names
+  :detector:darknet:net_config   $CONFIG{input:darknet_root}/models/virat_auto.inference.cfg
+  :detector:darknet:weight_file  $CONFIG{input:darknet_root}/models/virat_auto_final.weights
+  :detector:darknet:class_names  $CONFIG{input:darknet_root}/models/virat.names
+
+  # Detector parameters
+  :detector:darknet:thresh       0.50
+  :detector:darknet:hier_thresh  0.5
+  :detector:darknet:gpu_index    1
+
+  # Image scaling parameters
+  #:detector:darknet:resize_option maintain_ar
+  :detector:darknet:resize_ni     512 #1024
+  :detector:darknet:resize_nj     512 #1024
+  #:detector:darknet:scale         1.0
+  connect from act_reader.rgb_image to yolo_v2.image
+
+# -------------------------------------------------------------------
+process expand_bbox :: ModifyBboxResolution
+  connect from yolo_v2.detected_object_set to expand_bbox.detected_object_set 
+
+# -------------------------------------------------------------------
+process json_writer :: ACTJsonWriter
+  exp = $CONFIG{input:exp_file}
+  is_aod = True 
+  confidence_threshold = 0.01
+  json_path = sysfile_vis.json
+  connect from merge_tubes.object_track_set to json_writer.object_track_set
+  connect from act_reader.timestamp to json_writer.timestamp
+  connect from expand_bbox.detected_object_set to json_writer.detected_object_set
+
+# ------------------------------------------------------------------
+process visualize :: ACTVisualize
+  exp = $CONFIG{input:exp_file}
+  is_aod = True
+  
+  connect from merge_tubes.current_object_track_set to visualize.object_track_set
+  connect from act_reader.rgb_image to visualize.image
+  connect from act_reader.timestamp to visualize.timestamp
+  #connect from expand_bbox.detected_object_set to visualize.detected_object_set
+  connect from yolo_v2.detected_object_set to visualize.detected_object_set
+
+# ------------------------------------------------------------------
+process viewer :: image_viewer
+  pause_time = 0.01
+  title = Activity Visualization
+  connect from visualize.image to viewer.image
+
+# ------------------------------------------------------------------
+ process writer :: image_writer
+  file_name_template = sample-img/image%04d.jpg
+  image_writer:type = ocv
+  connect from visualize.image to writer.image
+
+# ------------------------------------------------------------------
+# use python scheduler
+config _scheduler
+  type = pythread_per_process
+
+config _pipeline:_edge
+  capacity = 1     # set default edge capacity
