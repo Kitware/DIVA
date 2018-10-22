@@ -24,4 +24,4 @@ set config=release
 call setup_KWIVER.bat %config%
 set PATH=%PATH%;%~dp0/bin/%config%
 set KWIVER_PLUGIN_PATH=@CMAKE_INSTALL_PREFIX@/lib/@diva_plugin_process_subdir@;@CMAKE_INSTALL_PREFIX@/lib/@diva_plugin_module_subdir@;@CMAKE_INSTALL_PREFIX@/lib/processes;%KWIVER_PLUGIN_PATH%
-set SPROKIT_PYTHON_MODULES=DIVA.processes:%SPROKIT_PYTHON_MODULES%
+set SPROKIT_PYTHON_MODULES=DIVA.processes:DIVA.processes.act:DIVA.processes.rc3d:%SPROKIT_PYTHON_MODULES%
