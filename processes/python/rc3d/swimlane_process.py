@@ -13,7 +13,7 @@ from vital.util import VitalPIL
 import _init_paths
 import threading
 from tdcnn.exp_config import expcfg_from_file, experiment_config
-from log_to_nist import sys_to_res, generate_classes
+from log_to_nist import sys_to_res, generate_classes, generate_classes_from_json
 from PIL import Image
 
 import cv2
@@ -59,7 +59,12 @@ class SwimlaneProcess(KwiverProcess):
     def _configure(self):
         # Get class names
         expcfg_from_file(self.config_value('experiment_file_name'))
-        self.classes = generate_classes(os.path.join(
+        if experiment_config.json:
+            self.classes = generate_classes_from_json(os.path.join(
+                                        experiment_config.data_root,
+                                        experiment_config.class_index))
+        else:
+            self.classes = generate_classes(os.path.join(
                                         experiment_config.data_root,
                                         experiment_config.class_index))
         # Compute image height based on the number of classes

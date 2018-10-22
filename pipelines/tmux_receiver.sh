@@ -34,7 +34,7 @@ echo "$(date) Starting NIST JSON writer..."
 tmux select-pane -t 0
 tmux send-keys -t 0 "export PYTHONPATH=${RC3D_HOME}" C-m
 tmux send-keys -t 0 "source ${START_SCRIPT}" C-m
-tmux send-keys -t 0 "pipeline_runner --pipe ${SCRIPT_DIR}/json_writer_receiver.pipe --set zmq:connect_host=${HOST_IP} --set rc3d:exp_file=${RC3D_HOME}/experiment.yml" C-m
+tmux send-keys -t 0 "pipeline_runner --pipe ${SCRIPT_DIR}/json_writer_receiver.pipe --set zmq:connect_host=${HOST_IP} --set json_writer:experiment_file_name=${RC3D_HOME}/experiment.yml --set json_writer:model_cfg=${RC3D_HOME}/td_cnn_end2end.yml" C-m
 
 sleep 1
 tmux split-window -t $SESSION:0
@@ -43,6 +43,6 @@ sleep 1
 echo "$(date) Preparing Swimlane Visualizer..."
 tmux send-keys -t 1 "export PYTHONPATH=${RC3D_HOME}" C-m
 tmux send-keys -t 1 "source ${START_SCRIPT}" C-m
-tmux send-keys -t 1 "pipeline_runner --pipe ${SCRIPT_DIR}/swimlane_receiver.pipe --set zmq:connect_host=${HOST_IP} --set rc3d:exp_file=${RC3D_HOME}/experiment.yml" C-m
+tmux send-keys -t 1 "pipeline_runner --pipe ${SCRIPT_DIR}/swimlane_receiver.pipe --set zmq:connect_host=${HOST_IP} --set visualize:experiment_file_name=${RC3D_HOME}/experiment.yml" C-m
 
 echo "$(date) Receiver script done!"

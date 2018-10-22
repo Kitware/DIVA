@@ -25,7 +25,7 @@ import json
 import _init_paths
 # DIVA support scripts
 from tdcnn.exp_config import expcfg_from_file, experiment_config
-from log_to_nist import sys_to_res, generate_classes
+from log_to_nist import sys_to_res, generate_classes, generate_classes_from_json
 from roidb_generation import generate_testing_video_db
 # R-C3D (https://gitlab.kitware.com/kwiver/R-C3D)
 import caffe
@@ -46,6 +46,9 @@ class RC3DProcess(KwiverProcess):
         self.add_config_trait("experiment_file_name", "experiment_file_name",
                             '.', 'experiment configuration for RC3D')
         self.declare_config_using_trait('experiment_file_name')
+        self.add_config_trait("model_cfg", "model_cfg",
+                            '.', 'model configuration for RC3D')
+        self.declare_config_using_trait('model_cfg')
         self.add_config_trait("stride", "stride",
                             '8', 'Temporal Stride for RC3D')
         self.declare_config_using_trait('stride')
@@ -68,11 +71,14 @@ class RC3DProcess(KwiverProcess):
     def _configure(self):
         # look for 'experiment_file_name' key in the config
         expcfg_from_file(self.config_value('experiment_file_name'))
+        cfg_from_file(self.config_value('model_cfg'))
         # merge experiment configuration and network configuration
-        if experiment_config.cnn_config is not None:
-            cfg_from_file(os.path.join(experiment_config.experiment_root,
-                                       experiment_config.cnn_config))
-        self.classes = generate_classes(os.path.join(
+        if experiment_config.json:
+            self.classes = generate_classes_from_json(os.path.join(
+                                            experiment_config.data_root,
+                                            experiment_config.class_index))
+        else:
+            self.classes = generate_classes(os.path.join(
                                         experiment_config.data_root,
                                         experiment_config.class_index))
         window_length = cfg.TRAIN.LENGTH[0]
@@ -83,7 +89,7 @@ class RC3DProcess(KwiverProcess):
         # Set device and load the network
         caffe.set_mode_gpu()
         caffe.set_device(self.gpu_id)
-        self.net = caffe.Net(os.path.join(experiment_config.experiment_root,
+        self.net = caffe.Net(os.path.join(experiment_config.model_root,
                                      experiment_config.test.network),
                         os.path.join(experiment_config.experiment_root,
                                      experiment_config.results_path,

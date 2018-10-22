@@ -29,8 +29,8 @@ sleep 1
 echo "$(date) Starting RC3D Instance..."
 tmux select-window -t $SESSION:0
 tmux rename-window -t $SESSION:0 'Sender0'
+tmux send-keys -t $SESSION:0 "export PYTHONPATH=${RC3D_HOME}" C-m
 tmux send-keys -t $SESSION:0 "source ${START_SCRIPT}" C-m
-tmux send-keys -t $SESSION:0 "export PYTHONPATH=${PYTHONPATH}:${RC3D_HOME}" C-m
-tmux send-keys -t $SESSION:0 "pipeline_runner --pipe ${SCRIPT_DIR}/rc3d_sender.pipe --set exp:experiment_file_name=etc/rc3d_experiment.yml --set rc3d:experiment_file_name=${RC3D_HOME}/experiments/virat/experiment.yml" C-m
+tmux send-keys -t $SESSION:0 "pipeline_runner --pipe ${SCRIPT_DIR}/rc3d_sender.pipe --set exp:experiment_file_name=etc/rc3d_experiment.yml --set rc3d:experiment_file_name=${RC3D_HOME}/experiment.yml --set rc3d:model_cfg=${RC3D_HOME}/td_cnn_end2end.yml" C-m
 
 echo "$(date) Starter script done!"

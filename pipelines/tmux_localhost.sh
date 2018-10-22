@@ -30,33 +30,26 @@ sleep 1
 echo "$(date) Starting First RC3D Instance..."
 tmux select-window -t $SESSION:0
 tmux rename-window -t $SESSION:0 'Sender0'
+tmux send-keys -t 0 "export PYTHONPATH=${RC3D_HOME}" C-m
 tmux send-keys -t 0 "source ${START_SCRIPT}" C-m
-tmux send-keys -t 0 "export PYTHONPATH=${PYTHONPATH}:${RC3D_HOME}" C-m
-tmux send-keys -t 0 "pipeline_runner --pipe ${SCRIPT_DIR}/rc3d_sender.pipe --set exp:experiment_file_name=etc/rc3d_experiment.yml --exp rc3d:exp_file=${RC3D_HOME}/experiment.yml" C-m
+tmux send-keys -t 0 "pipeline_runner --pipe ${SCRIPT_DIR}/rc3d_sender.pipe --set exp:experiment_file_name=etc/rc3d_experiment.yml --set rc3d:experiment_file_name=${RC3D_HOME}/experiment.yml --set rc3d:model_cfg=${RC3D_HOME}/td_cnn_end2end.yml" C-m
 
 sleep 1
 tmux split-window -t $SESSION:0
-tmux select-pane -t 0
-tmux split-window -h -t $SESSION:0
-tmux select-pane -t 2
+tmux select-pane -t 1 
 tmux split-window -h -t $SESSION:0
 
 sleep 1
 echo "$(date) Starting NIST JSON writer..."
+tmux send-keys -t 1 "export PYTHONPATH=${RC3D_HOME}" C-m
 tmux send-keys -t 1 "source ${START_SCRIPT}" C-m
-tmux send-keys -t 1 "export PYTHONPATH=${PYTHONPATH}:${RC3D_HOME}" C-m
-tmux send-keys -t 1 "pipeline_runner --pipe ${SCRIPT_DIR}/json_writer_receiver.pipe --exp rc3d:exp_file=${RC3D_HOME}/experiment.yml" C-m
+tmux send-keys -t 1 "pipeline_runner --pipe ${SCRIPT_DIR}/json_writer_receiver.pipe --set json_writer:experiment_file_name=${RC3D_HOME}/experiment.yml --set json_writer:model_cfg=${RC3D_HOME}/td_cnn_end2end.yml" C-m
 
-sleep 1
-echo "$(date) Preparing Activity Visualizer..."
-tmux send-keys -t 2 "source ${START_SCRIPT}" C-m
-tmux send-keys -t 2 "export PYTHONPATH=${PYTHONPATH}:${RC3D_HOME}" C-m
-tmux send-keys -t 2 "pipeline_runner --pipe ${SCRIPT_DIR}/visualizer_receiver.pipe" C-m
 
 sleep 1
 echo "$(date) Preparing Swimlane Visualizer..."
-tmux send-keys -t 3 "source ${START_SCRIPT}" C-m
-tmux send-keys -t 3 "export PYTHONPATH=${PYTHONPATH}:${RC3D_HOME}" C-m
-tmux send-keys -t 3 "pipeline_runner --pipe ${SCRIPT_DIR}/swimlane_receiver.pipe --exp rc3d:exp_file=${RC3D_HOME}/experiment.yml" C-m
+tmux send-keys -t 2 "export PYTHONPATH=${RC3D_HOME}" C-m
+tmux send-keys -t 2 "source ${START_SCRIPT}" C-m
+tmux send-keys -t 2 "pipeline_runner --pipe ${SCRIPT_DIR}/swimlane_receiver.pipe --set visualize:experiment_file_name=${RC3D_HOME}/experiment.yml" C-m
 
 echo "$(date) Starter script done!"
