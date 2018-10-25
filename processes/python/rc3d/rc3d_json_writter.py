@@ -22,7 +22,7 @@ from log_to_nist import generate_classes, generate_classes_from_json
 from tdcnn.exp_config import expcfg_from_file, experiment_config
 from tdcnn.config import cfg_from_file, cfg
 
-class Rc3DJsonWriter(KwiverProcess):
+class Rc3dJsonWriter(KwiverProcess):
     """
     This process takes the detected object sets and converts them into NIST
     specified JSON format
