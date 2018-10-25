@@ -1,0 +1,71 @@
+#
+# Pipe file to test RC3D
+#
+
+# Image configuration
+config input 
+ exp_file = /home/local/KHQ/ameya.shringi/R-C3D/virat-yml/VIRAT_S_050301_03_000933_001046.yml #etc/rc3d_experiment.yml 
+
+# RC3D experiment configuration
+config rc3d
+ exp_file = /home/local/KHQ/ameya.shringi/ipc/R-C3D/experiments/virat/experiment.yml
+ model_cfg = /home/local/KHQ/ameya.shringi/ipc/R-C3D/experiments/virat/td_cnn_end2end.yml
+
+# ------------------------------------------------------------------
+process exp :: diva_experiment
+  experiment_file_name = $CONFIG{input:exp_file}
+
+# ------------------------------------------------------------------
+# RC3D instance
+process rc3d :: RC3DProcess
+  stride = 8
+  experiment_file_name = $CONFIG{rc3d:exp_file}
+  model_cfg = $CONFIG{rc3d:model_cfg}
+  gpu = 3
+  
+connect from exp.image     to rc3d.image
+connect from exp.timestamp to rc3d.timestamp
+
+
+# ------------------------------------------------------------------
+# Visualizers
+process visualize :: VisualizeProcess
+  legend_text_height = 8
+  legend_text_font_scale = 0.6
+  swimlane_text_height = 7
+  swimlane_text_font_scale = 0.5
+  experiment_file_name = $CONFIG{rc3d:exp_file}
+  confidence_threshold = 0.1
+connect from rc3d.detected_object_set to visualize.detected_object_set
+connect from exp.timestamp            to visualize.timestamp
+connect from exp.image                to visualize.image
+
+#process swimlane :: SwimlaneProcess
+#  experiment_file_name = $CONFIG{rc3d:exp_file}
+#  text_buffer = 10
+#  connect from rc3d.detected_object_set to swimlane.detected_object_set
+#  connect from exp.timestamp            to swimlane.timestamp
+
+# ------------------------------------------------------------------
+process activity_visualizer::image_viewer
+  pause_time = 0.01
+  title = activity
+connect from visualize.image to activity_visualizer.image
+
+process img_writer::image_writer
+  file_name_template = rc3d-vis/image%06d.jpg
+  image_writer:type = ocv
+connect from visualize.image to img_writer.image
+
+#process swimlane_visualizer::image_viewer
+#  pause_time = 0.01
+#  title = swimlane
+#  connect from swimlane.image to swimlane_visualizer.image
+
+# ------------------------------------------------------------------
+# use python scheduler
+config _scheduler
+  type = pythread_per_process
+
+config _pipeline:_edge
+  capacity = 1     # set default edge capacity
