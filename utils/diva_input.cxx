@@ -129,7 +129,7 @@ bool diva_input::is_valid()
       return false;
     }
     break;
-  case diva_input::type::rstp:
+  case diva_input::type::rtsp:
     if (_pimpl->source.empty())
     {
       std::cerr << "Input invalid: RSTP source URL is not provided" << std::endl;
@@ -192,11 +192,11 @@ bool diva_input::read( kwiver::vital::config_block_sptr config )
         return false;
       }
     }
-    else if ( t == "rstp" )
+    else if ( t == "rtsp" )
     {
       if ( _pimpl->config->has_value( "input:source" ) )
       {
-        set_rstp_source( _pimpl->config->get_value< std::string > (
+        set_rtsp_source( _pimpl->config->get_value< std::string > (
                            "input:source" ) );
       }
       else
@@ -406,15 +406,38 @@ std::string diva_input::get_video_file_source_dir() const
   return _pimpl->source_dir;
 }
 
-bool diva_input::set_rstp_source(const std::string& url)
+bool diva_input::set_rtsp_source(const std::string& url)
 {
   clear_source();
-  throw kwiver::vital::video_stream_exception("Unsupported method");
-  _pimpl->config->set_value<std::string>("input:type", "rstp");
+  kwiver::vital::plugin_manager::instance().load_all_plugins();
+  _pimpl->video_reader = kwiver::vital::algo::video_input::create("vidl_ffmpeg");
+  _pimpl->video_reader->set_configuration(_pimpl->video_reader->get_configuration());// This will default the configuration
+  try
+  {
+    _pimpl->video_reader->open( url ); // throws
+  }
+  catch (std::exception& ex)
+  {
+    LOG_ERROR( _pimpl->logger, "Caught exception while opening video reader - " << ex.what() );
+    return false;
+  }
+
+  // Get the capabilities for the currently opened video.
+  _pimpl->video_traits = _pimpl->video_reader->get_implementation_capabilities();
+
+  _pimpl->type = type::rtsp;
+  _pimpl->source = url;
+  _pimpl->source_dir = url;
+  _pimpl->frame_rate_Hz = 0;// TODO Get this from kwiver
+  _pimpl->default_frame_time_step_usec = static_cast<kwiver::vital::timestamp::time_t>(.3333 * 1e6); // in usec;
+  _pimpl->config->set_value<std::string>("input:type", "rtsp");
   _pimpl->config->set_value<std::string>("input:source", url);
+  _pimpl->config->set_value<std::string>("input:root_dir", url);
+
+  return true;
 }
 
-std::string diva_input::get_rstp_source() const
+std::string diva_input::get_rtsp_source() const
 {
   return _pimpl->source;
 }
@@ -456,6 +479,8 @@ kwiver::vital::image_container_sptr diva_input::get_next_frame()
       // TODO meta data?
       break;
     }
+    // rtsp is using the same vidl ffmpeg 
+    case diva_input::type::rtsp:
     case diva_input::type::video_file:
     {
       if (!_pimpl->video_traits.capability(kwiver::vital::algo::video_input::HAS_FRAME_DATA))
@@ -498,10 +523,6 @@ kwiver::vital::image_container_sptr diva_input::get_next_frame()
         // Now that we have new metadata save it in case we need it later.
         _pimpl->last_metadata = _pimpl->metadata;
       }
-      break;
-    }
-    case diva_input::type::rstp:
-    {
       break;
     }
   }
