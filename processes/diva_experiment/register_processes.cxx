@@ -1,5 +1,5 @@
 /*ckwg +29
- * Copyright 2018 by Kitware, Inc.
+ * Copyright 2014-2018 by Kitware, Inc.
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
@@ -28,36 +28,43 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#ifndef DIVA_EXPERIMENT_PROCESS_H
-#define DIVA_EXPERIMENT_PROCESS_H
+#include <processes/diva_experiment/diva_processes_export.h>
 
-#include <sprokit/pipeline/process.h>
-#include <processes/diva_processes_export.h>
 
-#include <memory>
+#include <sprokit/pipeline/process_factory.h>
+#include <vital/plugin_loader/plugin_loader.h>
 
-namespace diva {
+// -- list processes to register --
+#include "diva_experiment_process.h"
 
-// ----------------------------------------------------------------
-class DIVA_PROCESSES_NO_EXPORT diva_experiment_process
-  : public sprokit::process
+// ---------------------------------------------------------------------------------------
+/*! \brief Regsiter processes
+ *
+ *
+ */
+extern "C"
+DIVA_PROCESSES_EXPORT
+void
+register_factories( kwiver::vital::plugin_loader& vpm )
 {
-public:
-  diva_experiment_process( kwiver::vital::config_block_sptr const& config );
-  virtual ~diva_experiment_process();
+  static auto const module_name = kwiver::vital::plugin_manager::module_t( "diva_processes" );
 
-protected:
-  virtual void _configure();
-  virtual void _step();
+  if ( sprokit::is_process_module_loaded( vpm, module_name ) )
+  {
+    return;
+  }
 
-private:
-  void make_ports();
-  void make_config();
+  // -------------------------------------------------------------------------------------
+  auto fact = vpm.ADD_PROCESS( diva::diva_experiment_process );
 
-  class priv;
-  const std::unique_ptr<priv> d;
-}; // end class diva_experiment_process
+  fact->add_attribute( kwiver::vital::plugin_factory::PLUGIN_NAME, "diva_experiment" )
+    .add_attribute( kwiver::vital::plugin_factory::PLUGIN_MODULE_NAME, module_name )
+    .add_attribute( kwiver::vital::plugin_factory::PLUGIN_DESCRIPTION,
+                    "This is a source process that reads an experiment file and produces images and timestamps." )
+    .add_attribute( kwiver::vital::plugin_factory::PLUGIN_VERSION, "1.0" )
+    ;
 
-}  // end namespace
 
-#endif // DIVA_EXPERIMENT_PROCESS_H
+  // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+  sprokit::mark_process_module_as_loaded( vpm, module_name );
+} // register_processes

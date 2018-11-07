@@ -28,7 +28,7 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-#include <processes/diva_experiment_process.h>
+#include <processes/diva_experiment/diva_experiment_process.h>
 
 #include <vital/vital_types.h>
 #include <vital/types/timestamp.h>
