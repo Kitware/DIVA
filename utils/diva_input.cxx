@@ -43,6 +43,8 @@
 #include <kwiversys/SystemTools.hxx>
 #include <kwiversys/RegularExpression.hxx>
 
+typedef kwiversys::SystemTools ST;
+
 class diva_input::pimpl
 {
 public:
@@ -373,7 +375,7 @@ bool diva_input::set_video_file_source(const std::string& source_dir, const std:
   _pimpl->video_reader->set_configuration(_pimpl->video_reader->get_configuration());// This will default the configuration
   try
   {
-    _pimpl->video_reader->open(source_dir+ video_file); // throws
+    _pimpl->video_reader->open(source_dir + "/" + video_file);//ST::JoinPath(std::vector<std::string>({source_dir, video_file}))); // throws
   }
   catch (std::exception& ex)
   {
@@ -387,7 +389,7 @@ bool diva_input::set_video_file_source(const std::string& source_dir, const std:
   _pimpl->type = type::video_file;
   _pimpl->source = video_file;
   _pimpl->source_dir = source_dir;
-  _pimpl->frame_rate_Hz = 0;// TODO Get this from kwiver
+  _pimpl->frame_rate_Hz = _pimpl->video_reader->frame_rate();
   _pimpl->default_frame_time_step_usec = static_cast<kwiver::vital::timestamp::time_t>(.3333 * 1e6); // in usec;
   _pimpl->config->set_value<std::string>("input:type", "video_file");
   _pimpl->config->set_value<std::string>("input:source", video_file);
