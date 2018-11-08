@@ -57,7 +57,7 @@ register_factories( kwiver::vital::plugin_loader& vpm )
   // -------------------------------------------------------------------------------------
   auto fact = vpm.ADD_PROCESS( diva::optical_flow_process);
 
-  fact->add_attribute( kwiver::vital::plugin_factory::PLUGIN_NAME, "optical flow" )
+  fact->add_attribute( kwiver::vital::plugin_factory::PLUGIN_NAME, "optical_flow" )
     .add_attribute( kwiver::vital::plugin_factory::PLUGIN_MODULE_NAME, module_name )
     .add_attribute( kwiver::vital::plugin_factory::PLUGIN_DESCRIPTION,
                     "Estimate optical flow images using gpu from successive frames. The process assumes an input stream and starts with a blank frame for the first computation. Currently supports Brox optical flow" )
