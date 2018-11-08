@@ -88,6 +88,7 @@ class VisualizeProcess(KwiverProcess):
         self.declare_input_port_using_trait("timestamp", required)
 
         self.declare_output_port_using_trait('image', process.PortFlags())
+        self.frame_number = 1
 	self.lock = threading.Lock()
 
     def _find_largest_class_width(self, classes, font_scale):
@@ -227,7 +228,7 @@ class VisualizeProcess(KwiverProcess):
 
         current_classes = []
         # RC3D operates only on strided frames
-        if int(ts.get_frame())%int(self.config_value("stride")) == 0:
+        if int(self.frame_number)%int(self.config_value("stride")) == 0:
             if len(detected_object_set) > 0:
                 for i in range(len(detected_object_set)):
                     object_type = detected_object_set[i].type()
@@ -236,14 +237,14 @@ class VisualizeProcess(KwiverProcess):
                         # Get class name on the current frame
                         for class_name in object_type.class_names(
                                     float(self.config_value("confidence_threshold"))):
-                            self.swimlanes[class_name][ts.get_frame()] = 1
+                            self.swimlanes[class_name][self.frame_number] = 1
                             if class_name not in current_classes:
                                 current_classes.append(class_name)
             self.previous_classes = copy.deepcopy(current_classes)
         else:
             for class_name in self.swimlanes.keys():
-                if ts.get_frame()>=1 and self.swimlanes[class_name][ts.get_frame()-1] == 1:
-                    self.swimlanes[class_name][ts.get_frame()] = 1
+                if self.frame_number>=1 and self.swimlanes[class_name][self.frame_number-1] == 1:
+                    self.swimlanes[class_name][self.frame_number] = 1
             # use class names from previously strided frames
             current_classes = self.previous_classes
         
@@ -271,6 +272,7 @@ class VisualizeProcess(KwiverProcess):
 	    image_container = ImageContainer(vital_image)
 	    self.push_to_port_using_trait('image', image_container)
 	    self.lock.release()
+        self.frame_number += 1
 		
         
         
