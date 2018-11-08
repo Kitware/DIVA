@@ -1,0 +1,38 @@
+config input 
+ exp_file = /data/diva/baselines/activity_localization/act_detector/virat-act-detector-scripts/rgb_eval_1b.yml
+
+process zmq :: zmq_transport_receive
+  port = 5660
+  num_publishers = 1
+
+# --------------------------------------------------
+process dser :: deserializer
+        serialization_type = json #protobuf 
+
+connect from zmq.serialized_message to dser.vis_ports
+
+# -------------------------------------------------------------------
+process visualize :: ACTVisualize
+  exp = $CONFIG{input:exp_file}
+  is_aod = True
+  
+  connect from dser.vis_ports/object_track_set to visualize.object_track_set
+  connect from dser.vis_ports/image to visualize.image
+  connect from dser.vis_ports/timestamp to visualize.timestamp
+  connect from dser.vis_ports/detected_object_set to visualize.detected_object_set
+
+# ------------------------------------------------------------------
+process viewer :: image_viewer
+  pause_time = 0.01
+  title = Activity Visualization
+  connect from visualize.image to viewer.image
+
+#connect from opt_flow.image to sink_image.image
+# use python scheduler
+
+# -------------------------------------------------
+config _scheduler
+  type = pythread_per_process
+
+config _pipeline:_edge
+  capacity = 1
