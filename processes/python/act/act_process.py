@@ -18,6 +18,7 @@ from ACT_utils import *
 import numpy as np
 import caffe
 import os 
+import cv2
 
 class ACTProcess(KwiverProcess):
     """
@@ -48,12 +49,10 @@ class ACTProcess(KwiverProcess):
         
         #  declare our ports ( port-name, flags)
         self.add_port_trait("rgb_image", "image", "rgb image for ACT")
-        for i in range(experiment_config.test.number_flow):
-            self.add_port_trait("flow_image_" + str(i+1), "image", "flow image for ACT")
-            self.declare_input_port_using_trait('flow_image_' + str(i+1), required )
+        self.add_port_trait("flow_image", "image", "flow image for ACT")
         self.declare_input_port_using_trait('rgb_image', required )
+        self.declare_input_port_using_trait('flow_image', required )
         self.declare_input_port_using_trait('timestamp', required )
-
         self.declare_output_port_using_trait('object_track_set', process.PortFlags() )
 
     def _reset_image_buffers(self):
@@ -64,6 +63,10 @@ class ACTProcess(KwiverProcess):
                                             3*experiment_config.test.number_flow,
                                             experiment_config.train.imgsize,
                                             experiment_config.train.imgsize])
+        self.flow_buffer = np.zeros([experiment_config.test.number_flow, 
+                                    experiment_config.train.imgsize, 
+                                    experiment_config.train.imgsize, 3])
+        
 
 
     def _configure(self):
@@ -89,6 +92,11 @@ class ACTProcess(KwiverProcess):
         self.net_rgb = caffe.Net(rgb_proto, caffe.TEST, weights=rgb_model) 
 
         self.net_flow = caffe.Net(flow_proto, caffe.TEST, weights=flow_model)
+        # flow buffer to store 5 frames
+        self.flow_buffer = np.zeros([experiment_config.test.number_flow, 
+                                    experiment_config.train.imgsize, 
+                                    experiment_config.train.imgsize, 3])
+
         self.resolution_array = np.ones([experiment_config.data.num_frames*4])
         self.resolution_array[0::2] = self.resolution_array[0::2] * \
                                             int(self.config_value("img_width"))
@@ -126,29 +134,31 @@ class ACTProcess(KwiverProcess):
 
     def _step(self):
         inp_rgb_img = self.grab_input_using_trait("rgb_image")
-        flow_image = None
-        for i in range(experiment_config.test.number_flow):
-            inp_flow_img = self.grab_input_using_trait("flow_image_" + str(i+1))
-            if flow_image is None:
-                flow_image = inp_flow_img.image().asarray()
-            else:
-                flow_image = np.concatenate((flow_image, 
-                                    inp_flow_img.image().asarray()), axis=2)
         inp_ts = self.grab_input_using_trait("timestamp")
-
+        inp_flow_img = self.grab_input_using_trait("flow_image")
         # New video is starting
         if inp_ts.get_frame() == 1:
             self._reset_image_buffers()
-       
-        rgb_image = inp_rgb_img.image().asarray()
 
+        if inp_ts.get_frame()  <= experiment_config.test.number_flow:
+            self.flow_buffer[inp_ts.get_frame()-1] = inp_flow_img.image().asarray()
+        else:
+            self.flow_buffer[:experiment_config.test.number_flow-1] = \
+                    self.flow_buffer[1:experiment_config.test.number_flow]
+            self.flow_buffer[experiment_config.test.number_flow-1] = \
+                    inp_flow_img.image().asarray()
+        rgb_image = cv2.resize(inp_rgb_img.image().asarray().astype(np.uint8), 
+                                (experiment_config.train.imgsize, 
+                                experiment_config.train.imgsize))
+        
+        flow_image = np.concatenate(self.flow_buffer, axis=2)
         # Bring image and flow channel to the front
         rgb_image = np.transpose(rgb_image, (2, 0, 1))
         flow_image = np.transpose(flow_image, (2, 0, 1))
 
         caffe.set_mode_gpu()
         caffe.set_device(experiment_config.gpu)
-    
+         
         buffer_index = (inp_ts.get_frame()-1)%experiment_config.data.num_frames
 
         # input data dimension is 1x3x300x300 and 1x15x300x300 for rgb and optical flow
@@ -156,7 +166,6 @@ class ACTProcess(KwiverProcess):
                                                        rgb_image[np.newaxis, :] 
         self.flow_kwargs['data_stream' + str(buffer_index) + 'flow'] = \
                                                         flow_image[np.newaxis, :]
-
         if inp_ts.get_frame()%experiment_config.data.num_frames == 0:
             # forward of rgb with confidence and regression
             self.net_rgb.forward(end="mbox_conf_flatten", **self.rgb_kwargs)  

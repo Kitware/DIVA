@@ -135,6 +135,7 @@ class ACTVisualize(KwiverProcess):
         timestamp = self.grab_input_using_trait('timestamp')
         image = self.grab_input_using_trait('image').image().asarray().astype(np.uint8)
         image = cv2.resize(image, (1920, 1080))
+        image = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
         if self.is_aod:
             detected_object_set = self.grab_input_using_trait('detected_object_set')
         else:
