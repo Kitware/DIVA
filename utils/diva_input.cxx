@@ -166,6 +166,7 @@ bool diva_input::read( kwiver::vital::config_block_sptr config )
   if ( _pimpl->config->has_value( "input:type" ) )
   {
     std::string t = _pimpl->config->get_value< std::string > ( "input:type" );
+    
     if ( t == "image_list" )
     {
       if ( _pimpl->config->has_value( "input:source" ) &&
@@ -367,6 +368,7 @@ std::string diva_input::get_image_list_source_dir() const
   return _pimpl->source_dir;
 }
 
+#include "vital/plugin_loader/plugin_manager.h"
 bool diva_input::set_video_file_source(const std::string& source_dir, const std::string& video_file)
 {
   clear_source();
@@ -408,6 +410,7 @@ std::string diva_input::get_video_file_source_dir() const
   return _pimpl->source_dir;
 }
 
+#include "vital/plugin_loader/plugin_manager.h"
 bool diva_input::set_rtsp_source(const std::string& url)
 {
   clear_source();
@@ -450,6 +453,7 @@ bool diva_input::has_next_frame()
   {
   case diva_input::type::image_list:
     return _pimpl->current_file != _pimpl->files.end();
+  case diva_input::type::rtsp:
   case diva_input::type::video_file:
     return _pimpl->video_reader->next_frame(_pimpl->ts);
   }
