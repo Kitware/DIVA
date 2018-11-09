@@ -244,7 +244,7 @@ class VisualizeProcess(KwiverProcess):
         else:
             for class_name in self.swimlanes.keys():
                 if self.frame_number>=1 and self.swimlanes[class_name][self.frame_number-1] == 1:
-                    self.swimlanes[class_name][self.frame_number] = 1
+                    self.swimlanes[class_name][self.frame_number-1] = 1
             # use class names from previously strided frames
             current_classes = self.previous_classes
         

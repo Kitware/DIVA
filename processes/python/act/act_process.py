@@ -19,6 +19,7 @@ import numpy as np
 import caffe
 import os 
 import cv2
+import time
 
 class ACTProcess(KwiverProcess):
     """
@@ -136,6 +137,8 @@ class ACTProcess(KwiverProcess):
         inp_rgb_img = self.grab_input_using_trait("rgb_image")
         inp_ts = self.grab_input_using_trait("timestamp")
         inp_flow_img = self.grab_input_using_trait("flow_image")
+
+        start = time.time()
         # New video is starting
         if inp_ts.get_frame() == 1:
             self._reset_image_buffers()
@@ -207,7 +210,8 @@ class ACTProcess(KwiverProcess):
             self.push_to_port_using_trait('object_track_set', obj_track_set)
         else:
             self.push_to_port_using_trait('object_track_set', ObjectTrackSet())
-
+        end = time.time()
+        print "Time to complete: " + str(end-start)
 
 
 # ==================================================================

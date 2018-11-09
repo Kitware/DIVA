@@ -38,21 +38,21 @@ process visualize :: VisualizeProcess
   swimlane_text_height = 7
   swimlane_text_font_scale = 0.5
   experiment_file_name = $CONFIG{rc3d:exp_file}
-  confidence_threshold = 0.1
+  confidence_threshold = 0.05
 connect from rc3d.detected_object_set to visualize.detected_object_set
 connect from dser.timg/timestamp            to visualize.timestamp
 connect from dser.timg/image                to visualize.image
 
 # ------------------------------------------------------------------
-process activity_visualizer::image_viewer
-  pause_time = 0.01
-  title = activity
-connect from visualize.image to activity_visualizer.image
+#process activity_visualizer::image_viewer
+#  pause_time = 0.01
+#  title = activity
+#connect from visualize.image to activity_visualizer.image
 
-#process img_writer::image_writer
-#  file_name_template = rc3d-vis/image%06d.jpg
-#  image_writer:type = ocv
-#connect from visualize.image to img_writer.image
+process img_writer::image_writer
+  file_name_template = rc3d-vis/image%06d.jpg
+  image_writer:type = ocv
+connect from visualize.image to img_writer.image
 
 #process swimlane_visualizer::image_viewer
 #  pause_time = 0.01

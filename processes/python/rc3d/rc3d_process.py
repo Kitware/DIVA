@@ -33,6 +33,7 @@ from tdcnn.config import cfg_from_file, cfg
 from tdcnn.test_online import test_net_online
 import diva_python_utils
 
+import time
 
 # Now for the process
 class RC3DProcess(KwiverProcess):
@@ -114,7 +115,7 @@ class RC3DProcess(KwiverProcess):
         # Get numpy array from the image container
         image = in_img_c.image().asarray()
         det_set = DetectedObjectSet()
-
+        start = time.time()
         # Strided execution (temporal stride of 8)
         if ts.get_frame()%int(self.config_value('stride')) == 0:
             logs, self.previous_buffer = test_net_online(self.net, 
@@ -144,14 +145,16 @@ class RC3DProcess(KwiverProcess):
                         break
             assert len(classes)==len(scores),"Print classes and scores should have same length"
             if len(classes) > 0:
-                print "Length: " + str(len(det_set))
-                print "Classes: " + str(classes) + " Scores: " + str(scores)
+                #print "Length: " + str(len(det_set))
+                #print "Classes: " + str(classes) + " Scores: " + str(scores)
                 box = BoundingBox(0, 0, image.shape[1], 
                                 image.shape[0])
                 dot = DetectedObjectType(classes, scores)
                 det_set.add(DetectedObject(box, 0.0, dot))
         # push the set to port
         self.push_to_port_using_trait('detected_object_set', det_set)
+        end = time.time()
+        print "Time taken: " + str(end - start)
 
 
 # ==================================================================
