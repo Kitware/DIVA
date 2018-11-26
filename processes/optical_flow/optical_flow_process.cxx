@@ -136,37 +136,48 @@ void optical_flow_process
 void optical_flow_process
 ::_step()
 {
-  d->input_container = grab_from_port_using_trait( image );
-  d->tstamp = grab_from_port_using_trait( timestamp );  
-  d->frame1 = kwiver::arrows::ocv::image_container::vital_to_ocv( 
-                  d->input_container->get_image(), 
-                  kwiver::arrows::ocv::image_container::ColorMode::RGB_COLOR );
+  auto port_info = peek_at_port_using_trait( image );
+  if ( port_info.datum->type() != sprokit::datum::complete )
+  {
+    d->input_container = grab_from_port_using_trait( image );
+    d->tstamp = grab_from_port_using_trait( timestamp );  
 
-  
-  cv::resize(d->frame1, d->frame1, cvSize( d->output_image_height, d->output_image_width));
-  cv::cvtColor(d->frame1, d->frame1, cv::COLOR_RGB2GRAY);
-  cv::Mat frame0_32f, frame1_32f;
-  d->frame0.convertTo(frame0_32f, CV_32F, 1.0/255.0);
-  d->frame1.convertTo(frame1_32f, CV_32F, 1.0/255.0);
-  
-  frame0_32f.convertTo(d->frame0_32FC1, CV_32FC1);
-  frame1_32f.convertTo(d->frame1_32FC1, CV_32FC1);
-  d->frame0_gpu.upload(d->frame0_32FC1);
-  d->frame1_gpu.upload(d->frame1_32FC1);
-  
-   
-  d->brox_flow_instance->calc(d->frame0_gpu, d->frame1_gpu, d->flow_gpu_out);
-  
-  cv::cuda::split(d->flow_gpu_out, d->flow_planes);
-  d->flow_planes[0].download(d->u_out);
-  d->flow_planes[1].download(d->v_out); 
-   
-  optical_flow_process::color_code(d->u_out, d->v_out, d->img_out, 20.0);
-  
-  d->output_container = std::make_shared< kwiver::arrows::ocv::image_container >(d->img_out,
-                          kwiver::arrows::ocv::image_container::ColorMode::RGB_COLOR);
-  d->frame1.copyTo( d->frame0 );
-  push_to_port_using_trait( image,  d->output_container);
+    scoped_step_instrumentation();
+    d->frame1 = kwiver::arrows::ocv::image_container::vital_to_ocv( 
+                    d->input_container->get_image(), 
+                    kwiver::arrows::ocv::image_container::ColorMode::RGB_COLOR );
+
+    
+    cv::resize(d->frame1, d->frame1, cvSize( d->output_image_height, d->output_image_width));
+    cv::cvtColor(d->frame1, d->frame1, cv::COLOR_RGB2GRAY);
+    cv::Mat frame0_32f, frame1_32f;
+    d->frame0.convertTo(frame0_32f, CV_32F, 1.0/255.0);
+    d->frame1.convertTo(frame1_32f, CV_32F, 1.0/255.0);
+    
+    frame0_32f.convertTo(d->frame0_32FC1, CV_32FC1);
+    frame1_32f.convertTo(d->frame1_32FC1, CV_32FC1);
+    d->frame0_gpu.upload(d->frame0_32FC1);
+    d->frame1_gpu.upload(d->frame1_32FC1);
+    
+     
+    d->brox_flow_instance->calc(d->frame0_gpu, d->frame1_gpu, d->flow_gpu_out);
+    
+    cv::cuda::split(d->flow_gpu_out, d->flow_planes);
+    d->flow_planes[0].download(d->u_out);
+    d->flow_planes[1].download(d->v_out); 
+     
+    optical_flow_process::color_code(d->u_out, d->v_out, d->img_out, 20.0);
+    
+    d->output_container = std::make_shared< kwiver::arrows::ocv::image_container >(d->img_out,
+                            kwiver::arrows::ocv::image_container::ColorMode::RGB_COLOR);
+    d->frame1.copyTo( d->frame0 );
+    push_to_port_using_trait( image,  d->output_container);
+  }
+  else 
+  {
+    const sprokit::datum_t dat = sprokit::datum::complete_datum();
+    push_datum_to_port_using_trait( image, dat );
+  }
 }
 
 
@@ -175,10 +186,12 @@ void optical_flow_process
 ::make_ports()
 {
   // Set up for required ports
-  sprokit::process::port_flags_t optional;
-  declare_input_port_using_trait( timestamp, optional );
-  declare_input_port_using_trait( image, optional );
-  declare_output_port_using_trait( image, optional );
+  sprokit::process::port_flags_t required;
+  
+  required.insert( flag_required );
+  declare_input_port_using_trait( timestamp, required );
+  declare_input_port_using_trait( image, required );
+  declare_output_port_using_trait( image, required );
 }
 
 
