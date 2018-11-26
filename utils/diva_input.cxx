@@ -315,7 +315,7 @@ bool diva_input::set_image_list_source(const std::string& source_dir, const std:
   _pimpl->image_reader = kwiver::vital::algo::image_io::create("ocv");
 
   // open file and read lines
-  std::ifstream ifs(source_dir + list_file);
+  std::ifstream ifs(source_dir + "/" + list_file);
   if (!ifs)
   {
     LOG_ERROR( _pimpl->logger, "Could not open file \"" << source_dir + list_file << "\"" );
