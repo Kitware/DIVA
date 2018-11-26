@@ -1,0 +1,69 @@
+#
+# Pipe file to test RC3D locally
+#
+
+# Image configuration
+config input 
+ exp_file = etc/rc3d_experiment.yml 
+
+# RC3D experiment configuration
+config rc3d
+ exp_file = /home/local/KHQ/ameya.shringi/ipc/R-C3D/experiments/virat/experiment.yml
+ model_cfg = /home/local/KHQ/ameya.shringi/ipc/R-C3D/experiments/virat/td_cnn_end2end.yml
+
+# ------------------------------------------------------------------
+process exp :: diva_experiment
+  experiment_file_name = $CONFIG{input:exp_file}
+
+# ------------------------------------------------------------------
+# RC3D instance
+process rc3d :: RC3DProcess
+  stride = 8
+  experiment_file_name = $CONFIG{rc3d:exp_file}
+  model_cfg = $CONFIG{rc3d:model_cfg}
+  gpu = 3
+  
+connect from exp.image     to rc3d.image
+connect from exp.timestamp to rc3d.timestamp
+connect from exp.file_name to rc3d.file_name
+
+# -----------------------------------------------------------------
+# JSON Writer
+process json_writer :: Rc3dJsonWriterProcess
+  experiment_file_name = $CONFIG{rc3d:exp_file}
+  model_cfg = $CONFIG{rc3d:model_cfg}
+
+connect from rc3d.detected_object_set to json_writer.detected_object_set
+connect from exp.timestamp to json_writer.timestamp
+connect from exp.file_name to json_writer.file_name
+# ------------------------------------------------------------------
+# Visualizer
+#process visualize :: VisualizeProcess
+#  legend_text_height = 8
+#  legend_text_font_scale = 0.6
+#  swimlane_text_height = 7
+#  swimlane_text_font_scale = 0.5
+#  experiment_file_name = $CONFIG{rc3d:exp_file}
+#  confidence_threshold = 0.05
+
+#connect from rc3d.detected_object_set to visualize.detected_object_set
+#connect from exp.timestamp            to visualize.timestamp
+#connect from exp.image                to visualize.image
+
+# ------------------------------------------------------------------
+#process activity_visualizer::image_viewer
+#  pause_time = 0.01
+#  title = activity
+#connect from visualize.image to activity_visualizer.image
+
+#process img_writer::image_writer
+#  file_name_template = rc3d-vis/image%06d.jpg
+#  image_writer:type = ocv
+#connect from visualize.image to img_writer.image
+# ------------------------------------------------------------------
+# use python scheduler
+config _scheduler
+  type = pythread_per_process
+
+config _pipeline:_edge
+  capacity = 1     # set default edge capacity

@@ -1,7 +1,6 @@
 #
-# Pipe file to test RC3D
+# Pipe file to run RC3D
 #
-
 
 # RC3D experiment configuration
 config rc3d
@@ -18,6 +17,7 @@ process dser :: deserializer
         serialization_type = protobuf 
 
 connect from zmq.serialized_message to dser.timg
+
 # ------------------------------------------------------------------
 # RC3D instance
 process rc3d :: RC3DProcess
@@ -28,10 +28,19 @@ process rc3d :: RC3DProcess
   
 connect from dser.timg/image     to rc3d.image
 connect from dser.timg/timestamp to rc3d.timestamp
-
+connect from dser.timg/file_name to rc3d.file_name
 
 # ------------------------------------------------------------------
-# Visualizers
+process json_writer :: Rc3dJsonWriterProcess
+  experiment_file_name = $CONFIG{rc3d:exp_file}
+  model_cfg = $CONFIG{rc3d:model_cfg}
+
+connect from rc3d.detected_object_set to json_writer.detected_object_set
+connect from dser.timg/timestamp to json_writer.timestamp
+connect from dser.timg/file_name to json_writer.file_name
+
+# ------------------------------------------------------------------
+# Visualizer
 process visualize :: VisualizeProcess
   legend_text_height = 8
   legend_text_font_scale = 0.6
@@ -39,25 +48,16 @@ process visualize :: VisualizeProcess
   swimlane_text_font_scale = 0.5
   experiment_file_name = $CONFIG{rc3d:exp_file}
   confidence_threshold = 0.05
+
 connect from rc3d.detected_object_set to visualize.detected_object_set
-connect from dser.timg/timestamp            to visualize.timestamp
-connect from dser.timg/image                to visualize.image
+connect from dser.timg/timestamp           to visualize.timestamp
+connect from dser.timg/image               to visualize.image
 
 # ------------------------------------------------------------------
-#process activity_visualizer::image_viewer
-#  pause_time = 0.01
-#  title = activity
-#connect from visualize.image to activity_visualizer.image
-
-process img_writer::image_writer
-  file_name_template = rc3d-vis/image%06d.jpg
-  image_writer:type = ocv
-connect from visualize.image to img_writer.image
-
-#process swimlane_visualizer::image_viewer
-#  pause_time = 0.01
-#  title = swimlane
-#  connect from swimlane.image to swimlane_visualizer.image
+process activity_visualizer::image_viewer
+  pause_time = 0.01
+  title = activity
+connect from visualize.image to activity_visualizer.image
 
 # ------------------------------------------------------------------
 # use python scheduler
