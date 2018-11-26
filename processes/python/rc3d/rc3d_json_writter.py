@@ -35,7 +35,7 @@ class Rc3dJsonWriter(KwiverProcess):
                                 "experiment configuration")
         self.declare_config_using_trait('experiment_file_name')
         self.add_config_trait("model_cfg", "model_cfg", \
-                                "td_cnn_end2ed.yml",
+                                "td_cnn_end2end.yml",
                                 "model configuration")
         self.declare_config_using_trait('model_cfg')
         # Temporal Buffer used for merging frames (Not used yet)
@@ -57,9 +57,9 @@ class Rc3dJsonWriter(KwiverProcess):
         # set up required flags
         required = process.PortFlags()
         required.add(self.flag_required)
-        self.lock = threading.Lock()
         self.declare_input_port_using_trait("detected_object_set", required)
         self.declare_input_port_using_trait('timestamp', required )
+        self.declare_input_port_using_trait('file_name', required )
 
     def _configure(self):
         # look for 'experiment_file_name' key in the config
@@ -86,59 +86,60 @@ class Rc3dJsonWriter(KwiverProcess):
         # Read detected object set and timestamp
         detected_object_set = self.grab_input_using_trait('detected_object_set')
         ts = self.grab_input_using_trait('timestamp')
+        file_name = self.grab_input_using_trait('file_name')
         if len(detected_object_set) > 0:
-            if (self.lock.acquire()):
-                for i in range(len(detected_object_set)):
-                    print "Detected set: " + str(detected_object_set[i].type().class_names(0.0))
-                    detected_object = detected_object_set[i]
-                    object_type = detected_object.type()
-                    if len(object_type.class_names(0.0)) > 0:
-                        # Get class name and scores for the activity
-                        for class_name in object_type.class_names(0.0):
-                            score = object_type.score(class_name)
-                            act_id = self.classes.keys()[self.classes.values().
-                                                        index(class_name)]
-                        
-                            if score > float(self.config_value('confidence_threshold')):
-                                if int(ts.get_frame()) > 0:
-                                    self.segments.append({
-                                        'activity': str(class_name),
-                                        'activityID': int(self.activity_id),
-                                        'presenceConf': float(score),
-                                        'alert_frame': int(ts.get_frame()), 
-                                        'localization': {"test" : {int(ts.get_frame()): 0, 
-                                                int(ts.get_frame())- \
-                                                        int(self.config_value("stride"))+1: 1}}
-                                    })
-                                else:
-                                    self.segments.append({
-                                        'activity': str(class_name),
-                                        'activityID': int(self.activity_id),
-                                        'presenceConf': float(score),
-                                        'alert_frame': int(ts.get_frame()), 
-                                        'localization': {"test" : {int(ts.get_frame())+1: 0, 
-                                                                    int(ts.get_frame()): 1}}
-                                    })
-                                self.activity_id += 1
-                                self.start_frames[act_id] = ts.get_frame()
+            for i in range(len(detected_object_set)):
+                print "Detected set: " + str(detected_object_set[i].type().class_names(0.0))
+                detected_object = detected_object_set[i]
+                object_type = detected_object.type()
+                if len(object_type.class_names(0.0)) > 0:
+                    # Get class name and scores for the activity
+                    for class_name in object_type.class_names(0.0):
+                        score = object_type.score(class_name)
+                        act_id = self.classes.keys()[self.classes.values().
+                                                    index(class_name)]
+                    
+                        if score > float(self.config_value('confidence_threshold')):
+                            if int(ts.get_frame()) > 0:
+                                self.segments.append({
+                                    'activity': str(class_name),
+                                    'activityID': int(self.activity_id),
+                                    'presenceConf': float(score),
+                                    'alert_frame': int(ts.get_frame()), 
+                                    'localization': {str(file_name) : {int(ts.get_frame()): 0, 
+                                            int(ts.get_frame())- \
+                                                    int(self.config_value("stride"))+1: 1}}
+                                })
+                            else:
+                                self.segments.append({
+                                    'activity': str(class_name),
+                                    'activityID': int(self.activity_id),
+                                    'presenceConf': float(score),
+                                    'alert_frame': int(ts.get_frame()), 
+                                    'localization': {str(file_name) : {int(ts.get_frame())+1: 0, 
+                                                                int(ts.get_frame()): 1}}
+                                })
+                            self.activity_id += 1
+                            self.start_frames[act_id] = ts.get_frame()
 
-                    else:
-                        # This should not execute (Added for debugging purposes)
-                        print "Missing object class"
+                else:
+                    # This should not execute (Added for debugging purposes)
+                    print "Missing object class"
 
-                if len(self.segments) > 0:
-                    if os.path.exists(self.config_value("json_path")):
-                        json_dict = json.load(open(self.config_value('json_path')))
-                        json_dict['activities'] = self.segments
-                        json.dump(json_dict, open(self.config_value('json_path'), 'w'), 
-                                    indent=2)
-                    else:
-                        video_processed = ["test"]
-                        results = {'filesProcessed': video_processed, 
-                                   'activities': self.segments}
-                        json.dump(results, open(self.config_value('json_path'), 'w'),  
+            if len(self.segments) > 0:
+                if os.path.exists(self.config_value("json_path")):
+                    json_dict = json.load(open(self.config_value('json_path')))
+                    if file_name not in json_dict["filesProcessed"]:
+                        json_dict["filesProcessed"].append(file_name)
+                    json_dict['activities'] = self.segments
+                    json.dump(json_dict, open(self.config_value('json_path'), 'w'), 
                                 indent=2)
-                self.lock.release()
+                else:
+                    video_processed = [file_name]
+                    results = {'filesProcessed': video_processed, 
+                               'activities': self.segments}
+                    json.dump(results, open(self.config_value('json_path'), 'w'),  
+                            indent=2)
 
             
         

@@ -34,6 +34,7 @@
 #include <vital/types/timestamp.h>
 #include <vital/types/image_container.h>
 #include <vital/types/image.h>
+#include <vital/vital_types.h>
 
 #include <sprokit/processes/kwiver_type_traits.h>
 
@@ -120,6 +121,7 @@ void diva_experiment_process
 
     push_datum_to_port_using_trait( timestamp, dat );
     push_datum_to_port_using_trait( image, dat );
+    push_datum_to_port_using_trait( file_name, dat );
     return;
   }
 
@@ -138,6 +140,7 @@ void diva_experiment_process
 
   push_to_port_using_trait( timestamp, ts );
   push_to_port_using_trait( image, frame );
+  push_to_port_using_trait( file_name, d->experiment.get_input()->get_dataset_id() );
 
 }
 
@@ -147,10 +150,12 @@ void diva_experiment_process
 ::make_ports()
 {
   // Set up for required ports
-  sprokit::process::port_flags_t optional;
-
-  declare_output_port_using_trait( timestamp, optional );
-  declare_output_port_using_trait( image, optional );
+  sprokit::process::port_flags_t required;
+  
+  required.insert( flag_required );
+  declare_output_port_using_trait( timestamp, required );
+  declare_output_port_using_trait( image, required );
+  declare_output_port_using_trait( file_name, required );
 }
 
 
