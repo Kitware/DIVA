@@ -142,6 +142,7 @@ class ACTVisualize(KwiverProcess):
             detected_object_set = None
 
         # Draw tracks
+        
         if len(object_track_set) > 0 and timestamp.get_frame() > 1:
             for track in object_track_set.tracks():
                 image = self._draw_track(image, track)
@@ -149,6 +150,7 @@ class ACTVisualize(KwiverProcess):
         elif len(object_track_set) == 0 and timestamp.get_frame() > 1:
             for track in self.object_track_set.tracks():
                 image = self._draw_track(image, track)
+        
         # Draw detected object set
         if self.is_aod:
             if len(detected_object_set) > 0:

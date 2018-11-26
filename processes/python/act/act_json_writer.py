@@ -51,8 +51,10 @@ class ACTJsonWriter(KwiverProcess):
         optional = process.PortFlags()
         self.declare_input_port_using_trait("object_track_set", required)
         self.declare_input_port_using_trait("timestamp", required)
+        self.declare_input_port_using_trait("file_name", required)
         self.is_aod = self._parse_bool(self.config_value("is_aod"))
         self.declare_input_port_using_trait("detected_object_set", optional)
+        self.all_files = []
 
     def _configure(self):
         expcfg_from_file(self.config_value("exp"))
@@ -68,13 +70,8 @@ class ACTJsonWriter(KwiverProcess):
                                     experiment_config.train.kpf_mode,
                                     experiment_config.train.json_mode,
                                     experiment_config.data.save_prefix)
-        self.video_index = 0
         self.activity_id = 1
-        self.num_videos = len(self.virat_dataset.test_video_list)
         self.all_activities = []
-        self.video_path = self.virat_dataset.test_video_list[self.video_index]
-        self.all_files = [self._video_name_from_path(self.video_path)]
-        self.num_frames = self.virat_dataset.test_num_frames(self.video_path)
         if self.is_aod:
             self.detected_object_sets = {}
 
@@ -108,7 +105,7 @@ class ACTJsonWriter(KwiverProcess):
                 iou = 0.0
             return iou
 
-    def _compute_participating_objects(self, track):
+    def _compute_participating_objects(self, track, video_name):
         object_annotations = []
         object_id = 1
         for track_state in track:
@@ -124,7 +121,7 @@ class ACTJsonWriter(KwiverProcess):
                         "objectType": object_detection.type().get_most_likely_class(),
                         "objectID": int(object_id),
                         "localization": {
-                            self._video_name_from_path(self.video_path): {
+                            video_name: {
                                 str(int(frame_id)): {
                                     "presenceConf": float(object_detection.confidence()),
                                     "boundingBox": {
@@ -144,8 +141,9 @@ class ACTJsonWriter(KwiverProcess):
             print "Added object annotations"
         return object_annotations
 
-    def _create_annotation_from_track(self, track, activity_id, 
+    def _create_annotation_from_track(self, track, activity_id, video_name, 
                                         is_aod=False):
+
         start_frame = track.first_frame + 1
         end_frame = track.last_frame + 1
         num_frames = len(track)
@@ -157,7 +155,7 @@ class ACTJsonWriter(KwiverProcess):
 
         if confidence > float(self.config_value("confidence_threshold")):
             if is_aod:
-                participating_objects = self._compute_participating_objects(track)
+                participating_objects = self._compute_participating_objects(track, video_name)
             class_label = self.virat_dataset.labels.keys()[self.virat_dataset.labels.\
                                     values().index(label)]
             if is_aod:
@@ -167,11 +165,10 @@ class ACTJsonWriter(KwiverProcess):
                             "presenceConf": float(confidence),
                             "alertFrame": int(end_frame),
                             "localization": {
-                                self._video_name_from_path(self.video_path):
-                                            {
-                                                str(start_frame): 1,
-                                                str(end_frame): 0
-                                                }    
+                                        video_name:     {
+                                                            str(start_frame): 1,
+                                                            str(end_frame): 0
+                                                        }    
                                             },
                             "objects": participating_objects                    
                             }, activity_id+1
@@ -183,7 +180,7 @@ class ACTJsonWriter(KwiverProcess):
                         "presenceConf": float(confidence),
                         "alertFrame": int(end_frame),
                         "localization": {
-                            self._video_name_from_path(self.video_path):
+                                        video_name :
                                             {
                                                 str(start_frame): 1,
                                                 str(end_frame): 0
@@ -198,6 +195,7 @@ class ACTJsonWriter(KwiverProcess):
     def _step(self):
         object_track_set = self.grab_input_using_trait('object_track_set')
         timestamp = self.grab_input_using_trait('timestamp')
+        file_name = self.grab_input_using_trait('file_name')
         if self.is_aod:
             detected_object_set = self.grab_input_using_trait('detected_object_set')
             self.detected_object_sets[timestamp.get_frame()] = detected_object_set
@@ -208,27 +206,20 @@ class ACTJsonWriter(KwiverProcess):
             for track in object_track_set.tracks():
                 activity_annotation, self.activity_id = \
                             self._create_annotation_from_track(track, 
-                                    self.activity_id, self.is_aod)
+                                    self.activity_id, file_name, self.is_aod)
                 if activity_annotation is not None:
                     self.all_activities.append(activity_annotation)
-        # New video starts
-        if timestamp.get_frame() == 1:
-            self.video_path = self.virat_dataset.test_video_list[self.video_index]
-            self.num_frames = self.virat_dataset.test_num_frames(self.video_path)
-            if self._video_name_from_path(self.video_path) not in self.all_files:
-                self.all_files.append(self._video_name_from_path(self.video_path))
-            self.video_index += 1
-            if self.is_aod:
-                self.detected_object_sets = {}
+
+        if file_name not in self.all_files:
+            self.all_files.append(file_name)
+        #if self.is_aod:
+        #    self.detected_object_sets = {}
 
          
         json_dict = {"filesProcessed": self.all_files, \
                         "activities": self.all_activities}
         with open(self.config_value("json_path"), 'w') as json_f:
             json.dump(json_dict, json_f, indent=4)
-        print "Completed: {0}/{1} videos and {2}/{3} frames".format(
-                self.video_index, self.num_videos, timestamp.get_frame(),
-                self.num_frames )
 		
         
         

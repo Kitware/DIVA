@@ -9,11 +9,10 @@ Kwiver process based on evaluating act
 from sprokit.pipeline import process
 from kwiver.kwiver_process import KwiverProcess
 from vital.types import ObjectTrackSet
-
+from sprokit.pipeline import datum
 # ACT Imports
 from exp_config import experiment_config, expcfg_from_file
 from ACT_utils import nms_tubelets
-from virat_dataset import ViratDataset
 
 import numpy as np
 
@@ -99,53 +98,50 @@ class MergeTubes(KwiverProcess):
         self.add_config_trait("exp", "exp",
                             '.', 'experiment configuration for ACT')
         self.declare_config_using_trait('exp')
-        expcfg_from_file(self.config_value("exp"))
+        self.add_config_trait("num_classes", "num_classes",
+                            '20', 'Total number of classes ACT was trained on')
+        self.declare_config_using_trait('num_classes')
+
         required = process.PortFlags()
         required.add(self.flag_required)
+    
+        optional = process.PortFlags()
 
         self.add_port_trait("current_object_track_set", "object_track_set", 
                             "Set of incomplete action tubes")
         #  declare our ports ( port-name, flags)
         self.declare_input_port_using_trait('object_track_set', required )
+        self.declare_input_port_using_trait('file_name', required )
         self.declare_input_port_using_trait('timestamp', required)
         self.declare_output_port_using_trait('object_track_set', 
-                                            process.PortFlags() )
+                                            required )
         self.declare_output_port_using_trait('current_object_track_set', 
-                                            process.PortFlags())
-
+                                            optional )
+        self.video_name = None
 
     def _configure(self):
         self.finished_tracks = []
         self.current_tracks = [] 
-        self.virat_dataset = ViratDataset(experiment_config.data.data_root,
-                                        experiment_config.data.frames_root,
-                                        experiment_config.data.flow_root,
-                                        experiment_config.data.train_annotation_dirs,
-                                        experiment_config.data.test_annotation_dirs,
-                                        experiment_config.data.class_index,
-                                        experiment_config.data.save_directory,
-                                        experiment_config.train.kpf_mode,
-                                        experiment_config.train.json_mode,
-                                        experiment_config.data.save_prefix)
-        self.video_index = 0
+        # Global configuration
+        expcfg_from_file(self.config_value("exp"))
 
     def _step(self):
         object_track_set = self.grab_input_using_trait("object_track_set")
         timestamp = self.grab_input_using_trait("timestamp")
+        file_name = self.grab_input_using_trait("file_name")
 
-        # End of video processing
-        if timestamp.get_frame() == self.virat_dataset.test_num_frames(
-                                            self.virat_dataset.test_video_list[
-                                                self.video_index]):
-            self.video_index += 1
-            self.finished_tracks = self.current_tracks
-            self.current_tracks = []
+
+        # End of video
+        #if self.video_name is None or self.video_name != file_name:
+        #    self.finished_tracks = self.current_tracks
+        #    self.current_tracks = []
+        #    self.video_name = file_name
 
         if len(object_track_set) > 0:
             # Non maximum supression for tracks
             pruned_tracks =  []
             nms_ids = []
-            for label_id in range(self.virat_dataset.nlabels):
+            for label_id in range(int(self.config_value("num_classes"))):
                 # skip background (might be redundant)
                 if label_id == 0:
                     continue
@@ -156,21 +152,20 @@ class MergeTubes(KwiverProcess):
             new_tracks = []
             for nms_id in nms_ids:
                 pruned_tracks.append(object_track_set.tracks()[nms_id])
-
             # Create new tubes for first frame
             if len(self.current_tracks) == 0:
                 self.current_tracks = pruned_tracks
                 self.push_to_port_using_trait("object_track_set", 
                         ObjectTrackSet(self.finished_tracks))
                 self.push_to_port_using_trait("current_object_track_set", 
-                        ObjectTrackSet(self.current_tracks))
+                                            ObjectTrackSet(self.current_tracks))
             else:
                 merged_ids = []
                 for track_id, track in enumerate(self.current_tracks):
                     is_continued = False
                     for nms_track_id, nms_track in enumerate(pruned_tracks):
                         # Check iou and don't merge tracks more than once
-                        if self._iou2d(track, nms_track) > 0.2 and \
+                        if self._iou2d(track, nms_track) > 0.5 and \
                                 nms_track_id not in merged_ids:
                             # Merge tubes
                             is_continued = True
@@ -193,8 +188,10 @@ class MergeTubes(KwiverProcess):
                                             ObjectTrackSet(self.current_tracks))
                 self.finished_tracks = []
         else:   
-            self.push_to_port_using_trait("object_track_set", ObjectTrackSet())
+            self.push_to_port_using_trait("object_track_set", 
+                                            ObjectTrackSet(self.finished_tracks))
             self.push_to_port_using_trait("current_object_track_set", ObjectTrackSet())
+        print ("merge_tube: Done with " + str(timestamp.get_frame()) + " frame")
 
 # ==================================================================
 def __sprokit_register__():
