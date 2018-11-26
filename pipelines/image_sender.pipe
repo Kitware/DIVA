@@ -4,7 +4,7 @@
 
 # Image configuration
 config input 
- exp_file = etc/input_stream.yml #video_experiment.yml #
+ exp_file = etc/video_experiment.yml 
 
 
 # ------------------------------------------------------------------
@@ -18,7 +18,7 @@ process protobuf_ser :: serializer
 
 connect from exp.timestamp to protobuf_ser.timg/timestamp
 connect from exp.image     to protobuf_ser.timg/image
-
+connect from exp.file_name to protobuf_ser.timg/file_name
 
 process zmq_timg :: zmq_transport_send
   port = 5560
