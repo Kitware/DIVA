@@ -69,7 +69,7 @@ class VisualizeProcess(KwiverProcess):
                                 "Number of cells used in swimlane")
         self.declare_config_using_trait("num_swimlane_cells")
         self.add_config_trait("confidence_threshold", "confidence_threshold",
-                                "0.2", "lower bound of confidence")
+                                "0.02", "lower bound of confidence")
         self.declare_config_using_trait("confidence_threshold")
 
         # Input image parameters TODO: Check if these are redundant
@@ -147,6 +147,7 @@ class VisualizeProcess(KwiverProcess):
         self.swimlanes = {class_name: [] for class_name in self.classes.values()}
         # Initialize classes for legends
         self.previous_classes = []
+        self.previous_frame = 0
 
 
     def _create_legend(self, legend_width, legend_height, legend_buffer, classes):
@@ -224,54 +225,63 @@ class VisualizeProcess(KwiverProcess):
         
         # Initialize swimlanes
         for class_name in self.swimlanes.keys():
-            self.swimlanes[class_name].append(0)
+            while len(self.swimlanes[class_name]) <= ts.get_frame():
+                if self.previous_frame == 0:
+                    self.swimlanes[class_name].append(0)
+                else:
+                    self.swimlanes[class_name].append(0)
 
-        current_classes = []
-        # RC3D operates only on strided frames
-        if int(self.frame_number)%int(self.config_value("stride")) == 0:
-            if len(detected_object_set) > 0:
-                for i in range(len(detected_object_set)):
-                    object_type = detected_object_set[i].type()
-                    if len(object_type.class_names(
-                            float(self.config_value("confidence_threshold")))) > 0:
-                        # Get class name on the current frame
-                        for class_name in object_type.class_names(
-                                    float(self.config_value("confidence_threshold"))):
-                            self.swimlanes[class_name][self.frame_number] = 1
-                            if class_name not in current_classes:
-                                current_classes.append(class_name)
-            self.previous_classes = copy.deepcopy(current_classes)
-        else:
-            for class_name in self.swimlanes.keys():
-                if self.frame_number>=1 and self.swimlanes[class_name][self.frame_number-1] == 1:
-                    self.swimlanes[class_name][self.frame_number-1] = 1
-            # use class names from previously strided frames
-            current_classes = self.previous_classes
-        
-        # Render legend image
-        legend_text_buffer = int(self.config_value("legend_text_buffer"))
-        legend_image = self._create_legend(self.legend_width, self.legend_height,
-                                            legend_text_buffer, current_classes)
+        if (self.lock.acquire()):
+            current_classes = []
+            print "Frame: " + str(ts.get_frame())
+            # RC3D operates only on strided frames
+            if int(ts.get_frame())%int(self.config_value("stride")) == 0:
+                if len(detected_object_set) > 0:
+                    for i in range(len(detected_object_set)):
+                        object_type = detected_object_set[i].type()
+                        if len(object_type.class_names(
+                                float(self.config_value("confidence_threshold")))) > 0:
+                            # Get class name on the current frame
+                            for class_name in object_type.class_names(
+                                        float(self.config_value("confidence_threshold"))):
+                                self.swimlanes[class_name][ts.get_frame()] = 1
+                                if class_name not in current_classes:
+                                    current_classes.append(class_name)
+                self.previous_classes = copy.deepcopy(current_classes)
+            else:
+                for class_name in self.swimlanes.keys():
+                    for frame in range(self.previous_frame+1, ts.get_frame()+1):
+                        if ts.get_frame()>=1 and self.swimlanes[class_name][self.previous_frame] == 1:
+                            self.swimlanes[class_name][frame] = 1
+                        else:
+                            self.swimlanes[class_name][frame] = 0
+                # use class names from previously strided frames
+                current_classes = self.previous_classes
+            
+            # Render legend image
+            legend_text_buffer = int(self.config_value("legend_text_buffer"))
+            legend_image = self._create_legend(self.legend_width, self.legend_height,
+                                                legend_text_buffer, current_classes)
 
-        # Render swimlane image
-        swimlane_image = self._create_swimlane(self.swimlane_width, self.swimlane_height, 
-                                    int(self.config_value("swimlane_text_buffer")),
-                                    current_classes, 
-                                    int(self.config_value("num_swimlane_cells")))
+            # Render swimlane image
+            swimlane_image = self._create_swimlane(self.swimlane_width, self.swimlane_height, 
+                                        int(self.config_value("swimlane_text_buffer")),
+                                        current_classes, 
+                                        int(self.config_value("num_swimlane_cells")))
 
-        image = cv2.resize(image, (self.image_width, self.image_height))
-        output_image[:self.image_height, :self.image_width, :] = image
-        output_image[:self.image_height, \
-                self.image_width:self.image_width + self.legend_width, :] = legend_image
-        output_image[self.image_height:, :, :] = swimlane_image
-        
-        # Pass the image to the viewer
-	if (self.lock.acquire(False)):
-	    pil_image = Image.fromarray(output_image)
-	    vital_image = VitalPIL.from_pil(pil_image)
-	    image_container = ImageContainer(vital_image)
-	    self.push_to_port_using_trait('image', image_container)
-	    self.lock.release()
+            image = cv2.resize(image, (self.image_width, self.image_height))
+            output_image[:self.image_height, :self.image_width, :] = image
+            output_image[:self.image_height, \
+                    self.image_width:self.image_width + self.legend_width, :] = legend_image
+            output_image[self.image_height:, :, :] = swimlane_image
+            
+            # Pass the image to the viewer
+            pil_image = Image.fromarray(output_image)
+            vital_image = VitalPIL.from_pil(pil_image)
+            image_container = ImageContainer(vital_image)
+            self.push_to_port_using_trait('image', image_container)
+            self.lock.release()
+        self.previous_frame = ts.get_frame()
         self.frame_number += 1
 		
         
