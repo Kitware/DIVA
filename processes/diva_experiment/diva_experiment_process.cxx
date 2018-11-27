@@ -151,11 +151,12 @@ void diva_experiment_process
 {
   // Set up for required ports
   sprokit::process::port_flags_t required;
+  sprokit::process::port_flags_t optional;
   
   required.insert( flag_required );
-  declare_output_port_using_trait( timestamp, required );
+  declare_output_port_using_trait( timestamp, optional );
   declare_output_port_using_trait( image, required );
-  declare_output_port_using_trait( file_name, required );
+  declare_output_port_using_trait( file_name, optional );
 }
 
 
