@@ -35,7 +35,7 @@ do
                                                   --set json_writer:json_path=${output_file} \
                   --set act_process:exp=${ACT_ROOT}/virat-act-detector-scripts/rgb_eval_1b.yml \
                   --set merge_tubes:exp=${ACT_ROOT}/virat-act-detector-scripts/rgb_eval_1b.yml \
-                  --set json_writer:exp=${ACT_ROOT}/virat-act-detector-scripts/rgb_eval_1b.yml \
+                  --set json_writer:exp=${ACT_ROOT}/virat-act-detector-scripts/rgb_eval_1b.yml 
     sleep 1
   else
     echo "${output_file} exists"

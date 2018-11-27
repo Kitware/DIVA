@@ -32,7 +32,7 @@ do
   if [ ! -e "${output_file}" ]; then
     echo "${output_file} does not exist"
     pipeline_runner -p ${SCRIPT_DIR}/act.pipe --set exp:experiment_file_name=${video_file} \
-                                            --set json_writer:json_path=${output_file}
+                                            --set json_writer:json_path=${output_file} \
                   --set act_process:exp=${ACT_ROOT}/virat-act-detector-scripts/rgb_eval_1b.yml \
                   --set merge_tubes:exp=${ACT_ROOT}/virat-act-detector-scripts/rgb_eval_1b.yml \
                   --set json_writer:exp=${ACT_ROOT}/virat-act-detector-scripts/rgb_eval_1b.yml 
