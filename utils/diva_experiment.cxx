@@ -33,6 +33,9 @@
 #include <vital/config/config_block.h>
 #include <vital/config/config_block_io.h>
 #include <vital/logger/logger.h>
+#include <kwiversys/SystemTools.hxx>
+
+typedef kwiversys::SystemTools ST;
 
 class diva_experiment::pimpl
 {

@@ -39,7 +39,7 @@ void diva_python_input(py::module &m)
     .value("none", diva_input::type::none)
     .value("image_list", diva_input::type::image_list)
     .value("video_file", diva_input::type::video_file)
-    .value("rstp", diva_input::type::rstp)
+    .value("rtsp", diva_input::type::rtsp)
     .export_values();
 
   py::class_<diva_input, std::shared_ptr<diva_input>>(m, "input")
@@ -62,8 +62,8 @@ void diva_python_input(py::module &m)
     .def("get_video_file_source", &diva_input::get_video_file_source)
     .def("get_video_file_source_dir", &diva_input::get_video_file_source_dir)
     .def("set_video_file_source", &diva_input::set_video_file_source)
-    .def("set_rstp_source", &diva_input::set_rstp_source)
-    .def("get_rstp_source", &diva_input::get_rstp_source)
+    .def("set_rtsp_source", &diva_input::set_rtsp_source)
+    .def("get_rtsp_source", &diva_input::get_rtsp_source)
     .def("has_next_frame", &diva_input::has_next_frame)
     .def("get_next_frame", &diva_input::get_next_frame);
 }

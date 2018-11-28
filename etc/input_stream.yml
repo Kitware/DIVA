@@ -1,0 +1,87 @@
+#
+# This is a sample experiment file for the DIVA system.
+#
+# This file can be used for
+#
+#   1) Running and experiment
+#
+#   2) Scoring the results of the experiment
+#
+
+#
+# What is the purpose of this experiment?
+# Must be one of the following options:
+# - object_detection
+# - activity_detection
+type = object_detection
+
+#
+# Tell the system about the input
+#
+
+block input
+
+   # the dataset ID is used as the prefix for output files
+   dataset_id = parking_lot
+
+   # frame_rate_Hz metadata; available via the API if you want it
+   frame_rate_Hz = 30.0
+   # input source type; currently either 'file_list' or 'video'
+   type = rtsp 
+
+   # the instance of the input source, in this case, a file,
+   # located in ${root_dir}/${source}, with filepaths of images to be
+   # processed.
+   source = rtsp://admin:@192.168.1.179:554/h264Preview_01_main
+
+endblock
+
+
+#
+# Tell the system about your output
+#
+
+block output
+
+   # How will your algorithm's output be transported?
+   type = file
+
+   # Where will the output be written?
+   root_dir = ./etc/algo-out
+
+endblock
+
+# NO SCOREING DATA FOR THIS VIDEO INPUT YET
+# scoring
+#
+
+block scoring
+
+    score_events = ./bin/score_events
+    ref_geom = ./etc/ref-geom/unavailable
+
+    eval_output_dir = ./etc/darknet_detections/eval-out
+
+    block object_detection
+        ref_types = ./etc/ref-geom/unavailable
+        target = Person
+        iou = 0.5
+        time_window = 25:75
+    endblock
+
+    roc_plot_opts =
+
+endblock
+
+#
+# These parameters are specific to your algorithm and available
+# via the API
+#
+
+block algo
+
+   command = ./bin/darknet_detections -r $expfn
+
+   darknet_config_path = ./etc/darknet.config
+
+endblock

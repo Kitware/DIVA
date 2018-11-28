@@ -49,7 +49,7 @@ public:
     none = 0,
     image_list,
     video_file,
-    rstp
+    rtsp
   };
 
   diva_input();
@@ -87,8 +87,8 @@ public:
   std::string get_video_file_source_dir() const;
   bool set_video_file_source(const std::string& source_dir, const std::string& video_file);
   // RSTP Stream
-  bool set_rstp_source(const std::string& url);
-  std::string get_rstp_source() const;
+  bool set_rtsp_source(const std::string& url);
+  std::string get_rtsp_source() const;
 
   bool has_next_frame();
   kwiver::vital::image_container_sptr get_next_frame();

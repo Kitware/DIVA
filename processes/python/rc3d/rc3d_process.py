@@ -22,6 +22,7 @@ import cPickle as pkl
 import sys
 import datetime
 import json
+
 import _init_paths
 # DIVA support scripts
 from tdcnn.exp_config import expcfg_from_file, experiment_config
@@ -33,6 +34,7 @@ from tdcnn.config import cfg_from_file, cfg
 from tdcnn.test_online import test_net_online
 import diva_python_utils
 
+import time
 
 # Now for the process
 class RC3DProcess(KwiverProcess):
@@ -62,8 +64,9 @@ class RC3DProcess(KwiverProcess):
         #  declare our ports ( port-name, flags)
         self.declare_input_port_using_trait('image', required)
         self.declare_input_port_using_trait('timestamp', required )
-
+        self.declare_input_port_using_trait('file_name', required )
         self.declare_output_port_using_trait('detected_object_set', process.PortFlags() )
+        self.video_name = None
 
         
 
@@ -106,6 +109,12 @@ class RC3DProcess(KwiverProcess):
         # grab image container from port using traits
         in_img_c = self.grab_input_using_trait('image')
         ts = self.grab_input_using_trait('timestamp')
+        video_name = self.grab_input_using_trait('file_name')
+
+        # Reset the buffer for new videos
+        if self.video_name is None or video_name != self.video_name:
+            self.previous_buffer = None
+            self.video_name = video_name
 
         # Set device configuration for the thread 
         caffe.set_mode_gpu()
@@ -114,7 +123,6 @@ class RC3DProcess(KwiverProcess):
         # Get numpy array from the image container
         image = in_img_c.image().asarray()
         det_set = DetectedObjectSet()
-
         # Strided execution (temporal stride of 8)
         if ts.get_frame()%int(self.config_value('stride')) == 0:
             logs, self.previous_buffer = test_net_online(self.net, 
@@ -144,8 +152,8 @@ class RC3DProcess(KwiverProcess):
                         break
             assert len(classes)==len(scores),"Print classes and scores should have same length"
             if len(classes) > 0:
-                print "Length: " + str(len(det_set))
-                print "Classes: " + str(classes) + " Scores: " + str(scores)
+                #print "Length: " + str(len(det_set))
+                #print "Classes: " + str(classes) + " Scores: " + str(scores)
                 box = BoundingBox(0, 0, image.shape[1], 
                                 image.shape[0])
                 dot = DetectedObjectType(classes, scores)

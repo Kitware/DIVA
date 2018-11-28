@@ -14,7 +14,7 @@ set(CAFFE_SUPPORT ON)
 ExternalProject_Add(fletch
   PREFIX ${DIVA_BINARY_DIR}
   GIT_REPOSITORY "git://github.com/Kitware/fletch.git"
-  GIT_TAG 9e54795ff5cd8192e68b6d4d47e349d2d4e5f933
+  GIT_TAG f56a623c4af28cf089937aec3646d8aa5e8bed21
   SOURCE_DIR fletch
   BINARY_DIR fletch-build
   STAMP_DIR ${DIVA_STAMP_DIR}
