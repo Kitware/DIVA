@@ -1,0 +1,21 @@
+#
+# Pipe file for celery dispatcher
+#
+
+
+# -------------------------------------------------------------------
+process dispatcher:: Dispatcher
+  num_gpu=1
+  tasks_per_gpu=2
+  experiment_file_root=etc/
+  darknet_root=/home/ameya/ipc/darknet
+  csv_root=/home/ameya/dispatcher-test  
+ 
+
+# ------------------------------------------------------------------
+# use python scheduler
+config _scheduler
+  type = pythread_per_process
+
+config _pipeline:_edge
+  capacity = 1     # set default edge capacity
