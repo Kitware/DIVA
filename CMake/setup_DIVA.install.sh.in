@@ -1,6 +1,11 @@
 source @CMAKE_INSTALL_PREFIX@/setup_KWIVER.sh
 
 export PYTHONPATH=@CMAKE_INSTALL_PREFIX@/lib/python2.7/dist-packages:@CMAKE_INSTALL_PREFIX@/lib:$PYTHONPATH
+
+# Required for celery workers
+# TODO: Move task out of dispatcher
+export PYTHONPATH=@CMAKE_INSTALL_PREFIX@/@diva_python_process_subdir@/dispatcher:$PYTHONPATH
+
 export @LIBRARY_PATH_VAR@=@CMAKE_INSTALL_PREFIX@/lib:$@LIBRARY_PATH_VAR@
 export KWIVER_PLUGIN_PATH=@CMAKE_INSTALL_PREFIX@/lib/@diva_plugin_process_subdir@:@CMAKE_INSTALL_PREFIX@/lib/@diva_plugin_module_subdir@:$KWIVER_PLUGIN_PATH
-export SPROKIT_PYTHON_MODULES=DIVA.processes:DIVA.processes.act:DIVA.processes.rc3d:$SPROKIT_PYTHON_MODULES
+export SPROKIT_PYTHON_MODULES=DIVA.processes:DIVA.processes.act:DIVA.processes.rc3d:DIVA.processes.dispatcher:$SPROKIT_PYTHON_MODULES

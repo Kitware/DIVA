@@ -52,6 +52,10 @@ find_package(fletch REQUIRED)
 set( diva_plugin_process_subdir diva/processes )
 set( diva_plugin_module_subdir  diva/modules )
 
+###
+# Set location for python process plugins 
+set ( diva_python_process_subdir "${python_site_packages}/DIVA/processes" )
+
 # DIVA specific code (inner build)
 add_subdirectory(utils)
 add_subdirectory(drivers)
