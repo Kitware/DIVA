@@ -39,8 +39,8 @@ import time
 # Now for the process
 class RC3DProcess(KwiverProcess):
     """
-    This process gets ain image as input, does some stuff to it and
-    sends the modified version to the output port.
+    This process gets an image, timestamp and file as input, applied forward pass
+    of RC3D on every strided frame and sends out detected object set.
     """
     # ----------------------------------------------
     def __init__(self, conf):
