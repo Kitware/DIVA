@@ -22,7 +22,7 @@ From a design perspective, KPF tries to **provide** :
 * convertibility from existing formats
 * compatibility (in text mode) with command-line tools such as awk, grep, and perl
 
-KPF tries to **avoid:** :
+KPF tries to **avoid:** 
 
 * MAGIC NUMBERS
 * excessive redundancy and verbosity
@@ -172,12 +172,18 @@ The use of N signals a domain integer
 |            |            [xM,yM] ]                      |                            |                                                                                                                |
 +------------+-------------------------------------------+----------------------------+----------------------------------------------------------------------------------------------------------------+
 | conf       | ::                                        | confidence or likelihood   | none; may start at 0 but should specify source via a meta packet. |br|                                         |
-|            |                                           |                            | Ground-truth should be represented via a 'src: truth' kv packet, rather than a confidence of 1.0.              |
-|            |    confN: double                          |                            |                                                                                                                |
+|            |                                           |                            | ground-truth should be represented via a 'src: truth' kv packet, rather than a confidence of 1.0.              |
+|            |    confn: double                          |                            |                                                                                                                |
++------------+-------------------------------------------+----------------------------+----------------------------------------------------------------------------------------------------------------+
+| cset       | ::                                        | set of labels/ likelihoods | 3: DIVA Objects |br|                                                                                           |
+|            |                                           |                            |                                                                                                                |
+|            |    csetN:  label1: likelihood1,           |                            |                                                                                                                |
+|            |            [label2: likelihood2, ....]    |                            |                                                                                                                |
 +------------+-------------------------------------------+----------------------------+----------------------------------------------------------------------------------------------------------------+
 | act        | ::                                        | activity                   | 0: VIRAT |br|                                                                                                  |
 |            |                                           |                            | 1: vidtk |br|                                                                                                  |
-|            |  actN: activity-name,                     |                            | 2: DIVA                                                                                                        |
+|            |  actN: { activity_label_1: likelihood,    |                            | 2: DIVA                                                                                                        |
+|            |    [activity_label_1: likelihood ...]},   |                            |                                                                                                                |
 |            |        id-packet,                         |                            |                                                                                                                |
 |            |        timespan: [ { tsr } ... ],         |                            |                                                                                                                |
 |            |        (*optional*) [kv] ...,             |                            |                                                                                                                |
@@ -216,11 +222,11 @@ A detector output might look like ::
 
   { meta: "cmdline0: run_detector param1 param2..." }
   { meta: "conf0: yolo person detector" }
-  { meta: "id0 domain: yolo person detector" }**
-  { id0: 0, ts0: 101, g0: 515 419 525 430, conf0: 0.8 }
-  { id0: 1, ts0: 101, g0: 413 303 423 313, conf0: 0.3 }
-  { id0: 2, ts0: 102, g0: 517 421 527 432, conf0: 0.7 }
-  { id0: 3, ts0: 102, g0: 416 304 421 315, conf0: 0.2 }
+  { meta: "id0 domain: yolo person detector" }
+  { geom: { id0: 0, ts0: 101, g0: 515 419 525 430, cset0: {Person: 0.8 } }}
+  { geom: { id0: 1, ts0: 101, g0: 413 303 423 313, cset0: {Person: 0.3 } }}
+  { geom: { id0: 2, ts0: 102, g0: 517 421 527 432, cset0: {Person: 0.7 } }}
+  { geom: { id0: 3, ts0: 102, g0: 416 304 421 315, cset0: {Person: 0.2 } }}
 
 Here the **id0** and **conf0** domains are specified to be the detections from yolo; 
 the timestamp **ts0** and geometry **g0** domains are predefined to be frame number and pixel coordinates, respectively.
@@ -235,10 +241,10 @@ A tracker (detection linker) could take the above and generate the following. ::
   { meta: "id0 domain: yolo person detector" }
   { meta: "cmdline1: run_linker param1 param2..." }
   { meta: "id1 domain: track linker hash 0x85913" }
-  { id0: 0, ts0: 101, g0: 515 419 525 430, conf0: 0.8, id1: 100 }
-  { id0: 1, ts0: 101, g0: 413 303 423 313, conf0: 0.3, id1: 102 }
-  { id0: 2, ts0: 102, g0: 517 421 527 432, conf0: 0.7, id1: 100 }
-  { id0: 3, ts0: 102, g0: 416 304 421 315, conf0: 0.2, id1: 102 }
+  { geom: { id0: 0, ts0: 101, g0: 515 419 525 430, conf0: 0.8, id1: 100 } }
+  { geom: { id0: 1, ts0: 101, g0: 413 303 423 313, conf0: 0.3, id1: 102 } }
+  { geom: { id0: 2, ts0: 102, g0: 517 421 527 432, conf0: 0.7, id1: 100 } }
+  { geom: { id0: 3, ts0: 102, g0: 416 304 421 315, conf0: 0.2, id1: 102 } }
 
 
 Here all the tracker has done is defined an additional domain for IDs (id1) which it uses to link detections into tracks.
@@ -258,12 +264,12 @@ An evaluation run could take the output from the tracker and produce the followi
   { meta: "eval0 domain against id0" }
   { meta: "eval1 domain against id1" }
   { meta: "id2 domain false negatives from official_ground_truth.kpf" }
-  { id0: 0, ts0: 101, g0: 515 419 525 430, conf0: 0.8, id1: 100, eval0: tp, eval1: tp }
-  { id0: 1, ts0: 101, g0: 413 303 423 313, conf0: 0.3, id1: 102, eval0: fa, eval1: fa }
-  { id0: 2, ts0: 102, g0: 517 421 527 432, conf0: 0.7, id1: 100, eval0: fa, eval1: tp }
-  { id0: 3, ts0: 102, g0: 416 304 421 315, conf0: 0.2, id1: 102, eval0: fa, eval1: tp }
-  { id2: 0, ts0: 101, g0: 600 550 605 610, eval0: fn, eval1: fn }
-  { id2: 1, ts0: 102, g0: 603 553 608 615, eval0: fn, eval1: fn }
+  { geom: { id0: 0, ts0: 101, g0: 515 419 525 430, conf0: 0.8, id1: 100, eval0: tp, eval1: tp } }
+  { geom: { id0: 1, ts0: 101, g0: 413 303 423 313, conf0: 0.3, id1: 102, eval0: fa, eval1: fa } }
+  { geom: { id0: 2, ts0: 102, g0: 517 421 527 432, conf0: 0.7, id1: 100, eval0: fa, eval1: tp } }
+  { geom: { id0: 3, ts0: 102, g0: 416 304 421 315, conf0: 0.2, id1: 102, eval0: fa, eval1: tp } }
+  { geom: { id2: 0, ts0: 101, g0: 600 550 605 610, eval0: fn, eval1: fn } }
+  { geom: { id2: 1, ts0: 102, g0: 603 553 608 615, eval0: fn, eval1: fn } }
 
 Here, the scoring code has done several things:
 
@@ -302,12 +308,13 @@ Geometry
 
 Schema Specification, (Line breaks are for clarity) ::
 
- { id0: detection-id, id1: track-id, ts0: frame-id, g0: geom-str, src: source
+ { geom: { id0: detection-id, id1: track-id, ts0: frame-id, g0: geom-str, src: source
     [occlusion: (medium | heavy )]
     [confN: confidence...]
     [evalN: eval-tag...]
+    [cset3: {object: likelihood, ...} ]
     [polyN: poly-str kv: keyframe [0|1] ] 
-  }
+  }{
 
 Required Tags : id0, id1, tsN, g
 
@@ -334,7 +341,7 @@ Label
 
 Schema Specification ::
 
-  { id1: track-id, obj_type: object_type } 
+  { types: { id1: track-id, cset3: { object_type:likelihood, ... } } } 
 
 Required Tags : id1, obj_type
 
@@ -342,22 +349,22 @@ Required Tags : id1, obj_type
 
 Examples ::
 
-  { id1: 35 , obj_type: Vehicle }
-  { id1: 36 , obj_type: Vehicle }
-  { id1: 5000 , obj_type: Parking_Meter }
-  { id1: 5001 , obj_type: Dumpster }
+  { id1: 35 , cset3: { Vehicle: 1.0} } }
+  { id1: 36 , cset3: { Vehicle: 1.0  } }
+  { id1: 5000 , cset3: { Parking_Meter: 1.0 } }
+  { id1: 5001 , cset3: { Dumpster: 1.0 } }
 
 Activity schema:
 ~~~~~~~~~~~~~~~~
 
 Schema Specification, (Line breaks are for clarity) ::
 
-  { actN: activity name, id_packet, src: source, 
+  { act { actN: {activity_name: likelihood, ...}, id_packet, src: source, 
           timespan: [ {tsr_packet} (...) ],
           actors: [ {id_packet, timespan: [ {tsr_packet} (...) ]}
                     (...) 
                   ]
-  }
+  } }
 
 Note the (...) indicates multiple specifications of the previous *{ packets }* may be provided
 
