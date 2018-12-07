@@ -14,7 +14,7 @@ Contents:
    install
    kpf
    api
-   algorithm
+   processes
    pipelines
    tutorials
    developing

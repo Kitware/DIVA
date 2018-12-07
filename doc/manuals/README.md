@@ -2,9 +2,11 @@
 1. [Python](https://www.python.org/) 
 2. [Sphinx](http://www.sphinx-doc.org/en/master/)
 3. [sphinx_rtd_theme](https://sphinx-rtd-theme.readthedocs.io/en/latest/)
-4. [livereload](https://pypi.org/project/livereload/)
-5. [breathe](https://pypi.org/project/breathe/)
-6. [virtualenv](https://pypi.org/project/virtualenv/) (Optional, Recommended)
+4. [sphinxcontrib-bibtext](https://build-me-the-docs-please.readthedocs.io/en/latest/Using_Sphinx/UsingBibTeXCitationsInSphinx.html)
+5. [Contentui extension](https://sphinxcontrib-contentui.readthedocs.io/en/latest/installation.html)
+6. [livereload](https://pypi.org/project/livereload/)
+7. [breathe](https://pypi.org/project/breathe/)
+8. [virtualenv](https://pypi.org/project/virtualenv/) (Optional, Recommended)
 
 # Installation
 ## Using virtual environment

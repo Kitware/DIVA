@@ -72,7 +72,7 @@ What's Next
 ###########
 * :doc:`Build DIVA </install>`
 * `Learn about Kwiver <Kwiver_>`_
-* :doc:`Checkout Algorithms in DIVA </algorithm>`
+* :doc:`Checkout Algorithms in DIVA </processes>`
 * :doc:`Integrate Your Algorithm in the framework </tutorials>`
 * :doc:`Contents <index>`
 

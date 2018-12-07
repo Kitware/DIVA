@@ -130,5 +130,5 @@ This will generate some KPF packet messages to the terminal/command window.
 
 What's Next
 -----------
-* :doc:`Checkout Algorithms in DIVA </algorithm>`
+* :doc:`Checkout Algorithms in DIVA </processes>`
 * :doc:`Integrate Your Algorithm in the framework </tutorials>`
