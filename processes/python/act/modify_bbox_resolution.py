@@ -11,7 +11,28 @@ from kwiver.kwiver_process import KwiverProcess
 from vital.types import BoundingBox, DetectedObjectSet
 
 class ModifyBboxResolution(KwiverProcess):
+    """
+    Modify the bounding box based on the difference between input and output image 
+    resolution
+
+    * Input Ports:
+        * ``detected_object_set`` Set of input detections (Required)
+   
+    * Output Ports:
+        * ``detected_object_set`` Set of scaled detections (Optional)
+
+    * Configuration:
+        * ``input_image_width`` Width of the image from which input detections were generated (default=512)
+        * ``input_image_height`` Height of the image from which input detections were generated (default=512)
+        * ``output_image_width`` Width of the image that output detections would be scaled to (default=1920)
+        * ``output_image_height`` Height of the image that output detections would be scaled to (default=1080)
+    """
     def __init__(self, conf):
+        """
+        Constructor for ModifyBboxResolution process
+        :param conf: Configuration parameters for the processs
+        :return None
+        """
         KwiverProcess.__init__(self, conf)
         self.add_config_trait("input_image_width", "input_image_width",
                                 "512", "Width of input image")
@@ -33,9 +54,15 @@ class ModifyBboxResolution(KwiverProcess):
         self.declare_output_port_using_trait("detected_object_set", process.PortFlags())
 
     def _configure(self):
+        """
+        Confugration function for the process
+        """
         pass
 
     def _step(self):
+        """
+        Step function for the process
+        """
         dos = self.grab_input_using_trait('detected_object_set')
         modified_dos = DetectedObjectSet()
         for det_index, detected_object in enumerate(dos):
@@ -60,6 +87,9 @@ class ModifyBboxResolution(KwiverProcess):
         
         
 def __sprokit_register__():
+    """
+    Sprokit registration for the process
+    """
     from sprokit.pipeline import process_factory
 
     module_name = 'python:kwiver.ModifyBboxResolution'

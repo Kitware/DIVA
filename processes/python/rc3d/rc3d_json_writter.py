@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 """
-Kwiver process to write Detetected object set into NIST specified JSON format
+Kwiver process to write ``detected_object_set`` from RC3D into NIST specified JSON format
 
 @author: Ameya Shringi
 """
@@ -22,12 +22,37 @@ from log_to_nist import generate_classes, generate_classes_from_json
 from tdcnn.exp_config import expcfg_from_file, experiment_config
 from tdcnn.config import cfg_from_file, cfg
 
-class Rc3dJsonWriter(KwiverProcess):
+class RC3DJsonWriter(KwiverProcess):
     """
-    This process takes the detected object sets and converts them into NIST
-    specified JSON format
+    Write ``detected_object_set`` from RC3D into NIST specified JSON format
+    
+    * Input Ports:
+        * ``detected_object_set`` Detected object set obtained from RC3D (Required)
+        * ``timestamp`` Timestamp associated with the input from which the detected object set was obtained from (Required)
+        * ``file_name`` Name of the input source (Required)
+
+    * Output Ports:
+        * None
+
+    * Configuration:
+        * ``experiment_file_name`` Experiment configuration used by RC3D (Eg. `experiment.yml`_)
+        * ``model_cfg`` Model configuration used by RC3D (Eg. `td_cnn_end2end.yml`_)
+        * ``stride`` Temporal stride for RC3D (default=8)
+        * ``temporal_buffer`` Buffer frames when merging frames (default=8)
+        * ``json_path`` Path where output json file is saved (default=sysfile.json)
+        * ``confidence_threshold`` Minimum confidence threshold used by RC3D to  accept an activity detection (default=0.05)
+
+    .. Repo links:
+
+    .. _td_cnn_end2end.yml: https://gitlab.kitware.com/kwiver/R-C3D/blob/master/experiments/virat/td_cnn_end2end.yml
+    .. _experiment.yml: https://gitlab.kitware.com/kwiver/R-C3D/tree/master/experiments/virat/experiment.yml
     """
     def __init__(self, conf):
+        """
+        Constructor for RC3D json writer
+        :param conf: configuration parameters for RC3D json writer
+        :return None
+        """
         KwiverProcess.__init__(self, conf)
         # Experiment configuration
         self.add_config_trait("experiment_file_name", "experiment_file_name", \
@@ -62,6 +87,9 @@ class Rc3dJsonWriter(KwiverProcess):
         self.declare_input_port_using_trait('file_name', required )
 
     def _configure(self):
+        """
+        Configure RC3D Json Writer
+        """
         # look for 'experiment_file_name' key in the config
         expcfg_from_file(self.config_value('experiment_file_name'))
         if os.path.exists(self.config_value("json_path")):
@@ -81,6 +109,9 @@ class Rc3dJsonWriter(KwiverProcess):
 
 
     def _step(self):
+        """
+        Step function for RC3D Json Writer
+        """
         # Read detected object set and timestamp
         detected_object_set = self.grab_input_using_trait('detected_object_set')
         ts = self.grab_input_using_trait('timestamp')
@@ -142,15 +173,18 @@ class Rc3dJsonWriter(KwiverProcess):
             
         
 def __sprokit_register__():
+    """
+    Sprokit registration for the process
+    """
     from sprokit.pipeline import process_factory
 
-    module_name = 'python:kwiver.Rc3dJsonWriterProcess'
+    module_name = 'python:kwiver.RC3DJsonWriter'
 
     if process_factory.is_process_module_loaded(module_name):
         return
 
-    process_factory.add_process('Rc3dJsonWriterProcess', 
-                                'Write detected object set to NIST specificationfor rc3d', 
-                                Rc3dJsonWriter)
+    process_factory.add_process('RC3DJsonWriter', 
+                'Write detected_object_set from rc3d to NIST specified JSON format', 
+                RC3DJsonWriter)
 
     process_factory.mark_process_module_as_loaded(module_name)

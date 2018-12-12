@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 """
-Kwiver process to visualize activities on an image 
+Kwiver process to render ``detected_object_set`` from RC3D on the input image and
+show temporal history of detections using swimlanes
 
 @author: Ameya Shringi
 """
@@ -23,11 +24,45 @@ import cv2
 import numpy as np
 import copy
 
-class VisualizeProcess(KwiverProcess):
+class RC3DVisualizer(KwiverProcess):
     """
-    This process takes the detected object sets and show them on the image
+    Render ``detected_object_set`` from RC3D on image and show temporal history 
+    of detections using swimlanes
+
+    * Input Ports:
+        * ``detected_object_set`` Detected object set obtained from RC3D (Required)
+        * ``timestamp`` timestamp associated with the input from which the detected object set was obtained from (Required)
+        * ``image`` RGB image obtained from input source (Required)
+
+    * Output Ports:
+        * ``image`` RGB image with activity detections and swimlane
+
+    * Configuration:
+        * ``experiment_file_name`` Experiment configuration used by RC3D (Eg. `experiment.yml`_)
+        * ``stride`` Temporal stride for RC3D (default=8)
+        * Legend Configuration Parameters: Configuration parameters associated iwith legend
+            * ``legend_text_height`` Height of the legend text (default=10)
+            * ``legend_text_width`` Width of the legend text (default=40)
+            * ``legend_text_buffer`` Space between legend text (default=4)
+            * ``legend_font_scale`` Scale of the font used in legend (default=0.8)
+        * Swimlane Configuration Parameters: Configuration parameters associated with swimlane
+            * ``swimlane_text_height`` Height of the swimlane text (default=15)
+            * ``swimlane_text_width`` Width of the swimlane text (default=40)
+            * ``swimlane_text_buffer`` Space between the text in swimlane (default=2)
+            * ``swimlane_text_font_scale`` Scale of the fonts used in swimlane (default=0.5) 
+        * ``image_width`` Width of rendering area (default=1920)
+        * ``image_height`` Height of the rendering area (default=1080)
+        * ``confidence_threshold`` Lower bound on confidence to render an activiy (default=0.2)
+
+    .. Repo links:
+    .. _experiment.yml: https://gitlab.kitware.com/kwiver/R-C3D/tree/master/experiments/virat/experiment.yml
     """
     def __init__(self, conf):
+        """
+        Constructor for RC3D visualizer
+        :param conf: Process configuration
+        :return: None
+        """
         KwiverProcess.__init__(self, conf)
         self.add_config_trait("experiment_file_name", "experiment_file_name",
                             '.', 'experiment configuration for RC3D')
@@ -92,6 +127,13 @@ class VisualizeProcess(KwiverProcess):
 	self.lock = threading.Lock()
 
     def _find_largest_class_width(self, classes, font_scale):
+        """
+        Helper function to determine upper bound of text width associated with the 
+        classes based on the font scale
+        :param classes: Dictionary with class names as values
+        :param font scale: font scale used by opencv
+        :return Upperbound of text width for rendering all classes
+        """
         text_size, _ = cv2.getTextSize(classes[0], self.font, font_scale, 1)
         largest_width = text_size[0]
         for value_index, value in enumerate(self.classes.values()):
@@ -101,6 +143,9 @@ class VisualizeProcess(KwiverProcess):
         return largest_width
 
     def _configure(self):
+        """
+        Configure RC3D visualizer
+        """
         expcfg_from_file(self.config_value('experiment_file_name'))
         if experiment_config.json:
             self.classes = generate_classes_from_json(experiment_config.class_index)
@@ -147,6 +192,14 @@ class VisualizeProcess(KwiverProcess):
 
 
     def _create_legend(self, legend_width, legend_height, legend_buffer, classes):
+        """
+        Helper function to render legend on an image with all the class names
+        :param legend_width: Width of the legend
+        :param legend_height: Height of the legend
+        :param legend_buffer: Space between text of the legend
+        :param classes: Dictionary with class names as values
+        :return An image with all class names rendered vertically
+        """
         #TODO take text buffer into account
         text_height = (legend_height - legend_buffer)/len(self.classes)
         legend_img = np.ones((legend_height, legend_width, 3), dtype=np.uint8) * 255
@@ -167,6 +220,16 @@ class VisualizeProcess(KwiverProcess):
         
     def _create_swimlane(self, swimlane_width, swimlane_height, swimlane_buffer, 
                             classes, num_swimlane_cells):
+        """
+        Helper function to render swimlane with every class being represented as 
+        a single row
+        :param swimlane_width: Width of the swimlane
+        :param swimlane_height: Height of the swimlane
+        :param swimlane_buffer: Space between text of the swimlane
+        :param classes: Dictionary with class names as values
+        :param num_swimlane_cells: Number of cells in the swimlane 
+        :return An image with swimlane
+        """
         #TODO take text buffer into account
         text_height = (swimlane_height - swimlane_buffer)/len(self.classes)
         text_scale  = float(self.config_value("swimlane_text_font_scale"))
@@ -208,6 +271,9 @@ class VisualizeProcess(KwiverProcess):
         return swimlane_img        
 
     def _step(self):
+        """
+        Step function for the visualizer
+        """
         # Read detected object set, image and timestamp
         detected_object_set = self.grab_input_using_trait('detected_object_set')
         ts = self.grab_input_using_trait('timestamp')
@@ -283,15 +349,18 @@ class VisualizeProcess(KwiverProcess):
         
         
 def __sprokit_register__():
+    """
+    Sprokit registration for the process
+    """
     from sprokit.pipeline import process_factory
 
-    module_name = 'python:kwiver.VisualizeProcess'
+    module_name = 'python:kwiver.RC3DVisualizer'
 
     if process_factory.is_process_module_loaded(module_name):
         return
 
-    process_factory.add_process('VisualizeProcess', 
-                                'Visualize activities', 
-                                VisualizeProcess)
+    process_factory.add_process('RC3DVisualizer', 
+                                'Visualize detected_object_set from RC3D', 
+                                RC3DVisualizer)
 
     process_factory.mark_process_module_as_loaded(module_name)

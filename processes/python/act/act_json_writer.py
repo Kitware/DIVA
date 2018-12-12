@@ -1,6 +1,8 @@
 # -*- coding: utf-8 -*-
 """
-Kwiver process to write AD and AOD detections from ACT
+Kwiver process to write ``object_track_set`` from ACT and ``detected_object_set``
+from an object detector in NIST specified JSON 
+format
 
 @author: Ameya Shringi
 """
@@ -22,15 +24,45 @@ import json
 
 class ACTJsonWriter(KwiverProcess):
     """
-    This process takes the detected object sets and show them on the image
+    Write ``object_track_set`` from ACT and ``detected_object_set`` from an object 
+    detector in NIST specified JSON format
+
+    * Input Ports:
+        * ``object_track_set`` Tracks obtained from ACT (Required)
+        * ``timestamp`` Timestamp associated with the input from which tracks were obtained (Required)
+        * ``file_name`` Name of the input source (Required)
+        * ``detected_object_set`` Detections obtained from object detector
+    * Output Ports:
+        * None
+
+    * Configuration:
+        * ``exp`` Experiment configuration for ACT (Eg. `exp.yml`_)
+        * ``is_aod`` Flag to specify the task for which ACT is used (Default=False)
+        * ``confidence_threshold`` Lower bound for confidence associated with an activity (Default=0.2)
+        * ``json_path`` Path to json file produced by the writer (default=sysfile.json)
+    
+    .. Repo Links
+
+    .. _exp.yml: https://gitlab.kitware.com/kwiver/act_detector/blob/act-detector/virat-act-detector-scripts/rgb_actev.yml
+
     """
     def _parse_bool(self, bool_str):
+        """
+        Helper function parse boolean string
+        :param bool_str: boolean string that must be parsed
+        :return boolean associated with the string
+        """
         if bool_str == "True":
             return True
         else:
             return False
 
     def __init__(self, conf):
+        """
+        Constructor for ACT json writer
+        :param conf: Configuration for ACT json writer
+        :return None
+        """
         KwiverProcess.__init__(self, conf)
         self.add_config_trait("exp", "exp", "experiment.yml", 
                                     "experiment configuration")
@@ -57,6 +89,9 @@ class ACTJsonWriter(KwiverProcess):
         self.all_files = []
 
     def _configure(self):
+        """
+        Configure ACT json writer process
+        """
         expcfg_from_file(self.config_value("exp"))
         if os.path.exists(self.config_value("json_path")):
             os.remove(self.config_value("json_path"))
@@ -77,12 +112,28 @@ class ACTJsonWriter(KwiverProcess):
 
 
     def _tubescore(self, tube):
+        """
+        Helper function to compute average scores of a track
+        :param tube: track in form of an ndarray
+        :return average of scores
+        """
         return np.mean(tube)
 
     def _video_name_from_path(self, video_path):
+        """
+        Helper function to get video name form the path
+        :param video_path: absolute path to the video
+        :return name of the video
+        """
         return os.path.split(video_path)[-1] + ".mp4"    
 
     def _iou(self, activity_detection, object_detection):
+        """
+        Helper function to compute iou between an activity track and an object detection
+        :activity detection: instance of activity track
+        :object detection: instance of object detection
+        :return iou between two detections
+        """
         min_x = max(activity_detection.min_x(), 
                     object_detection.min_x())
         min_y = max(activity_detection.min_y(),
@@ -106,6 +157,13 @@ class ACTJsonWriter(KwiverProcess):
             return iou
 
     def _compute_participating_objects(self, track, video_name):
+        """
+        Helper function to find out all the object detections associated with an
+        activity track and create NIST specifi annotation for those object detections
+        :param track: Instance of activity detection
+        :param video_name: Input source
+        :return List of object annotations
+        """
         object_annotations = []
         object_id = 1
         for track_state in track:
@@ -143,7 +201,14 @@ class ACTJsonWriter(KwiverProcess):
 
     def _create_annotation_from_track(self, track, activity_id, video_name, 
                                         is_aod=False):
-
+        """
+        Helper function to create activity annotation from track
+        :param track: An instance of the activity track
+        :param activity_id: Current value of the unique id used in activity annotation
+        :param video_name: Input source
+        :param is_aod: Flag to specify is the annotation is for activity detection or activity object detection (default=False)
+        :return (activity annoation, new value of activity id )
+        """
         start_frame = track.first_frame + 1
         end_frame = track.last_frame + 1
         num_frames = len(track)
@@ -193,6 +258,9 @@ class ACTJsonWriter(KwiverProcess):
 
 
     def _step(self):
+        """
+        Step function for ACT Json Writer
+        """
         object_track_set = self.grab_input_using_trait('object_track_set')
         timestamp = self.grab_input_using_trait('timestamp')
         file_name = self.grab_input_using_trait('file_name')
@@ -224,6 +292,9 @@ class ACTJsonWriter(KwiverProcess):
         
         
 def __sprokit_register__():
+    """
+    Sprokit registration for the process
+    """
     from sprokit.pipeline import process_factory
 
     module_name = 'python:kwiver.ACTJsonWriter'
