@@ -1,7 +1,7 @@
 #ifndef CLASSIFIER_PROCESS_H
 #define CLASSIFIER_PROCESS_H
 #include <sprokit/pipeline/process.h>
-#include <processes/optical_flow/diva_classifier_process_export.h>
+#include <processes/diva_classifier_process_export.h>
 #include <vital/vital_types.h>
 
 namespace diva {
