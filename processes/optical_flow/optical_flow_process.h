@@ -40,6 +40,20 @@
 namespace diva {
 
 // ----------------------------------------------------------------
+/** Online GPU based Optical Flow using Opencv's Brox Optical Flow using successive images.
+ *
+ * * Input Ports
+ *  * ``image`` Image obtained input source (Required)
+ *  * ``timestamp`` Frame number associated with the image (Required)
+ * 
+ * * Output Ports
+ *  * ``image`` RGB representation of the optical flow image (Required)
+ *
+ * * Configuration
+ *  * ``output_image_width`` Width of the output image
+ *  * ``output_image_height`` Height of the output image 
+ *
+ */
 class DIVA_OPTICAL_FLOW_NO_EXPORT optical_flow_process
   : public sprokit::process
 {
