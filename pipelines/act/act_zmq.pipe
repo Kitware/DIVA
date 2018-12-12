@@ -24,19 +24,19 @@ connect from dser.timg/image to opt_flow.image
 connect from dser.timg/timestamp to opt_flow.timestamp
 
 # --------------------------------------------------
-process act_process :: ACTProcess
+process act_detector :: ACTDetector
   exp = $CONFIG{input:exp_file}
   
-connect from opt_flow.image to act_process.flow_image
-connect from dser.timg/image to act_process.rgb_image
-connect from dser.timg/timestamp to act_process.timestamp
-connect from dser.timg/file_name to act_process.file_name
+connect from opt_flow.image to act_detector.flow_image
+connect from dser.timg/image to act_detector.rgb_image
+connect from dser.timg/timestamp to act_detector.timestamp
+connect from dser.timg/file_name to act_detector.file_name
 
 # -------------------------------------------------------------------
 process merge_tubes :: MergeTubes
   exp = $CONFIG{input:exp_file}
   
-connect from act_process.object_track_set to merge_tubes.object_track_set
+connect from act_detector.object_track_set to merge_tubes.object_track_set
 connect from dser.timg/timestamp to merge_tubes.timestamp
 connect from dser.timg/file_name to merge_tubes.file_name
 
@@ -52,7 +52,7 @@ connect from dser.timg/timestamp to json_writer.timestamp
 connect from dser.timg/file_name to json_writer.file_name
 
 # -------------------------------------------------------------------
-process visualize :: ACTVisualize
+process visualize :: ACTVisualizer
    exp = $CONFIG{input:exp_file}
   
 connect from merge_tubes.current_object_track_set to visualize.object_track_set

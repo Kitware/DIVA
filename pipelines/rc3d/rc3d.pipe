@@ -17,7 +17,7 @@ process exp :: diva_experiment
 
 # ------------------------------------------------------------------
 # RC3D instance
-process rc3d :: RC3DProcess
+process rc3d :: RC3DDetector
   stride = 8
   experiment_file_name = $CONFIG{rc3d:exp_file}
   model_cfg = $CONFIG{rc3d:model_cfg}
@@ -29,7 +29,7 @@ connect from exp.file_name to rc3d.file_name
 
 # -----------------------------------------------------------------
 # JSON Writer
-process json_writer :: Rc3dJsonWriterProcess
+process json_writer :: RC3DJsonWriter
   experiment_file_name = $CONFIG{rc3d:exp_file}
   model_cfg = $CONFIG{rc3d:model_cfg}
 
