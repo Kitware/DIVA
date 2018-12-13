@@ -1,0 +1,52 @@
+strict digraph "unnamed" {
+clusterrank=local;
+
+subgraph "cluster_exp" {
+color=white;style=filled;fillcolor=white;
+
+"exp_main" [label="exp\n:: diva_experiment",shape=ellipse,rank=same];
+
+
+"exp_output_file_name" [label="file_name\n:: kwiver:file_name",shape=invhouse,rank=same,fontsize=10];
+"exp_main" -> "exp_output_file_name" [arrowhead=none,color=black];
+"exp_output_image" [label="image\n:: kwiver:image",shape=invhouse,rank=same,fontsize=10];
+"exp_main" -> "exp_output_image" [arrowhead=none,color=black];
+"exp_output_timestamp" [label="timestamp\n:: kwiver:timestamp",shape=invhouse,rank=same,fontsize=10];
+"exp_main" -> "exp_output_timestamp" [arrowhead=none,color=black];
+
+}
+
+subgraph "cluster_protobuf_ser" {
+color=white;style=filled;fillcolor=white;
+
+"protobuf_ser_main" [label="protobuf_ser\n:: serializer",shape=ellipse,rank=same];
+
+"protobuf_ser_input_timg/file_name" [label="timg/file_name\n:: _flow_dependent/",shape=house,rank=same,fontsize=10];
+"protobuf_ser_input_timg/file_name" -> "protobuf_ser_main" [arrowhead=none,color=black];
+"protobuf_ser_input_timg/image" [label="timg/image\n:: _flow_dependent/",shape=house,rank=same,fontsize=10];
+"protobuf_ser_input_timg/image" -> "protobuf_ser_main" [arrowhead=none,color=black];
+"protobuf_ser_input_timg/timestamp" [label="timg/timestamp\n:: _flow_dependent/",shape=house,rank=same,fontsize=10];
+"protobuf_ser_input_timg/timestamp" -> "protobuf_ser_main" [arrowhead=none,color=black];
+
+"protobuf_ser_output_timg" [label="timg\n:: kwiver:serialized_message",shape=invhouse,rank=same,fontsize=10];
+"protobuf_ser_main" -> "protobuf_ser_output_timg" [arrowhead=none,color=black];
+
+}
+
+subgraph "cluster_zmq_timg" {
+color=white;style=filled;fillcolor=white;
+
+"zmq_timg_main" [label="zmq_timg\n:: zmq_transport_send",shape=ellipse,rank=same];
+
+"zmq_timg_input_serialized_message" [label="serialized_message\n:: kwiver:serialized_message",shape=house,rank=same,fontsize=10];
+"zmq_timg_input_serialized_message" -> "zmq_timg_main" [arrowhead=none,color=black];
+
+
+}
+
+"exp_output_file_name" -> "protobuf_ser_input_timg/file_name" [minlen=1,color=black,weight=1];
+"exp_output_image" -> "protobuf_ser_input_timg/image" [minlen=1,color=black,weight=1];
+"exp_output_timestamp" -> "protobuf_ser_input_timg/timestamp" [minlen=1,color=black,weight=1];
+"protobuf_ser_output_timg" -> "zmq_timg_input_serialized_message" [minlen=1,color=black,weight=1];
+
+}
