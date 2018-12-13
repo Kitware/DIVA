@@ -20,7 +20,29 @@ Pipelines can be written as plaintext file or can be embedded in Python or C++ p
 To execute the plaintext file, `pipeline_runner`_ is provided by Kwiver. Furthermore,
 plaintext file can be translated into their Python/C++ counterpart using `bake` 
 utility provided by Kwiver. The `semantics`_ and `design`_ guidelines for pipelines is
-provided by Kwiver. Kindly refer to those before creating new pipelines.
+provided by Kwiver. 
+
+.. content-tabs::
+
+    .. tab-container:: tab1
+            :title: Plaintext
+            
+            .. literalinclude:: pipelines/darknet.pipe
+                :linenos:
+
+    .. tab-container:: tab2
+            :title: Python
+            
+            .. literalinclude:: pipelines/darknet.py
+                :linenos:
+                :language: python
+
+    .. tab-container:: tab3
+            :title: C++
+
+            .. literalinclude:: pipelines/darknet.cpp
+                :linenos:
+                :language: c++
 
 Although, Sprokit implicitly supports multi-threaded pipelines, the pipelines are
 restricted to a single machine. The framework relies on `ZeroMQ` for providing distributed 
@@ -28,6 +50,20 @@ pipelines. These pipelines use ``zeromq_transport_send`` and
 ``zeromq_transport_receive`` processes to communicate over the network. Currently,
 ZeroMQ based pipelines support publisher-subscriber pattern with multiple publishers 
 and subscribers. 
+
+.. content-tabs::
+
+    .. tab-container:: tab1
+            :title: ZeroMQ Sender
+            
+            .. literalinclude:: pipelines/image_sender.pipe
+                :linenos:
+
+    .. tab-container:: tab2
+            :title: ZeroMQ Receiver
+            
+            .. literalinclude:: pipelines/darknet_zmq.pipe
+                :linenos:
 
 Every algorithm present in DIVA has a dedicated local and ZeroMQ pipeline to replicate
 the offline behavior of the algorithm in an online enviornment on a single system or
