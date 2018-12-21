@@ -18,7 +18,7 @@ execution for the pipeline. This includes
 
 Pipelines can be written as plaintext file or can be embedded in Python or C++ program.
 To execute the plaintext file, `pipeline_runner`_ is provided by Kwiver. Furthermore,
-plaintext file can be translated into their Python/C++ counterpart using `bake` 
+plaintext file can be translated into their Python/C++ counterpart using ``bake`` 
 utility provided by Kwiver. The `semantics`_ and `design`_ guidelines for pipelines is
 provided by Kwiver. 
 

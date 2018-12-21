@@ -17,6 +17,57 @@ are represented as `plugable modules`_ in a configurable `pipeline`_ to natually
 support online stream of input while abstracting away the input complexity that 
 stems from multiple streams. 
 
+How to Integrate An Activity Detector?
+######################################
+
+- To create a pluggable modules that DIVA can detect/use during deployement, the
+  framework relies on ``process`` interface. This ensures consistency in the data flow when
+  different ``process`` interact with each other. An algorithm can be expressed 
+  as a process or a set of processes based on developer's requirement. Currently, 
+  DIVA supports Python and C++ processes that are created by inherting 
+  ``KwiverProcess`` and  ``sprokit::process`` respectively. Overriding the interface
+  would be divided into three components: 
+  
+    1. Defining Ports: The data flow amongst processes is managed using 
+       ``ports``. The input ``ports`` indicate input for the algorithm. Similarly,
+       the output ``ports`` indicate the output of the algorithm. 
+       Eg, ``RC3DDetector`` declares ``image``, ``timestamp`` and ``file_name`` as 
+       input ports and ``detected_object_set`` as 
+       output port. These ``ports`` use  `Vital types <complex data types_>`_ to send 
+       across complex data structures that were designed for vision based applications. 
+       Additionally, if these types do not cover an algorithms input/output requirement,
+       Vital types can be extensible. Refer to the tutorial on `Extending Vital Types`_   
+       for additional information.
+
+    2. Adding Configuration Parameters: `Configuration parameter <config_>`_ are 
+       used to specify algorithm parameters. These parameters are declared by a 
+       process and can be specified when the process is added to a pipeline or 
+       during runtime. Alongwith the traditional use of ``key: value`` based 
+       mechanism to provide parameters to algorithms, DIVA provides ``AbstractAlgorithm`` 
+       that makes the algorithm implementation a configuration parameter. 
+       Pipelines assembled using abstract algorithms are configurable based on 
+       implementation selected during runtime. Refer to the tutorial on 
+       :doc:`Tight Integration </tutorials>` and `Extending Kwiver`_ for details.
+    
+    3. Overriding ``_configure`` and ``_step`` functions: ``_configure`` is used
+       for one time configuration during instantiation. ``_step`` is input/output
+       dependent functionality of the process and is primarily used to express the
+       core functionality of the algorithm.  
+  For example and details about syntax, refer to :doc:`Processes </processes>` section.
+
+- The data flow amongst the modules is defined using a `pipeline`_. The pipeline
+  declares the process present in the detector, provides configuration parameters
+  for every process and connects the ports for the process. The framework supports
+  expressing pipelines using plaintext file or programatically in Python and C++.
+  The data flow is used as input to `Sprokit`_ which provides the benefits of the 
+  framework listed below. Refer to :doc:`Pipelines </pipelines>` for more additional
+  infomation.   
+
+- To execute a plaintext pipeline file, the DIVA uses ``pipeline_runner``. 
+  pipeline_runner support ``--set`` flag to modify any configuration at runtime. Eg. ::
+    pipeline_runner -p test.pipe --set test_process:configuration_name=test
+  The usage information for pipeline_runner is documented in detail `here <pipeline_runner>`_.    
+
 
 Features
 ########
@@ -86,7 +137,12 @@ What's Next
 .. _BSD license: https://github.com/Kitware/DIVA/blob/master/LICENSE.txt
 .. _arrows: https://github.com/Kitware/kwiver/tree/master/arrows
 .. _algorithms: https://github.com/Kitware/kwiver/tree/master/vital/algo
-.. _complex data types: https://github.com/Kitware/kwiver/tree/master/vital
+.. _complex data types: https://github.com/Kitware/kwiver/blob/master/doc/manuals/vital/architecture.rst
 .. _ACT: https://thoth.inrialpes.fr/src/ACTdetector/
 .. _Faster RCNN: https://github.com/rbgirshick/py-faster-rcnn
 .. _ZeroMQ: http://zeromq.org/
+.. _Extending Vital Types: https://github.com/Kitware/kwiver/tree/master/doc/manuals/vital
+.. _config: https://github.com/Kitware/kwiver/blob/master/doc/manuals/vital/configuration.rst
+.. _Extending Kwiver: https://github.com/Kitware/kwiver/blob/master/doc/manuals/extentions.rst 
+.. _Sprokit: https://github.com/Kitware/kwiver/blob/master/doc/manuals/sprokit/getting-started.rst
+.. _pipeline_runner: https://github.com/Kitware/kwiver/blob/master/doc/manuals/tools/pipeline_runner.rst
