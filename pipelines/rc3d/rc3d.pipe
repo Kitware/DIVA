@@ -8,8 +8,8 @@ config input
 
 # RC3D experiment configuration
 config rc3d
- exp_file = /home/local/KHQ/ameya.shringi/ipc/R-C3D/experiments/virat/experiment.yml
- model_cfg = /home/local/KHQ/ameya.shringi/ipc/R-C3D/experiments/virat/td_cnn_end2end.yml
+ exp_file = /diva/R-C3D/experiments/virat/experiment-docker.yml
+ model_cfg = /diva/R-C3D/experiments/virat/td_cnn_end2end.yml
 
 # ------------------------------------------------------------------
 process exp :: diva_experiment
