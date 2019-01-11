@@ -122,6 +122,10 @@ class RC3DProcess(KwiverProcess):
 
         # Get numpy array from the image container
         image = in_img_c.image().asarray()
+
+        # Swap channels
+        image = image[..., ::-1]
+
         det_set = DetectedObjectSet()
         # Strided execution (temporal stride of 8)
         if ts.get_frame()%int(self.config_value('stride')) == 0:
