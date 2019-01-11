@@ -71,11 +71,9 @@ class Rc3dJsonWriter(KwiverProcess):
         cfg_from_file(self.config_value('model_cfg'))
         self.activity_id = 0
         if experiment_config.json:
-            self.classes = generate_classes_from_json(os.path.join(experiment_config.data_root,
-                                     experiment_config.class_index))
+            self.classes = generate_classes_from_json(experiment_config.class_index)
         else:
-            self.classes = generate_classes(os.path.join(experiment_config.data_root,
-                                     experiment_config.class_index))
+            self.classes = generate_classes(experiment_config.class_index)
         self.current_activity_frames = [-1]*len(self.classes)
         self.start_frames = [0]*len(self.classes)
         video_processed = []

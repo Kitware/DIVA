@@ -77,13 +77,9 @@ class RC3DProcess(KwiverProcess):
         cfg_from_file(self.config_value('model_cfg'))
         # merge experiment configuration and network configuration
         if experiment_config.json:
-            self.classes = generate_classes_from_json(os.path.join(
-                                            experiment_config.data_root,
-                                            experiment_config.class_index))
+            self.classes = generate_classes_from_json(experiment_config.class_index)
         else:
-            self.classes = generate_classes(os.path.join(
-                                        experiment_config.data_root,
-                                        experiment_config.class_index))
+            self.classes = generate_classes(experiment_config.class_index)
         window_length = cfg.TRAIN.LENGTH[0]
         self.gpu_id = int(self.config_value('gpu'))
         cfg.GPU_ID = self.gpu_id
