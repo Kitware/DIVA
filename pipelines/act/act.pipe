@@ -8,7 +8,7 @@ config input
 
 # Algorithm configuration
 config act 
-  exp_file = /home/local/KHQ/ameya.shringi/ipc/act_detector/virat-act-detector-scripts/rgb_eval_1b.yml
+  exp_file = /diva/act_detector/virat-act-detector-scripts/rgb_docker.yml
 
 # -----------------------------------------------------------------
 process exp :: diva_experiment

@@ -8,8 +8,7 @@ config input
   
 # Algorithm configuration
 config algo 
- exp_file = /home/local/KHQ/ameya.shringi/ipc/act-detector/virat-act-detector-scripts/rgb_eval_1b.yml
- darknet_root = /home/local/KHQ/ameya.shringi/ipc/darknet
+ exp_file = /diva/act-detector/virat-act-detector-scripts/rgb_docker.yml
 
 # -----------------------------------------------------------------
 process exp :: diva_experiment
@@ -47,9 +46,9 @@ process yolo_v2
   :detector:type    darknet
 
   # Network config, weights, and names
-  :detector:darknet:net_config   $CONFIG{algo:darknet_root}/models/virat_auto.inference.cfg
-  :detector:darknet:weight_file  $CONFIG{algo:darknet_root}/models/virat_auto_final.weights
-  :detector:darknet:class_names  $CONFIG{algo:darknet_root}/models/virat.names
+  :detector:darknet:net_config   /diva/darknet/virat_auto.inference.cfg
+  :detector:darknet:weight_file  /diva/darknet/virat_auto_final.weights
+  :detector:darknet:class_names  /diva/darknet/models/virat.names
 
   # Detector parameters
   :detector:darknet:thresh       0.50

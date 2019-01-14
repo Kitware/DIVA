@@ -33,7 +33,7 @@ class ACTProcess(KwiverProcess):
                             '.', 'experiment configuration for ACT')
         self.declare_config_using_trait('exp')
         self.add_config_trait("model_itr", "model_itr",
-                            "60000", "Iteration for the trained model") 
+                            "150000", "Iteration for the trained model") 
         self.declare_config_using_trait("model_itr")
         self.add_config_trait('img_width', 'img_width',
                             '1920', 'width of the original image')
