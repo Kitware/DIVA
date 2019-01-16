@@ -74,9 +74,9 @@ class ACTVisualize(KwiverProcess):
 
     def _configure(self):
         expcfg_from_file(self.config_value("exp"))
-        self.virat_dataset = ViratDataset(experiment_config.data.data_root, 
-                                    experiment_config.data.frames_root, 
-                                    experiment_config.data.flow_root,
+        self.virat_dataset = ViratDataset(
+                                    experiment_config.data.frame_roots, 
+                                    experiment_config.data.flow_roots,
                                     experiment_config.data.train_annotation_dirs,
                                     experiment_config.data.test_annotation_dirs,
                                     experiment_config.data.class_index, 
