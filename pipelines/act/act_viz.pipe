@@ -1,0 +1,70 @@
+#
+# Pipe file for ACT
+#
+
+# Image configuration
+config input
+  exp_file = /experiment/experiment.yml
+
+# Algorithm configuration
+config act 
+  exp_file = /diva/act_detector/virat-act-detector-scripts/rgb_docker.yml
+
+# -----------------------------------------------------------------
+process exp :: diva_experiment
+  experiment_file_name = $CONFIG{input:exp_file}
+
+# ------------------------------------------------------------------
+process opt_flow :: optical_flow
+  output_image_width=300
+  ouptut_image_height=300
+
+connect from exp.image to opt_flow.image
+connect from exp.timestamp to opt_flow.timestamp
+
+# ------------------------------------------------------------------
+process act_process :: ACTProcess
+  exp = $CONFIG{act:exp_file}
+  
+connect from exp.file_name to act_process.file_name
+connect from exp.image to act_process.rgb_image
+connect from opt_flow.image to act_process.flow_image
+connect from exp.timestamp to act_process.timestamp
+
+# -------------------------------------------------------------------
+process merge_tubes :: MergeTubes
+  exp = $CONFIG{act:exp_file}
+  
+connect from exp.file_name to merge_tubes.file_name
+connect from act_process.object_track_set to merge_tubes.object_track_set
+connect from exp.timestamp to merge_tubes.timestamp
+
+# -------------------------------------------------------------------
+process json_writer :: ACTJsonWriter
+  exp = $CONFIG{act:exp_file}
+ 
+connect from exp.file_name to json_writer.file_name
+connect from merge_tubes.object_track_set to json_writer.object_track_set
+connect from exp.timestamp to json_writer.timestamp
+
+# -------------------------------------------------------------------
+process visualize :: ACTVisualize
+   exp = $CONFIG{act:exp_file}
+  
+connect from merge_tubes.current_object_track_set to visualize.object_track_set
+connect from exp.image to visualize.image
+connect from exp.timestamp to visualize.timestamp
+
+process vis_writer :: image_writer
+    file_name_template = /data/output/vis%04d.jpg
+    image_writer:type = ocv
+
+connect from visualize.image to vis_writer.image
+
+# ------------------------------------------------------------------
+# use python scheduler
+config _scheduler
+  type = pythread_per_process
+
+config _pipeline:_edge
+  capacity = 1     # set default edge capacity
