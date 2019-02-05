@@ -4,7 +4,7 @@
 
 # Image configuration
 config input
-  exp_file = etc/video_experiment.yml
+  exp_file = /experiment/experiment.yml
 
 # Algorithm configuration
 config act 
@@ -46,6 +46,20 @@ process json_writer :: ACTJsonWriter
 connect from exp.file_name to json_writer.file_name
 connect from merge_tubes.object_track_set to json_writer.object_track_set
 connect from exp.timestamp to json_writer.timestamp
+
+# -------------------------------------------------------------------
+process visualize :: ACTVisualize
+   exp = $CONFIG{act:exp_file}
+  
+connect from merge_tubes.current_object_track_set to visualize.object_track_set
+connect from exp.image to visualize.image
+connect from exp.timestamp to visualize.timestamp
+
+process vis_writer :: image_writer
+    file_name_template = /data/output/vis%04d.jpg
+    image_writer:type = ocv
+
+connect from visualize.image to vis_writer.image
 
 # ------------------------------------------------------------------
 # use python scheduler

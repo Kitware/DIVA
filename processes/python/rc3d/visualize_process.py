@@ -103,13 +103,9 @@ class VisualizeProcess(KwiverProcess):
     def _configure(self):
         expcfg_from_file(self.config_value('experiment_file_name'))
         if experiment_config.json:
-            self.classes = generate_classes_from_json(os.path.join(
-                                        experiment_config.data_root,
-                                        experiment_config.class_index))
+            self.classes = generate_classes_from_json(experiment_config.class_index)
         else:
-            self.classes = generate_classes(os.path.join(
-                                        experiment_config.data_root,
-                                        experiment_config.class_index))
+            self.classes = generate_classes(experiment_config.class_index)
         
         self.font = cv2.FONT_HERSHEY_SIMPLEX
 

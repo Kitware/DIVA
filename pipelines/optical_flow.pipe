@@ -1,0 +1,16 @@
+# --------------------------------------------------------------------
+process exp :: diva_experiment
+  experiment_file_name = experiment.yml
+
+# ---------------------------------------------------------------------
+process flow :: optical_flow
+ 
+connect from exp.image to flow.image
+connect from exp.timestamp to flow.timestamp
+
+# ----------------------------------------------------------------------
+process writer :: image_writer
+  image_writer:type = ocv 
+  file_name_template = test%05d.png
+   
+connect from flow.image to writer.image

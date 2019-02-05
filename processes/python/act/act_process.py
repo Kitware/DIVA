@@ -33,7 +33,7 @@ class ACTProcess(KwiverProcess):
                             '.', 'experiment configuration for ACT')
         self.declare_config_using_trait('exp')
         self.add_config_trait("model_itr", "model_itr",
-                            "60000", "Iteration for the trained model") 
+                            "150000", "Iteration for the trained model") 
         self.declare_config_using_trait("model_itr")
         self.add_config_trait('img_width', 'img_width',
                             '1920', 'width of the original image')
@@ -154,12 +154,12 @@ class ACTProcess(KwiverProcess):
 
         # Update flow buffer
         if inp_ts.get_frame()  <= experiment_config.test.number_flow:
-            self.flow_buffer[inp_ts.get_frame()-1] = inp_flow_img.image().asarray()
+            self.flow_buffer[inp_ts.get_frame()-1] = inp_flow_img.image().asarray()[...,::-1]
         else:
             self.flow_buffer[:experiment_config.test.number_flow-1] = \
                     self.flow_buffer[1:experiment_config.test.number_flow]
             self.flow_buffer[experiment_config.test.number_flow-1] = \
-                    inp_flow_img.image().asarray()
+                    inp_flow_img.image().asarray()[...,::-1]
 
 
         rgb_image = cv2.resize(inp_rgb_img.image().asarray().astype(np.uint8), 

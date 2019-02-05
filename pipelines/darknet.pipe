@@ -1,0 +1,31 @@
+# -----------------------------------------------------------------
+process exp :: diva_experiment
+  experiment_file_name = experiment.yml
+
+process yolo_v2
+  :: image_object_detector
+  :detector:type    darknet
+
+  # Network config, weights, and names
+  :detector:darknet:net_config   models/virat_auto.inference.cfg
+  :detector:darknet:weight_file  models/virat_auto_final.weights
+  :detector:darknet:class_names  models/virat.names
+
+  # Detector parameters
+  :detector:darknet:thresh       0.50
+  :detector:darknet:hier_thresh  0.5
+  :detector:darknet:gpu_index    1
+
+  # Image scaling parameters
+  #:detector:darknet:resize_option maintain_ar
+  :detector:darknet:resize_ni     1024
+  :detector:darknet:resize_nj     1024
+
+connect from exp.image to yolo_v2.image
+
+# ----------------------------------------------------------------------
+process sink :: detected_object_output
+  :writer:type  csv
+  :file_name    test.csv
+   
+connect from yolo_v2.detected_object_set to sink.detected_object_set

@@ -4,11 +4,11 @@
 
 # Image configuration
 config input
-  exp_file = etc/rc3d_experiment.yml
+  exp_file = /experiment/experiment.yml
   
 # Algorithm configuration
-config algo 
- exp_file = /diva/act-detector/virat-act-detector-scripts/rgb_docker.yml
+config act 
+  exp_file = /diva/act_detector/virat-act-detector-scripts/rgb_docker.yml
 
 # -----------------------------------------------------------------
 process exp :: diva_experiment
@@ -24,7 +24,7 @@ connect from exp.timestamp to opt_flow.timestamp
 
 # ------------------------------------------------------------------
 process act_process :: ACTProcess
-  exp = $CONFIG{algo:exp_file}
+  exp = $CONFIG{act:exp_file}
 
 connect from exp.file_name to act_process.file_name
 connect from exp.image to act_process.rgb_image
@@ -33,7 +33,7 @@ connect from exp.timestamp to act_process.timestamp
 
 # -------------------------------------------------------------------
 process merge_tubes :: MergeTubes
-  exp = $CONFIG{algo:exp_file}
+  exp = $CONFIG{act:exp_file}
   
 connect from exp.file_name to merge_tubes.file_name
 connect from act_process.object_track_set to merge_tubes.object_track_set
@@ -71,7 +71,7 @@ connect from yolo_v2.detected_object_set to expand_bbox.detected_object_set
 
 # -------------------------------------------------------------------
 process json_writer :: ACTJsonWriter
-  exp = $CONFIG{algo:exp_file}
+  exp = $CONFIG{act:exp_file}
   is_aod = True 
   confidence_threshold = 0.1
   json_path = sysfile_vis.json
@@ -80,6 +80,28 @@ connect from exp.file_name to json_writer.file_name
 connect from merge_tubes.object_track_set to json_writer.object_track_set
 connect from exp.timestamp to json_writer.timestamp
 connect from expand_bbox.detected_object_set to json_writer.detected_object_set
+
+# -------------------------------------------------------------------
+process visualize :: ACTVisualize
+   exp = $CONFIG{act:exp_file}
+   is_aod = True
+  
+connect from merge_tubes.current_object_track_set to visualize.object_track_set
+connect from exp.image to visualize.image
+connect from exp.timestamp to visualize.timestamp
+connect from expand_bbox.detected_object_set to visualize.detected_object_set
+
+process vis_writer :: image_writer
+    file_name_template = /experiment/aod/vis%04d.jpg
+    image_writer:type = ocv
+
+connect from visualize.image to vis_writer.image
+
+process flow_writer :: image_writer
+    file_name_template = /experiment/aod/flow%04d.jpg
+    image_writer:type = ocv
+
+connect from opt_flow.image to flow_writer.image
 
 # ------------------------------------------------------------------
 # use python scheduler
