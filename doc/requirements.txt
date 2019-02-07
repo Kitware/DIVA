@@ -1,0 +1,6 @@
+sphinx
+sphinx_rtd_theme
+breathe
+livereload
+sphinxcontrib-bibtex
+sphinxcontrib-contentui
