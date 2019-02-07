@@ -1,22 +1,19 @@
 #
-# Pipe file to run RC3D
+# Pipe file to test RC3D locally
 #
+
+# Image configuration
+config input 
+ exp_file = etc/rc3d_experiment.yml 
 
 # RC3D experiment configuration
 config rc3d
- exp_file = /diva/R-C3D/experiments/virat/experiment.yml
+ exp_file = /diva/R-C3D/experiments/virat/experiment-docker.yml
  model_cfg = /diva/R-C3D/experiments/virat/td_cnn_end2end.yml
 
-
-process zmq :: zmq_transport_receive
-  port = 5560
-  num_publishers = 1
-
-# --------------------------------------------------
-process dser :: deserializer
-        serialization_type = protobuf 
-
-connect from zmq.serialized_message to dser.timg
+# ------------------------------------------------------------------
+process exp :: diva_experiment
+  experiment_file_name = $CONFIG{input:exp_file}
 
 # ------------------------------------------------------------------
 # RC3D instance
@@ -26,18 +23,19 @@ process rc3d :: RC3DDetector
   model_cfg = $CONFIG{rc3d:model_cfg}
   gpu = 3
   
-connect from dser.timg/image     to rc3d.image
-connect from dser.timg/timestamp to rc3d.timestamp
-connect from dser.timg/file_name to rc3d.file_name
+connect from exp.image     to rc3d.image
+connect from exp.timestamp to rc3d.timestamp
+connect from exp.file_name to rc3d.file_name
 
-# ------------------------------------------------------------------
+# -----------------------------------------------------------------
+# JSON Writer
 process json_writer :: RC3DJsonWriter
   experiment_file_name = $CONFIG{rc3d:exp_file}
   model_cfg = $CONFIG{rc3d:model_cfg}
 
 connect from rc3d.detected_object_set to json_writer.detected_object_set
-connect from dser.timg/timestamp to json_writer.timestamp
-connect from dser.timg/file_name to json_writer.file_name
+connect from exp.timestamp to json_writer.timestamp
+connect from exp.file_name to json_writer.file_name
 
 # ------------------------------------------------------------------
 # Visualizer
@@ -50,15 +48,15 @@ process visualize :: RC3DVisualizer
   confidence_threshold = 0.05
 
 connect from rc3d.detected_object_set to visualize.detected_object_set
-connect from dser.timg/timestamp           to visualize.timestamp
-connect from dser.timg/image               to visualize.image
+connect from exp.timestamp           to visualize.timestamp
+connect from exp.image               to visualize.image
 
 # ------------------------------------------------------------------
-process activity_visualizer::image_viewer
-  pause_time = 0.01
-  title = activity
-connect from visualize.image to activity_visualizer.image
+process vis_writer :: image_writer
+    file_name_template = /data/output/vis%04d.jpg
+    image_writer:type = ocv
 
+connect from visualize.image to vis_writer.image
 # ------------------------------------------------------------------
 # use python scheduler
 config _scheduler
