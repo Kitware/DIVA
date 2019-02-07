@@ -14,7 +14,7 @@
 import sys
 import os
 import shlex
-
+import subprocess
 # If extensions (or modules to document with autodoc) are in another directory,
 # add these directories to sys.path here. If the directory is relative to the
 # documentation root, use os.path.abspath to make it absolute, like shown here.
@@ -42,14 +42,19 @@ extensions = [
     'breathe',
 ]
 
+# Mock imports
+autodoc_mock_imports = ["sprokit", "kwiver", "vital", "diva_python_utils", "DIVA",
+    "_init_paths", "tdcnn", "log_to_nist", "roidb_generation", "caffe", 
+    "exp_config", "ACT_utils", "virat_dataset"]
+
 # Breathe support - need to make directory name more flexible
-breathe_projects = { "diva": "./_build/xml" }
+breathe_projects = { "diva": "./diva/xml" }
 breathe_default_project = "diva"
 
-import subprocess, os
-read_the_docs_build = os.environ.get('READTHEDOCS', None) == 'True'
-if read_the_docs_build:
-    subprocess.call('cd ../doxygen; doxygen', shell=True)
+if not os.path.exists(os.path.join(os.getcwd(), 'diva', 'xml')):
+    os.makedirs( os.path.join(os.getcwd(), 'diva', 'xml'))
+
+subprocess.call('cd ../../; doxygen doc/manuals/doxy_template/rtd_min.cfg', shell=True)
 
 # Add any paths that contain templates here, relative to this directory.
 templates_path = ['_templates']
