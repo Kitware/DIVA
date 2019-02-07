@@ -20,11 +20,10 @@ Steps to execute RC3D using sprokit in an online fashion
    ```shell
     export PYTHONPATH=RC3D_ROOT/experiments/virat:$PYTHONPATH
    ```
-3. Modify the exp\_file config for rc3d in test\_rc3d.pipe to `RC3D_ROOT/experiments/virat/experiment.yml`
 
 # Execution    
     cd DIVA_ROOT
-    pipeline_runner -p pipelines/test_rc3d.pipe
+    pipeline_runner -p pipelines/rc3d/rc3d.pipe
     
     
 

@@ -5,15 +5,16 @@ API
 
 **Email diva-te@kitware.com to provide comments and/or feedback**
 
-DIVA provides an Application Programming Interface (API) that provides the following functionality :
+DIVA provides an Application Programming Interface (API) with the following functionality :
 
 * Read and Write an experiment file
-* Read and Write scorable results files
-* Receive image frames from the input source specified for an experiment
+* Accessors for kpf annotations associated with the data
+* Iterator iterface for image frames from ``image_list``, ``video`` and ``rtsp``
+  stream as specified in the experiment file.
 
-The provided API library is intended to be linked into a performer C++ executable, or imported into performer Python scripts.
+The api is written in C++ with Python bindings to support development in either
+languages.  
 
-The following functionality is provided in the API to assist performers read and write data files for execution and scoring: 
 
 Experiment Configuration
 ------------------------

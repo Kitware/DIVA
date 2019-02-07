@@ -1,0 +1,34 @@
+#
+# Pipe file for input
+#
+
+# Image configuration
+config input 
+ exp_file = etc/video_experiment.yml 
+
+
+# ------------------------------------------------------------------
+process exp :: diva_experiment
+  experiment_file_name = $CONFIG{input:exp_file}
+
+  
+# ------------------------------------------------------------------
+process protobuf_ser :: serializer
+  serialization_type = protobuf 
+
+connect from exp.timestamp to protobuf_ser.timg/timestamp
+connect from exp.image     to protobuf_ser.timg/image
+connect from exp.file_name to protobuf_ser.timg/file_name
+
+process zmq_timg :: zmq_transport_send
+  port = 5560
+  expected_subscribers=1
+
+connect from protobuf_ser.timg to zmq_timg.serialized_message
+
+
+config _scheduler
+  type = pythread_per_process
+
+config _pipeline:_edge
+  capacity = 1     # set default edge capacity

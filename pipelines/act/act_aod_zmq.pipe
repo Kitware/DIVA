@@ -2,8 +2,8 @@
 # Streaming ACT
 #
 config algo 
- exp_file = /home/loca/KHQ/ameya.shringi/ipc/act_detector/virat-act-detector-scripts/rgb_eval_1b.yml
- darknet_root = /home/local/KHQ/ameya.shringi/ipc/darknet
+ exp_file = /diva/act_detector/virat-act-detector-scripts/rgb_docker.yml
+ darknet_root = /diva/darknet
 
 process zmq :: zmq_transport_receive
   port = 5560
@@ -24,19 +24,19 @@ connect from dser.timg/image to opt_flow.image
 connect from dser.timg/timestamp to opt_flow.timestamp
 
 # --------------------------------------------------
-process act_process :: ACTProcess
+process act_detector :: ACTDetector
   exp = $CONFIG{algo:exp_file}
 
-connect from opt_flow.image to act_process.flow_image
-connect from dser.timg/image to act_process.rgb_image
-connect from dser.timg/timestamp to act_process.timestamp
-connect from dser.timg/file_name to act_process.file_name
+connect from opt_flow.image to act_detector.flow_image
+connect from dser.timg/image to act_detector.rgb_image
+connect from dser.timg/timestamp to act_detector.timestamp
+connect from dser.timg/file_name to act_detector.file_name
 
 # -------------------------------------------------------------------
 process merge_tubes :: MergeTubes
   exp = $CONFIG{algo:exp_file}
   
-connect from act_process.object_track_set to merge_tubes.object_track_set
+connect from act_detector.object_track_set to merge_tubes.object_track_set
 connect from dser.timg/timestamp to merge_tubes.timestamp
 connect from dser.timg/file_name to merge_tubes.file_name
 
@@ -46,8 +46,8 @@ process yolo_v2
   :detector:type    darknet
 
   # Network config, weights, and names
-  :detector:darknet:net_config   $CONFIG{algo:darknet_root}/models/virat_auto.inference.cfg
-  :detector:darknet:weight_file  $CONFIG{algo:darknet_root}/models/virat_auto_final.weights
+  :detector:darknet:net_config   $CONFIG{algo:darknet_root}/virat_auto.inference.cfg
+  :detector:darknet:weight_file  $CONFIG{algo:darknet_root}/virat_auto_final.weights
   :detector:darknet:class_names  $CONFIG{algo:darknet_root}/models/virat.names
 
   # Detector parameters
@@ -81,7 +81,7 @@ connect from dser.timg/timestamp to json_writer.timestamp
 connect from expand_bbox.detected_object_set to json_writer.detected_object_set
 
 # -------------------------------------------------------------------
-process visualize :: ACTVisualize
+process visualize :: ACTVisualizer
    exp = $CONFIG{algo:exp_file}
    is_aod = True
   

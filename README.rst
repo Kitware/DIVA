@@ -1,44 +1,68 @@
 .. image:: doc/DIVA_Final_Logo_72dpi.png
    :alt: DIVA
-   
-Deep Intermodal Video Analytics
-===============================
 
-The DIVA program intends to develop robust automated activity detection for a multi-camera streaming video environment. 
-As an essential aspect of DIVA, activities will be enriched by person and object detection, 
-as well as recognition at multiple levels of granularity.
-DIVA provides a common framework and software prototype for activity detection, 
-person/object detection and recognition across a multi-camera network. 
-This framework supports the development of tools for forensic analysis, 
-as well as real-time alerting for userdefined threat scenarios.
+Deep Intermodal Video Analytics (DIVA) Framework
+================================================
 
-For more information on how DIVA achieves this goal,
-and how to use DIVA visit our `documentation site <http://kwiver-diva.readthedocs.io/en/latest/>`_
+The DIVA Framework is a software framework designed to provide an architecutre and a set of software modules
+which will facilitate the development of DIVA analytics.
+From the `DIVA Website <https://www.iarpa.gov/index.php/research-programs/diva>`_:
 
-Directory Structure and Provided Functionality
-==============================================
+  	The DIVA program seeks to develop robust automatic activity detection for a
+	multi-camera streaming video environment. Activities will be enriched by person
+	and object detection. DIVA will address activity detection for both forensic
+	applications and for real-time alerting.
 
-================ ===========================================================
-`<CMake>`_       CMake helper scripts
-`<doc>`_         Documentation, manuals, release notes
-`<driver>`_      The algorithm plugin modules
-`<utils>`_       The DIVA API 
-================ ===========================================================
+The DIVA Framework is based on `KWIVER <http://www.kwiver.org>`_ and open source framework designed for
+building complex computer vision systems.  Some of the features of the framework are:
+
+- A video processing pipeline architecture designed to support multi-threaded and distributed processing system designs.
+- A rich and growing collection of computer vision processing modules
+- A dynamic designed which supports a wide range of third party libraries and frameworks including OpenCV,
+  deep learning frameworks such as Caffe and Darknet as well as many other libraries helpful for developing
+  complete computer vision systems.  See KWIVER's third party management repository
+  `Fletch <https://github.com/Kitware/fletch>`_ for more details.
+
+.. image:: doc/framework_block.png
+   :alt: DIVA Framework Block Diagram
+
+Developers use the framework by implementing new algrothim implementations, processes or core
+datatypes.    These become plugins to the the framework and can then be combined with other framework modules to build out fully elaborated DIVA analytics systems.
+
+For more information visit the framework's `documentation site <http://kwiver-diva.readthedocs.io/en/latest/>`_
+
+DIVA Baseline Implementations
+-----------------------------
+
+As part of the DIVA effort, Kitware has implemented several current state of the art algorithms that address the DIVA problem using the DIVA framework:
+
+The R-C3D baseline implmentation can be found at:
+
+   `https://gitlab.kitware.com/kwiver/R-C3D/tree/kitware/master <https://gitlab.kitware.com/kwiver/R-C3D/tree/kitware/master>`_
+
+And the ACtion Tubelet Detector can be found at:
+
+   `https://gitlab.kitware.com/kwiver/act_detector/tree/kitware/master <https://gitlab.kitware.com/kwiver/act_detector/tree/kitware/master>`_
+
+.. Note::
+   To see Kitware's DIVA Framework based implementation of these baseline algorithms, be sure to checkout the ``kitware/master`` branch in these repositories.
+
+Both of the baseline algorithms implemenations come with `Docker <https://www.docker.com>`_ `Dockerfiles`.  See the ``docker`` directory in the R-C3D baseline and
+the ``act-docker`` director in the ACT baseline.  These dockerfiles should be built and run with the `nvidia-docker <https://github.com/NVIDIA/nvidia-docker>`_
+flavor of Docker.
 
 Building DIVA
 ===============
 
 Dependencies
 ------------
-DIVA requires, at a minimum, Git, CMake, a C++ compiler, and a Python 2.7 compiler.
+DIVA requires, at a minimum, `Git <https://git-scm.com/>`_, `CMake <https://cmake.org/>`_, a C++ compiler, and a `Python 2.7 environment <https://python.org>`_.
 
-DIVA is built on top of the `KWIVER <https://github.com/Kitware/kwiver>`_ toolkit.
-which is in turn built on the `Fletch <https://github.com/Kitware/fletch>`_ super build system.
-To make it easier to build DIVA, a "super-build" is provided to build both KWIVER and Fletch.
-It will pull both projects, configure them for DIVA, and build them for you.
-If you wish, you may point the DIVA build to use your own builds of KWIVER or Fletch for DIVA to use.
+The DIVA Framework repository is structured as a CMake "super-build" which fetches, configures
+and builds both KWIVER and Fletch along with the DIVA Framework specific code.  While most of the framework's dependencies are carried by Fletch, there may be some preparation of your development
+system required before you can successfully build the framework.
 
-On Linux systems, Install the following packages before building
+On Ubuntu systems, for example you'll want to make sure the following packages are installed on your system:
 
 .. code-block :: bash
 
@@ -52,11 +76,6 @@ On Linux systems, Install the following packages before building
 
 Running CMake
 -------------
-
-You may run cmake directly from a shell or cmd window.
-On unix systems, the ccmake tool allows for interactive selection of CMake options.  
-Available for all platforms, the CMake GUI can set the source and build directories, options,
-"Configure" and "Generate" the build files all with the click of a few button.
 
 We recommend building DIVA out of its source directory to prevent mixing
 source files with compiled products.  Create a build directory in parallel
@@ -72,91 +91,42 @@ Basic CMake generation via command line
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 The following example will pull and build Fletch and KWIVER along with the DIVA code base.
-It assumes your terminal/command is working in the ``\DIVA\build\release`` directory.
+It assumes that you are ``\DIVA\build\release`` directory.  What follows are the commands
+to configure and build the DIVA framework in several common configurations:
 
-.. code-block :: bash
 
-    # cmake usage : $ cmake </path/to/diva/source> -D<flags>
-    $ cmake ../../src -DCMAKE_BUILD_TYPE=Release 
-    # All binary and libraries will be built into the \DIVA\build\release\install directory
-    # You can change the install directory like this
-    $ cmake ../../src -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=/opt/kitware/DIVA
-    # Note you will need to create the kitware directory in /opt/ and give yourself permissions
-    #
-    # If you would like to build with CUDA
+To build a "release" version of DIVA::
+
+    $ cmake ../../src -DCMAKE_BUILD_TYPE=Release
+    $ make -j 4
+
+.. Note::
+   The `-j 4` argument starts a build process with 4 threads.  You'll want to choose a value consistent with the number of cores you have,
+   typically one or two more if you have a dedicated machine
+
+To build with CUDA enabled::
+
     $ cmake ../../src -DCMAKE_BUILD_TYPE=Release -DDIVA_BUILD_WITH_CUDA=ON
-    # You can also build with CUDNN (which requires you also build with CUDA)
+    $ make -j 4
+
+To build with CUDNN enabled::
+
     $ cmake ../../src -DCMAKE_BUILD_TYPE=Release -DDIVA_BUILD_WITH_CUDA=ON -DDIVA_BUILD_WITH_CUDNN=ON
-    # Note you will need to have CUDA and CUDNN installed
-    # If it is not in the expected location you will need to specify the flags
-    # CUDA_TOOLKIT_ROOT_DIR and CUDNN_TOOLKIT_ROOT_DIR
+    $ make -j 4
 
-Using a prebuilt Fletch
-~~~~~~~~~~~~~~~~~~~~~~~
+.. Note::
+   If your CUDA and or CUDNN installations are not in the default location, you may need to specifiy their
+   location with the CUDA_TOOLKIT_ROOT_DIR and CUDNN_TOOLKIT_ROOT_DIR variables
 
-If you would like to point DIVA to a prebuilt version of Fletch, specify the fletch_DIR flag to cmake.
-The fletch_DIR is the fletch build directory root, which contains the fletchConfig.cmake file.
+Next Steps
+==========
 
-.. code-block :: bash
-
-    $ cmake ../../src -DCMAKE_BUILD_TYPE=Release -Dfletch_DIR:PATH=<path/to/fletch/build/dir> 
-
-You must ensure that the specified build of Fletch has enabled all the appropriate flags for use by KWIVER and DIVA.
-The required flags can be found in this file : `<CMake/add_project_fletch.cmake>`_ 
-
-Using a prebuilt KWIVER
-~~~~~~~~~~~~~~~~~~~~~~~
-
-If you would like to point DIVA to a prebuilt version of KWIVER, specify the kwiver_DIR flag to cmake.
-The kwiver_DIR is the KWIVER build directory root, which contains the kwiver-config.cmake file. 
-*NOTE* As KWIVER requires a Fletch directory, the build will ignore the fletch_DIR variable and use the Fletch that was used to build KWIVER. ::
-
-    $ cmake ../../src -DCMAKE_BUILD_TYPE=Release -Dkwiver_DIR:PATH=<path/to/kwiver/build/dir> 
-
-You must ensure that the specified build of KWIVER was build with a fletch that was built with all necessary options.
-KWIVER must have also been built with all the appropriate flags for use by DIVA.
-The required flags can be found in this file : `<CMake/add_project_kwiver.cmake>`_ 
-
-Compiling
----------
-
-Once your CMake generation has completed and created the build files,
-compile in the standard way for your build environment.  On Linux
-this is typically running ``make``. Visual Studio users, open and build the <path/to/DIVA/build/dir>/DIVA.sln
-
-Running DIVA
-============
-
-Once you've built DIVA, you'll want to test that it's working on your system.
-DIVA will create an install directory inside the DIVA build location.
-From a command prompt change to this install directory and execute the following command::
-
-  # via a bash shell
-  </path/to/DIVA/build/install>$ source setup_DIVA.sh
-  #
-  # via a windows cmd prompt
-  </path/to/DIVA/build/install> setup_DIVA.bat
-
-Where ``</path/to/DIVA/build/install>`` is the install directory inside your DIVA CMake build directory.
-
-This will set up your PATH and other environment variables
-to allow DIVA to work conveniently within in the shell/cmd window.
-
-You can run this simple driver to ensure your system is configured properly::
-
-  # via a bash shell
-  </path/to/DIVA/build/install>$ ./bin/schema_examples
-  #
-  # on windows, you will need to also be in the proper folder
-  </path/to/DIVA/build/install> ./bin/diva_driver
-
-This will generate some KPF packet messages to the terminal/command window.
-
-Getting Help
-============
+For more details on building and using the DIVA framework, please see the
+`DIVA Framework Documentation <https://kwiver-diva.readthedocs.io/en/latest/introduction.html>`_
 
 For general build or code issues, please join the `kwiver-users
 <http://public.kitware.com/mailman/listinfo/kwiver-users>`_ mailing list. For discussions of the DIVA API, please contact diva-te <at> kitware.com to join the diva-API mailing list.
+
 For announcements about KWIVER in general, please join the
 `kwiver-announce <http://public.kitware.com/mailman/listinfo/kwiver-announce>`_
 mailing list.

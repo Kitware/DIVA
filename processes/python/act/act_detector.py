@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 """
-Kwiver process based on evaluating act
+Kwiver process that encapsulates forward pass of ACT
 
 @author Ameya Shringi
 """
@@ -21,13 +21,37 @@ import os
 import cv2
 import time
 
-class ACTProcess(KwiverProcess):
+class ACTDetector(KwiverProcess):
     """
-    This process gets an image as input, spatially and temporal localizes the activity 
-    and creates a detected object set out of it
-    """
+    Forward pass for ACT
 
+    * Input Ports:
+        * ``rgb_image`` RGB image (Required)
+        * ``flow_image`` Flow image (Required)
+        * ``timestamp`` Timestamp associated with the images (Required)
+        * ``file_name`` Name of the input source (Required)
+
+    * Output Ports:
+        * ``object_track_set`` Tracks produced by forward pass of RC3D
+
+    * Configuration:
+        * ``exp`` Experiment configuration used by ACT (Eg. `exp.yml`_)
+        * ``model_itr`` Model number associated with with the weight file (default=60000)
+        * ``img_width`` Original image width (default=1920)
+        * ``img_height`` Original image height (default=1080)
+        * ``gpu`` GPU index used by ACT (default=0)
+
+    .. Repo Links
+
+    .. _exp.yml: https://gitlab.kitware.com/kwiver/act_detector/blob/act-detector/virat-act-detector-scripts/rgb_actev.yml
+    """
+    # --------------------------------------
     def __init__(self, conf):
+        """
+        Constructor for ACT detector
+        :param conf: Configuration parameter for ACT detector.
+        :return None
+        """
         KwiverProcess.__init__(self, conf)
         self.add_config_trait("exp", "exp",
                             '.', 'experiment configuration for ACT')
@@ -66,6 +90,9 @@ class ACTProcess(KwiverProcess):
         self.frame_number = 0
 
     def _reset_image_buffers(self):
+        """
+        Helper function to reset internal buffer when video changes.
+        """
         self.rgb_video = np.zeros([experiment_config.data.num_frames,
                                             3, experiment_config.train.imgsize,
                                             experiment_config.train.imgsize]) 
@@ -80,6 +107,9 @@ class ACTProcess(KwiverProcess):
 
 
     def _configure(self):
+        """
+        Configure ACT detector
+        """
         caffe.set_mode_gpu()
         caffe.set_device(int(self.config_value("gpu")))
         model_dir = experiment_config.train.model_dir
@@ -117,6 +147,12 @@ class ACTProcess(KwiverProcess):
         self.flow_kwargs = {}
 
     def create_track_set(self, all_detections, last_frame_id):
+        """
+        Convert detections obtained from the algorithm to object track set
+        :param all_detection: list of detections obtained from ACT
+        :param last_frame_id: last frame on which ACT was run
+        :return ``object_track_set`` representing the tracks obtained from the Detector
+        """
         tracks = []
         for detections in all_detections:
             all_bounding_boxes = detections[:experiment_config.data.num_frames*4]
@@ -143,6 +179,9 @@ class ACTProcess(KwiverProcess):
         return ObjectTrackSet(tracks)
 
     def _step(self):
+        """
+        Step function for ACT detector
+        """
         inp_rgb_img = self.grab_input_using_trait("rgb_image")
         inp_ts = self.grab_input_using_trait("timestamp")
         inp_flow_img = self.grab_input_using_trait("flow_image")
@@ -226,14 +265,17 @@ class ACTProcess(KwiverProcess):
 
 # ==================================================================
 def __sprokit_register__():
+    """
+    Sprokit registration for the process
+    """
     from sprokit.pipeline import process_factory
 
-    module_name = 'python:kwiver.ACTProcess'
+    module_name = 'python:kwiver.ACTDetector'
 
     if process_factory.is_process_module_loaded(module_name):
         return
 
-    process_factory.add_process('ACTProcess', 'Apply ACT detector to image stream', ACTProcess)
+    process_factory.add_process('ACTDetector', 'Apply ACT detector to images', ACTDetector)
 
     process_factory.mark_process_module_as_loaded(module_name)
     

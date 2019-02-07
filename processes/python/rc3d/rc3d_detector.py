@@ -1,10 +1,8 @@
 # -*- coding: utf-8 -*-
 """
-Created on Mon May 28 13:41:56 2018
-
 @author: Ameya Shringi, Linus Sherrill
 
-Kwiver process based on Wrapper without roidb
+Kwiver process that encapsulates forward pass of RC3D 
 """
 
 # kwiver/sprokit imports
@@ -37,13 +35,37 @@ import diva_python_utils
 import time
 
 # Now for the process
-class RC3DProcess(KwiverProcess):
+class RC3DDetector(KwiverProcess):
     """
-    This process gets ain image as input, does some stuff to it and
-    sends the modified version to the output port.
+    Forward pass for RC3D 
+
+    * Input Ports:
+        * ``image`` RGB image (Required)
+        * ``timestamp`` Timestamp for the image (Required)
+        * ``file_name`` Name of the input source (Optional)
+
+    * Output Ports:
+        * ``detected_object_set`` Temporal detections obtained from forward pass
+
+    * Configuration:
+        * ``experiment_file_name`` Experiment configuration used by RC3D (Eg. `experiment.yml`_)
+        * ``model_cfg`` Model configuration used by RC3D (Eg. `td_cnn_end2end.yml`_)
+        * ``stride`` Temporal stride for RC3D (default=8)
+        * ``gpu`` Gpu index on which RC3D is executed (default=8)
+
+    .. Repo links:
+
+    .. _td_cnn_end2end.yml: https://gitlab.kitware.com/kwiver/R-C3D/blob/master/experiments/virat/td_cnn_end2end.yml
+    .. _experiment.yml: https://gitlab.kitware.com/kwiver/R-C3D/tree/master/experiments/virat/experiment.yml
+    
     """
     # ----------------------------------------------
     def __init__(self, conf):
+        """
+        RC3DDetector constructor
+        :param conf: Configuration file for the process
+        :return: None
+        """
         KwiverProcess.__init__(self, conf)
         self.add_config_trait("experiment_file_name", "experiment_file_name",
                             '.', 'experiment configuration for RC3D')
@@ -55,7 +77,7 @@ class RC3DProcess(KwiverProcess):
                             '8', 'Temporal Stride for RC3D')
         self.declare_config_using_trait('stride')
         
-        self.add_config_trait("gpu", "gpu", "0", "gpu for rc3d")
+        self.add_config_trait("gpu", "gpu", "0", "gpu for RC3D")
         self.declare_config_using_trait("gpu")
 
         # set up required flags
@@ -72,6 +94,11 @@ class RC3DProcess(KwiverProcess):
 
     # ---------------------------------------------
     def _configure(self):
+        """
+        Configure RC3D Detector
+        
+        :return: None
+        """
         # look for 'experiment_file_name' key in the config
         expcfg_from_file(self.config_value('experiment_file_name'))
         cfg_from_file(self.config_value('model_cfg'))
@@ -98,10 +125,23 @@ class RC3DProcess(KwiverProcess):
         self.previous_buffer = None
         
     def compute_absolute_frame(self, frame, buffer_start):
+        """
+        Compute frame number associated with an image based on relative frame
+        number associated with the current buffer and the starting point of the
+        buffer
+
+        :param frame: Relative frame number
+        :param buffer_start: Starting point of the buffer
+
+        :return: Absolute frame number
+        """
         return buffer_start + frame * int(self.config_value("stride"))
 
     # ----------------------------------------------
     def _step(self):
+        """
+        Step function for the process
+        """
         # grab image container from port using traits
         in_img_c = self.grab_input_using_trait('image')
         ts = self.grab_input_using_trait('timestamp')
@@ -164,13 +204,17 @@ class RC3DProcess(KwiverProcess):
 
 # ==================================================================
 def __sprokit_register__():
+    """
+    Sprokit registration for the process
+    """
     from sprokit.pipeline import process_factory
 
-    module_name = 'python:kwiver.RC3DProcess'
+    module_name = 'python:kwiver.RC3DDetector'
 
     if process_factory.is_process_module_loaded(module_name):
         return
 
-    process_factory.add_process('RC3DProcess', 'Apply R-C3D detector to image stream', RC3DProcess)
+    process_factory.add_process('RC3DDetector', 'Apply R-C3D detector to an image', 
+                                RC3DDetector)
 
     process_factory.mark_process_module_as_loaded(module_name)

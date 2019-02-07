@@ -39,19 +39,52 @@
 namespace diva {
 
 // ----------------------------------------------------------------
+/** Parse experiment file to provide input for other processes.
+ *
+ * * Input Ports
+ *  * None
+ * 
+ * * Output Ports
+ *  * ``image`` Image obtained from experiment source specified in the experiment file (Required)
+ *  * ``timestamp`` Frame number associated with the image (Required)
+ *  * ``file_name`` Input source (Required)
+ *
+ * * Configuration
+ *  * ``experiment_file_name`` DIVA experiment file 
+ *
+ */
 class DIVA_PROCESSES_NO_EXPORT diva_experiment_process
   : public sprokit::process
 {
 public:
+  /*
+   * Constructor for diva_experiment_process
+   * @param config Configuration for diva_experiment_process
+   */
   diva_experiment_process( kwiver::vital::config_block_sptr const& config );
+  /*
+   * Destructor for diva_experiment_process
+   */
   virtual ~diva_experiment_process();
 
 protected:
+  /*
+   * Configure diva_experiment_process
+   */
   virtual void _configure();
+  /*
+   * Step function for diva_experiment_process
+   */
   virtual void _step();
 
 private:
+  /*
+   * Helper function to make ports of the process
+   */
   void make_ports();
+  /*
+   * Helper function to make configuration of the process
+   */
   void make_config();
 
   class priv;

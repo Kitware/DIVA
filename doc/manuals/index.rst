@@ -9,13 +9,16 @@ Contents:
 
 .. toctree::
    :maxdepth: 6
-
+    
    introduction
-   data
-   architecture
-   tools
+   install
+   kpf
+   api
+   processes
+   pipelines
    tutorials
    developing
+   docker
 
 Indices and tables
 ==================

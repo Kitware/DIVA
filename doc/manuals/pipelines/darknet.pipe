@@ -1,13 +1,10 @@
 #
-# Pipe file to test RC3D locally
+# Pipe file to test darknet locally
 #
 
 # Image configuration
 config input 
   exp_file = etc/rc3d_experiment.yml 
-
-config object_detector
-  darknet_root = /home/ameya/ipc/darknet
 
 # ------------------------------------------------------------------
 process exp :: diva_experiment
@@ -17,9 +14,9 @@ process exp :: diva_experiment
 # Darknet instance
 process yolo_v2 :: image_object_detector
   :detector:type darknet
-  :detector:darknet:net_config  $CONFIG{object_detector:darknet_root}/models/virat_auto.inference.cfg
-  :detector:darknet:weight_file $CONFIG{object_detector:darknet_root}/models/virat_auto_final.weights
-  :detector:darknet:class_names  $CONFIG{object_detector:darknet_root}/models/virat.names
+  :detector:darknet:net_config  models/virat_auto.inference.cfg
+  :detector:darknet:weight_file models/virat_auto_final.weights
+  :detector:darknet:class_names models/virat.names
   :detector:darknet:thresh  0.5
   :detector:darknet:hier_thresh  0.5
   :detector:darknet:gpu_index  0

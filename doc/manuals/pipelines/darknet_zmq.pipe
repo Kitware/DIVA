@@ -1,0 +1,44 @@
+#
+# Pipe file for darkent 
+#
+
+process zmq :: zmq_transport_receive
+  port = 5560
+  num_publishers = 1
+
+# --------------------------------------------------
+process dser :: deserializer
+        serialization_type = protobuf 
+
+connect from zmq.serialized_message to dser.timg
+
+# ---------------------------------------------------
+# Darknet instance
+process yolo_v2 :: image_object_detector
+  :detector:type darknet
+  :detector:darknet:net_config  models/virat_auto.inference.cfg
+  :detector:darknet:weight_file models/virat_auto_final.weights
+  :detector:darknet:class_names models/virat.names
+  :detector:darknet:thresh  0.5
+  :detector:darknet:hier_thresh  0.5
+  :detector:darknet:gpu_index  0
+  :detector:darknet:resize_ni  1024
+  :detector:darknet:resize_ni  1024
+
+connect from  dser.timg.image to yolo_v2.image
+
+# ---------------------------------------------------
+# CSV writer 
+process sink :: detected_object_output
+  :writer:type  csv
+  file_name = test.csv
+
+connect from yolo_v2.detected_object_set to sink.detected_object_set
+
+# ------------------------------------------------------------------
+# use python scheduler
+config _scheduler
+  type = pythread_per_process
+
+config _pipeline:_edge
+  capacity = 1     # set default edge capacity

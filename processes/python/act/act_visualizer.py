@@ -22,6 +22,7 @@ import numpy as np
 import json
 from PIL import Image
 
+# Global colours for 19 activities
 ACTIVITY_COLORS = [
                     (51, 0, 0),
                     (153, 0, 0),
@@ -44,14 +45,48 @@ ACTIVITY_COLORS = [
                     (31, 96,119)
                 ]
 
-class ACTVisualize(KwiverProcess):
+class ACTVisualizer(KwiverProcess):
+    """
+    Render ``track_object_set`` from ACT and ``detected_object_set`` from object 
+    detector on an image
+    
+    .. note::
+        The tracks visualized are intermediate tracks and not the final track.
+
+    * Input Ports:
+        * ``image`` Input RGB image used by ACT (Required)
+        * ``timestamp`` Timestamp associated with the image (Required)
+        * ``object_track_set`` Tracks obtained from ACT (Required)
+        * ``detected_object_set`` Detections obtained from object detector (Optional)
+
+    * Output Ports:
+        * ``image`` Output image with bounding box representing spatial localization of an activity
+
+    * Configuration:
+        * ``exp`` Experiment configuration for ACT (Eg. `exp.yml`_)
+        * ``is_aod`` Flag to specify the task for which ACT is used (Default=False)
+        
+    .. Repo Links
+
+    .. _exp.yml: https://gitlab.kitware.com/kwiver/act_detector/blob/act-detector/virat-act-detector-scripts/rgb_actev.yml
+    """
     def _parse_bool(self, bool_str):
+        """
+        Helper function parse boolean string
+        :param bool_str: boolean string that must be parsed
+        :return boolean associated with the string
+        """
         if bool_str == "True":
             return True
         else:
             return False
 
     def __init__(self, conf):
+        """
+        Constructor for ACT visualizer
+        :param conf: Configuration for ACT visualizer
+        :return None
+        """
         KwiverProcess.__init__(self, conf)
         self.add_config_trait("exp", "exp", "experiment.yml", 
                                     "experiment configuration")
@@ -73,6 +108,9 @@ class ACTVisualize(KwiverProcess):
         self.object_track_set = ObjectTrackSet()
 
     def _configure(self):
+        """
+        Configure ACT process
+        """
         expcfg_from_file(self.config_value("exp"))
         self.virat_dataset = ViratDataset(
                                     experiment_config.data.frame_roots, 
@@ -86,6 +124,12 @@ class ACTVisualize(KwiverProcess):
                                     experiment_config.data.save_prefix)
 
     def _draw_trajectory(self, image, detection):
+        """
+        Helper function to draw small circle at center of detection on a image
+        :param image: Input image
+        :param detection: Input detection
+        :return Image with small circle computed using the detection
+        """
         x_coor = detection.bounding_box().max_x()
         y_coor = float(detection.bounding_box().min_y() + \
                         detection.bounding_box().max_y())/2
@@ -93,6 +137,13 @@ class ACTVisualize(KwiverProcess):
         return image
 
     def _draw_detection(self, image, detection, is_activity):
+        """
+        Helper function to draw activity and object detection on an image
+        :param image: Input image
+        :param detection: Instance of detection (Activity/object)
+        :param is_activity: flag to specify is the detection is from an activity
+        :return Image with bounding box rendered
+        """
         if is_activity:
             label_id = int(detection.type().get_most_likely_class())
             label = self.virat_dataset.labels.keys()[self.\
@@ -121,6 +172,12 @@ class ACTVisualize(KwiverProcess):
         return image
 
     def _draw_track(self, image, track):
+        """
+        Draw activity track on an image
+        :param image: Input image
+        :param track: Instance of track
+        :return Image with track rendered
+        """
         label_id = int(track[track.last_frame].detection.type().get_most_likely_class())
         if label_id == 0:
             return image
@@ -131,6 +188,9 @@ class ACTVisualize(KwiverProcess):
         return image
 
     def _step(self):
+        """
+        Step function for the visualizer
+        """
         object_track_set = self.grab_input_using_trait('object_track_set')
         timestamp = self.grab_input_using_trait('timestamp')
         image = self.grab_input_using_trait('image').image().asarray().astype(np.uint8)
@@ -164,15 +224,18 @@ class ACTVisualize(KwiverProcess):
         
         
 def __sprokit_register__():
+    """
+    Sprokit registration for the process
+    """
     from sprokit.pipeline import process_factory
 
-    module_name = 'python:kwiver.ACTVisualize'
+    module_name = 'python:kwiver.ACTVisualizer'
 
     if process_factory.is_process_module_loaded(module_name):
         return
 
-    process_factory.add_process('ACTVisualize', 
-                                'Visualize predictions from ACT and YOLO v2', 
-                                ACTVisualize)
+    process_factory.add_process('ACTVisualizer', 
+                                'Visualize predictions from ACT and Object detector', 
+                                ACTVisualizer)
 
     process_factory.mark_process_module_as_loaded(module_name)

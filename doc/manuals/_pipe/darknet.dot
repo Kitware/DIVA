@@ -1,0 +1,48 @@
+strict digraph "unnamed" {
+clusterrank=local;
+
+subgraph "cluster_exp" {
+color=white;style=filled;fillcolor=white;
+
+"exp_main" [label="exp\n:: diva_experiment",shape=ellipse,rank=same];
+
+
+"exp_output_file_name" [label="file_name\n:: kwiver:file_name",shape=invhouse,rank=same,fontsize=10];
+"exp_main" -> "exp_output_file_name" [arrowhead=none,color=black];
+"exp_output_image" [label="image\n:: kwiver:image",shape=invhouse,rank=same,fontsize=10];
+"exp_main" -> "exp_output_image" [arrowhead=none,color=black];
+"exp_output_timestamp" [label="timestamp\n:: kwiver:timestamp",shape=invhouse,rank=same,fontsize=10];
+"exp_main" -> "exp_output_timestamp" [arrowhead=none,color=black];
+
+}
+
+subgraph "cluster_sink" {
+color=white;style=filled;fillcolor=white;
+
+"sink_main" [label="sink\n:: detected_object_output",shape=ellipse,rank=same];
+
+"sink_input_detected_object_set" [label="detected_object_set\n:: kwiver:detected_object_set",shape=house,rank=same,fontsize=10];
+"sink_input_detected_object_set" -> "sink_main" [arrowhead=none,color=black];
+"sink_input_image_file_name" [label="image_file_name\n:: kwiver:file_name",shape=house,rank=same,fontsize=10];
+"sink_input_image_file_name" -> "sink_main" [arrowhead=none,color=black];
+
+
+}
+
+subgraph "cluster_yolo_v2" {
+color=white;style=filled;fillcolor=white;
+
+"yolo_v2_main" [label="yolo_v2\n:: image_object_detector",shape=ellipse,rank=same];
+
+"yolo_v2_input_image" [label="image\n:: kwiver:image",shape=house,rank=same,fontsize=10];
+"yolo_v2_input_image" -> "yolo_v2_main" [arrowhead=none,color=black];
+
+"yolo_v2_output_detected_object_set" [label="detected_object_set\n:: kwiver:detected_object_set",shape=invhouse,rank=same,fontsize=10];
+"yolo_v2_main" -> "yolo_v2_output_detected_object_set" [arrowhead=none,color=black];
+
+}
+
+"exp_output_image" -> "yolo_v2_input_image" [minlen=1,color=black,weight=1];
+"yolo_v2_output_detected_object_set" -> "sink_input_detected_object_set" [minlen=1,color=black,weight=1];
+
+}

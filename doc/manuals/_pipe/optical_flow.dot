@@ -1,0 +1,51 @@
+strict digraph "unnamed" {
+clusterrank=local;
+
+subgraph "cluster_exp" {
+color=white;style=filled;fillcolor=white;
+
+"exp_main" [label="exp\n:: diva_experiment",shape=ellipse,rank=same];
+
+
+"exp_output_file_name" [label="file_name\n:: kwiver:file_name",shape=invhouse,rank=same,fontsize=10];
+"exp_main" -> "exp_output_file_name" [arrowhead=none,color=black];
+"exp_output_image" [label="image\n:: kwiver:image",shape=invhouse,rank=same,fontsize=10];
+"exp_main" -> "exp_output_image" [arrowhead=none,color=black];
+"exp_output_timestamp" [label="timestamp\n:: kwiver:timestamp",shape=invhouse,rank=same,fontsize=10];
+"exp_main" -> "exp_output_timestamp" [arrowhead=none,color=black];
+
+}
+
+subgraph "cluster_flow" {
+color=white;style=filled;fillcolor=white;
+
+"flow_main" [label="flow\n:: optical_flow",shape=ellipse,rank=same];
+
+"flow_input_image" [label="image\n:: kwiver:image",shape=house,rank=same,fontsize=10];
+"flow_input_image" -> "flow_main" [arrowhead=none,color=black];
+"flow_input_timestamp" [label="timestamp\n:: kwiver:timestamp",shape=house,rank=same,fontsize=10];
+"flow_input_timestamp" -> "flow_main" [arrowhead=none,color=black];
+
+"flow_output_image" [label="image\n:: kwiver:image",shape=invhouse,rank=same,fontsize=10];
+"flow_main" -> "flow_output_image" [arrowhead=none,color=black];
+
+}
+
+subgraph "cluster_writer" {
+color=white;style=filled;fillcolor=white;
+
+"writer_main" [label="writer\n:: image_writer",shape=ellipse,rank=same];
+
+"writer_input_image" [label="image\n:: kwiver:image",shape=house,rank=same,fontsize=10];
+"writer_input_image" -> "writer_main" [arrowhead=none,color=black];
+"writer_input_timestamp" [label="timestamp\n:: kwiver:timestamp",shape=house,rank=same,fontsize=10];
+"writer_input_timestamp" -> "writer_main" [arrowhead=none,color=black];
+
+
+}
+
+"exp_output_image" -> "flow_input_image" [minlen=1,color=black,weight=1];
+"exp_output_timestamp" -> "flow_input_timestamp" [minlen=1,color=black,weight=1];
+"flow_output_image" -> "writer_input_image" [minlen=1,color=black,weight=1];
+
+}

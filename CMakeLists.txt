@@ -8,6 +8,7 @@ project(DIVA)
 
 # Options
 option(DIVA_SUPERBUILD  "Enable DIVA superbuild" ON)
+option(DIVA_ENABLE_DOCS "Build DIVA documentation using Doxygen and Sphinx" OFF)
 
 # Common paths include
 set(DIVA_CMAKE_DIR ${DIVA_SOURCE_DIR}/CMake)
@@ -36,6 +37,7 @@ if(DIVA_SUPERBUILD)
   return()
 endif()
 
+
 find_package(kwiver REQUIRED)
 set(KWIVER_ENABLE_PYTHON true)
 link_directories("${KWIVER_LIBRARY_DIRS}")
@@ -44,6 +46,14 @@ include(kwiver-utils)
 include(kwiver-flags)
 include(kwiver-configcheck)
 set(kwiver_python_output_path  "${CMAKE_BINARY_DIR}/${python_lib_subdir}")
+
+##
+# Documentation for DIVA
+if (DIVA_ENABLE_DOCS)   
+    kwiver_create_doxygen( diva "${CMAKE_CURRENT_LIST_DIR}" )
+    add_subdirectory( doc )    
+endif()
+
 
 find_package(fletch REQUIRED)
 
@@ -58,6 +68,7 @@ add_subdirectory(drivers)
 add_subdirectory(external)
 add_subdirectory(algo)
 add_subdirectory(processes)
+
 
 set(LIBRARY_PATH_VAR "LD_LIBRARY_PATH")
 if( APPLE )
