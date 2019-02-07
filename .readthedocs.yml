@@ -1,0 +1,10 @@
+version: 2
+python:
+  version: 3.7
+  install:
+    - method: pip
+    - requirements: docs/requirements.txt
+  system_packages: true
+sphinx:
+  configuration: docs/manuals/conf.py
+
