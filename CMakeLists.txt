@@ -8,7 +8,9 @@ project(DIVA)
 
 # Options
 option(DIVA_SUPERBUILD  "Enable DIVA superbuild" ON)
-option(DIVA_ENABLE_DOCS "Build DIVA documentation using Doxygen and Sphinx" OFF)
+# NOTE: Do Not Use DIVA_ENABLE_DOCUMENTATION as kwiver_create_doxygen creates a dependent
+#       variable by the same name.
+option(DIVA_BUILD_DOCUMENTATION "Build DIVA documentation using Doxygen and Sphinx" OFF)
 
 # Common paths include
 set(DIVA_CMAKE_DIR ${DIVA_SOURCE_DIR}/CMake)
@@ -49,7 +51,7 @@ set(kwiver_python_output_path  "${CMAKE_BINARY_DIR}/${python_lib_subdir}")
 
 ##
 # Documentation for DIVA
-if (DIVA_ENABLE_DOCS)   
+if(DIVA_BUILD_DOCUMENTATION)   
     kwiver_create_doxygen( diva "${CMAKE_CURRENT_LIST_DIR}" )
     add_subdirectory( doc )    
 endif()
