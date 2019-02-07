@@ -6,7 +6,8 @@
 5. [Contentui extension](https://sphinxcontrib-contentui.readthedocs.io/en/latest/installation.html)
 6. [livereload](https://pypi.org/project/livereload/)
 7. [breathe](https://pypi.org/project/breathe/)
-8. [virtualenv](https://pypi.org/project/virtualenv/) (Optional, Recommended)
+8. [doxygen](http://www.doxygen.nl/)
+9. [virtualenv](https://pypi.org/project/virtualenv/) (Optional, Recommended)
 
 # Installation
 ## Using virtual environment
@@ -31,27 +32,32 @@
 
 3. Install requisite packages in diva_env virtual environment
     ```
-    pip install sphinx sphinx_rtd_theme livereload breathe
+    pip install sphinx sphinx_rtd_theme livereload breathe sphinxcontrib-bibtex sphinxcontrib-contentui 
     ```
 ## Without virtual environment
 1. Install requisite packages 
     ```
-    pip install sphinx sphinx_rtd_theme livereload breathe
+    pip install sphinx sphinx_rtd_theme livereload breathe sphinxcontrib-bibtex sphinxcontrib-contentui 
     ``` 
     
 # Generating Documentation
-* Navigate to documentation root
-    ```
-    cd ${DIVA_ROOT}/doc/manuals
-    ```
-  where `${DIVA_ROOT}` refers to the root directory of the cloned repository.
+The following assume that you are in the `\DIVA\build\release` directory
 
-* Generate the files needed for the sphinx server
+1. To build the documentation for DIVA, Enable the `DIVA_BUILD_DOCUMENTATION` option
     ```
-    make html
+    $ cmake ../../src -DCMAKE_BUILD_TYPE=Release -DDIVA_BUILD_DOCUMENTATION=ON
+    $ make
     ```
+2. Since the processes in the framework use `Sprokit`, point to kwiver using
+    ```
+    $ source setup_kwiver.sh
+    ```
+3. Make the docuementation using
+    ```
+    $ make sphinx-diva
+    ```
+   The html version of the document would be `\DIVA\build\release\doc\sphinx\html`
+
     
-* Start a local copy of the sphinx server to serve the pages created by the previous command.
-    ```bash
-    python sphinx_server.py
-    ```
+   
+    
