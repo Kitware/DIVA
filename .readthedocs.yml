@@ -3,8 +3,9 @@ python:
   version: 3.7
   install:
     - method: pip
-    - requirements: docs/requirements.txt
+    - requirements: doc/requirements.txt
+    - path: .
   system_packages: true
 sphinx:
-  configuration: docs/manuals/conf.py
+  configuration: doc/manuals/conf.py
 
