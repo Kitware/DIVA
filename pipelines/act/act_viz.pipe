@@ -4,7 +4,7 @@
 
 # Image configuration
 config input
-  exp_file = /experiment/experiment.yml
+  exp_file = etc/video_experiment.yml
 
 # Algorithm configuration
 config act 
@@ -23,20 +23,20 @@ connect from exp.image to opt_flow.image
 connect from exp.timestamp to opt_flow.timestamp
 
 # ------------------------------------------------------------------
-process act_process :: ACTProcess
+process act_detector :: ACTDetector
   exp = $CONFIG{act:exp_file}
   
-connect from exp.file_name to act_process.file_name
-connect from exp.image to act_process.rgb_image
-connect from opt_flow.image to act_process.flow_image
-connect from exp.timestamp to act_process.timestamp
+connect from exp.file_name to act_detector.file_name
+connect from exp.image to act_detector.rgb_image
+connect from opt_flow.image to act_detector.flow_image
+connect from exp.timestamp to act_detector.timestamp
 
 # -------------------------------------------------------------------
 process merge_tubes :: MergeTubes
   exp = $CONFIG{act:exp_file}
   
 connect from exp.file_name to merge_tubes.file_name
-connect from act_process.object_track_set to merge_tubes.object_track_set
+connect from act_detector.object_track_set to merge_tubes.object_track_set
 connect from exp.timestamp to merge_tubes.timestamp
 
 # -------------------------------------------------------------------

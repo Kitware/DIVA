@@ -2,8 +2,7 @@
 # Streaming ACT
 #
 config input 
- exp_file = /home/local/KHQ/ameya.shringi/ipc/act_detector/virat-act-detector-scripts/rgb_eval_1b.yml
- darknet_root = /home/local/KHQ/ameya.shringi/ipc/darknet
+ exp_file = /diva/act_detector/virat-act-detector-scripts/rgb_docker.yml
 
 process zmq :: zmq_transport_receive
   port = 5560
