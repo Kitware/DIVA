@@ -2,9 +2,7 @@ version: 2
 python:
   version: 3.7
   install:
-    - method: pip
     - requirements: doc/requirements.txt
-    - path: .
   system_packages: true
 sphinx:
   configuration: doc/manuals/conf.py
