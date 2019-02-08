@@ -87,10 +87,6 @@ Activity Detection
 Temporal Localization
 """""""""""""""""""""
 
-**RC3D Pipeline**
-
-.. graphviz:: _pipe/rc3d/rc3d.dot
-
 **ACT Pipeline**
 
 .. graphviz:: _pipe/act/act.dot
@@ -114,9 +110,6 @@ Activity Detection
 
 Temporal Localization
 """""""""""""""""""""
-**RC3D Pipeline**
-
-.. graphviz:: _pipe/rc3d/rc3d_zmq.dot
 
 **ACT Pipeline**
 
