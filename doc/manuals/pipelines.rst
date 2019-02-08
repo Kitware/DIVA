@@ -81,53 +81,12 @@ Optical Flow
 ^^^^^^^^^^^^
 .. graphviz:: _pipe/optical_flow.dot
 
-Activity Detection
-^^^^^^^^^^^^^^^^^^
-
-Temporal Localization
-"""""""""""""""""""""
-
-**RC3D Pipeline**
-
-.. graphviz:: _pipe/rc3d/rc3d.dot
-
-**ACT Pipeline**
-
-.. graphviz:: _pipe/act/act.dot
-
-Spatial Temporal Localization
-"""""""""""""""""""""""""""""
-
-**ACT Pipeline**
-
-.. graphviz:: _pipe/act/act_aod.dot
-
 ZeroMQ Pipelines
 ----------------
 
 Image Sender
 ^^^^^^^^^^^^
 .. graphviz:: _pipe/image_sender.dot
-
-Activity Detection
-^^^^^^^^^^^^^^^^^^
-
-Temporal Localization
-"""""""""""""""""""""
-**RC3D Pipeline**
-
-.. graphviz:: _pipe/rc3d/rc3d_zmq.dot
-
-**ACT Pipeline**
-
-.. graphviz:: _pipe/act/act_zmq.dot
-
-Spatial Temporal Localization
-"""""""""""""""""""""""""""""
-
-**ACT Pipeline**
-
-.. graphviz:: _pipe/act/act_aod_zmq.dot
 
 .. Appendix 1: Links
 

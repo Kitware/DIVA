@@ -146,9 +146,6 @@ Temporal Localizers
 The activity detectors in this class detect the temporal bound of the activities
 in an unbounded video. 
 
-1. RC3D :cite:`Xu2017iccv`
-
-.. autoclass:: DIVA.processes.rc3d.rc3d_detector.RC3DDetector
 
 
 Spatial Temporal Localizers
@@ -157,9 +154,6 @@ The activity detectors in this class detect the spatial and temporal bound of th
 activities in an unbounded video. They can be paired with an object detector/tracker
 to detect/track the participating objects
 
-1. ACT :cite:`kalogeiton17iccv`
-
-.. autoclass:: DIVA.processes.act.act_detector.ACTDetector
 
 Utility Processes
 -----------------
@@ -168,21 +162,6 @@ Input
 .. doxygenclass:: diva::diva_experiment_process
     :project: diva
 
-RC3D
-^^^^
-.. autoclass:: DIVA.processes.rc3d.rc3d_json_writer.RC3DJsonWriter
-
-.. autoclass:: DIVA.processes.rc3d.rc3d_visualizer.RC3DVisualizer
-
-ACT
-^^^
-.. autoclass:: DIVA.processes.act.act_json_writer.ACTJsonWriter
-
-.. autoclass:: DIVA.processes.act.act_visualizer.ACTVisualizer
-
-.. autoclass:: DIVA.processes.act.modify_bbox_resolution.ModifyBboxResolution
-
-.. autoclass:: DIVA.processes.act.merge_tubes.MergeTubes
 
 Optical Flow
 ^^^^^^^^^^^^
@@ -195,13 +174,9 @@ Multi Object Trackers (Coming Soon!)
 .. Appendix 1: links
 
 .. _Kwiver Processes: https://github.com/Kitware/kwiver/tree/master/sprokit/processes
-.. _RC3D: https://github.com/Kitware/DIVA/tree/master/processes/python/rc3d
 .. _Abstract Algorithm: https://github.com/Kitware/kwiver/tree/master/vital/algo
 .. _config: https://github.com/Kitware/kwiver/tree/master/vital/config
 .. _port: https://github.com/Kitware/kwiver/blob/master/sprokit/src/bindings/python/sprokit/pipeline/datum.cxx#L96
 .. _Kwiver Tools: https://github.com/Kitware/kwiver/tree/master/tools
 .. _sprokit: https://github.com/Kitware/kwiver/blob/master/doc/manuals/sprokit/getting-started.rst
 .. _plugin_explorer: https://github.com/Kitware/kwiver/blob/master/doc/manuals/tools/plugin_explorer.rst
-.. Appendix 2: Citations
-
-.. bibliography:: processes.bib
