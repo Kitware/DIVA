@@ -146,9 +146,6 @@ Temporal Localizers
 The activity detectors in this class detect the temporal bound of the activities
 in an unbounded video. 
 
-1. RC3D :cite:`Xu2017iccv`
-
-.. autoclass:: DIVA.processes.rc3d.rc3d_detector.RC3DDetector
 
 
 Spatial Temporal Localizers
@@ -167,12 +164,6 @@ Input
 ^^^^^
 .. doxygenclass:: diva::diva_experiment_process
     :project: diva
-
-RC3D
-^^^^
-.. autoclass:: DIVA.processes.rc3d.rc3d_json_writer.RC3DJsonWriter
-
-.. autoclass:: DIVA.processes.rc3d.rc3d_visualizer.RC3DVisualizer
 
 ACT
 ^^^
@@ -195,7 +186,6 @@ Multi Object Trackers (Coming Soon!)
 .. Appendix 1: links
 
 .. _Kwiver Processes: https://github.com/Kitware/kwiver/tree/master/sprokit/processes
-.. _RC3D: https://github.com/Kitware/DIVA/tree/master/processes/python/rc3d
 .. _Abstract Algorithm: https://github.com/Kitware/kwiver/tree/master/vital/algo
 .. _config: https://github.com/Kitware/kwiver/tree/master/vital/config
 .. _port: https://github.com/Kitware/kwiver/blob/master/sprokit/src/bindings/python/sprokit/pipeline/datum.cxx#L96
