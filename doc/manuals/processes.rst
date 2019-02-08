@@ -154,9 +154,6 @@ The activity detectors in this class detect the spatial and temporal bound of th
 activities in an unbounded video. They can be paired with an object detector/tracker
 to detect/track the participating objects
 
-1. ACT :cite:`kalogeiton17iccv`
-
-.. autoclass:: DIVA.processes.act.act_detector.ACTDetector
 
 Utility Processes
 -----------------
@@ -165,15 +162,6 @@ Input
 .. doxygenclass:: diva::diva_experiment_process
     :project: diva
 
-ACT
-^^^
-.. autoclass:: DIVA.processes.act.act_json_writer.ACTJsonWriter
-
-.. autoclass:: DIVA.processes.act.act_visualizer.ACTVisualizer
-
-.. autoclass:: DIVA.processes.act.modify_bbox_resolution.ModifyBboxResolution
-
-.. autoclass:: DIVA.processes.act.merge_tubes.MergeTubes
 
 Optical Flow
 ^^^^^^^^^^^^
@@ -192,6 +180,3 @@ Multi Object Trackers (Coming Soon!)
 .. _Kwiver Tools: https://github.com/Kitware/kwiver/tree/master/tools
 .. _sprokit: https://github.com/Kitware/kwiver/blob/master/doc/manuals/sprokit/getting-started.rst
 .. _plugin_explorer: https://github.com/Kitware/kwiver/blob/master/doc/manuals/tools/plugin_explorer.rst
-.. Appendix 2: Citations
-
-.. bibliography:: processes.bib
