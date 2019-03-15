@@ -1,4 +1,4 @@
-.. image:: doc/DIVA_Final_Logo_72dpi.png
+.. image:: doc/manuals/_images/DIVA_Final_Logo_72dpi.png
    :alt: DIVA
 
 Deep Intermodal Video Analytics (DIVA) Framework
@@ -13,43 +13,16 @@ From the `DIVA Website <https://www.iarpa.gov/index.php/research-programs/diva>`
 	and object detection. DIVA will address activity detection for both forensic
 	applications and for real-time alerting.
 
-The DIVA Framework is based on `KWIVER <http://www.kwiver.org>`_ and open source framework designed for
-building complex computer vision systems.  Some of the features of the framework are:
+Resources
+---------
 
-- A video processing pipeline architecture designed to support multi-threaded and distributed processing system designs.
-- A rich and growing collection of computer vision processing modules
-- A dynamic designed which supports a wide range of third party libraries and frameworks including OpenCV,
-  deep learning frameworks such as Caffe and Darknet as well as many other libraries helpful for developing
-  complete computer vision systems.  See KWIVER's third party management repository
-  `Fletch <https://github.com/Kitware/fletch>`_ for more details.
+* `DIVA Framework Github Repository <https://github.com/Kitware/DIVA>`_ This is the main DIVA Framework site, all development of the framework happens here.
+* `DIVA Framework Issue Tracker <https://github.com/Kitware/DIVA/issues>`_  Submit any bug reports or feature requests for the framework here.
+* `DIVA Framework Main Documentation Page <https://kwiver-diva.readthedocs.io/en/latest/>`_ The source for the framework documentation is maintained in the Github repository using `Sphinx <http://www.sphinx-doc.org/en/master/>`_  A built version is maintained on `ReadTheDocs <https://readthedocs.org/>`_.   A good place to get started in the documentation, after reading the `Introduction <https://kwiver-diva.readthedocs.io/en/latest/introduction.html>`_ is the `UseCase <https://kwiver-diva.readthedocs.io/en/latest/usecases.html>`_ section which will walk you though a number of typical use cases with the framework.
+* KITWARE has implemented two "baseline" activity recognition algorithms in terms of the Framework:
 
-.. image:: doc/framework_block.png
-   :alt: DIVA Framework Block Diagram
-
-Developers use the framework by implementing new algrothim implementations, processes or core
-datatypes.    These become plugins to the the framework and can then be combined with other framework modules to build out fully elaborated DIVA analytics systems.
-
-For more information visit the framework's `documentation site <http://kwiver-diva.readthedocs.io/en/latest/>`_
-
-DIVA Baseline Implementations
------------------------------
-
-As part of the DIVA effort, Kitware has implemented several current state of the art algorithms that address the DIVA problem using the DIVA framework:
-
-The R-C3D baseline implmentation can be found at:
-
-   `https://gitlab.kitware.com/kwiver/R-C3D/tree/kitware/master <https://gitlab.kitware.com/kwiver/R-C3D/tree/kitware/master>`_
-
-And the ACtion Tubelet Detector can be found at:
-
-   `https://gitlab.kitware.com/kwiver/act_detector/tree/kitware/master <https://gitlab.kitware.com/kwiver/act_detector/tree/kitware/master>`_
-
-.. Note::
-   To see Kitware's DIVA Framework based implementation of these baseline algorithms, be sure to checkout the ``kitware/master`` branch in these repositories.
-
-Both of the baseline algorithms implemenations come with `Docker <https://www.docker.com>`_ `Dockerfiles`.  See the ``docker`` directory in the R-C3D baseline and
-the ``act-docker`` director in the ACT baseline.  These dockerfiles should be built and run with the `nvidia-docker <https://github.com/NVIDIA/nvidia-docker>`_
-flavor of Docker.
+  + `R-C3D <https://gitlab.kitware.com/kwiver/R-C3D/tree/kitware/master>`_
+  + `ACT <https://gitlab.kitware.com/kwiver/act_detector/tree/kitware/master>`_
 
 Building DIVA
 ===============

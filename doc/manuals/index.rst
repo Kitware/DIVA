@@ -9,9 +9,10 @@ Contents:
 
 .. toctree::
    :maxdepth: 6
-    
+
    introduction
    install
+   usecases
    kpf
    api
    processes

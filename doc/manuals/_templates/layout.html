@@ -2,3 +2,17 @@
 {% block extrahead %}
     <link href="{{ pathto("_static/style.css", True) }}" rel="stylesheet" type="text/css">
 {% endblock %}
+{% block footer %} {{ super() }}
+  <style>
+    /* Sidebar header (and topbar for mobile) */
+    /* Setting Kitware Blue and Green here */
+    .wy-side-nav-search, .wy-nav-top {
+      background: #f04e23;
+    }
+    /* Sidebar */
+    .wy-nav-side {
+      background: #424143;
+    }
+
+  </style>
+{% endblock %}
