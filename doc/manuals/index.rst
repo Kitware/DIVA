@@ -19,6 +19,7 @@ Contents:
    pipelines
    tutorials
    developing
+   annotation
    docker
 
 Indices and tables
