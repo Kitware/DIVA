@@ -39,7 +39,7 @@ void diva_python_label(py::module&);
 void diva_python_geometry(py::module&);
 void diva_python_activity(py::module&);
 
-PYBIND11_MODULE(diva_python_utils, m) 
+PYBIND11_MODULE(utils, m)
 {
   diva_python_experiment(m);
   diva_python_input(m);
