@@ -76,4 +76,6 @@ if(WIN32)
   target_compile_definitions(diva_utils PRIVATE YAML_CPP_DLL)
 endif()
 
-add_subdirectory(python)
+if(DIVA_ENABLE_PYTHON)
+  add_subdirectory(python)
+endif()
