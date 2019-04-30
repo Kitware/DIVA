@@ -1,9 +1,11 @@
 
-find_package(pybind11 REQUIRED)
+find_package(fletch REQUIRED)
+find_package(pybind11 CONFIG REQUIRED)
 find_package(kwiver REQUIRED)
+
 include_directories("${CMAKE_BINARY_DIR}")
 include_directories("${CMAKE_SOURCE_DIR}/utils")
-include_directories(${PYBIND11_INCLUDE_DIR})
+include_directories(${pybind11_INCLUDE_DIR})
 include_directories(${KWIVER_INCLUDE_DIR})
 
 kwiver_add_python_library(utils
