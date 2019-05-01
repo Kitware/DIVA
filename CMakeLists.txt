@@ -11,6 +11,7 @@ option(DIVA_SUPERBUILD  "Enable DIVA superbuild" ON)
 # NOTE: Do Not Use DIVA_ENABLE_DOCUMENTATION as kwiver_create_doxygen creates a dependent
 #       variable by the same name.
 option(DIVA_BUILD_DOCUMENTATION "Build DIVA documentation using Doxygen and Sphinx" OFF)
+option(DIVA_ENABLE_PYTHON "Build python bindings for DIVA" ON)
 
 # Common paths include
 set(DIVA_CMAKE_DIR ${DIVA_SOURCE_DIR}/CMake)
@@ -33,15 +34,27 @@ elseif(DIVA_BUILD_WITH_CUDNN)
   message(WARNING "Disabling DIVA_BUILD_WITH_CUDNN, You must have DIVA_BUILD_WITH_CUDA enabled for this to be enabled")
 endif()
 
+if(DIVA_ENABLE_PYTHON)
+  set(DIVA_PYTHON_MAJOR_VERSION "3" CACHE STRING "Python version to use: 3 or 2" )
+  set_property( CACHE DIVA_PYTHON_MAJOR_VERSION PROPERTY STRINGS "3" "2")
+  set(KWIVER_PYTHON_MAJOR_VERSION ${DIVA_PYTHON_MAJOR_VERSION})
+  set(KWIVER_ENABLE_PYTHON true)
+endif()
+
 # Superbuild
 if(DIVA_SUPERBUILD)
   include(${DIVA_CMAKE_DIR}/superbuild.cmake)
   return()
 endif()
 
+if( IS_DIRECTORY ${fletch_DIR} )
+  find_package( fletch CONFIG )
+  if ( fletch_FOUND )
+    list(APPEND CMAKE_PREFIX_PATH "${fletch_ROOT}")
+  endif()
+endif()
 
 find_package(kwiver REQUIRED)
-set(KWIVER_ENABLE_PYTHON true)
 link_directories("${KWIVER_LIBRARY_DIRS}")
 include(kwiver-cmake-future)
 include(kwiver-utils)
@@ -56,8 +69,8 @@ if(DIVA_BUILD_DOCUMENTATION)
     add_subdirectory( doc )    
 endif()
 
+find_package( fletch REQUIRED )
 
-find_package(fletch REQUIRED)
 
 ###
 # Set location for process plugins
@@ -66,7 +79,7 @@ set( diva_plugin_module_subdir  diva/modules )
 
 # DIVA specific code (inner build)
 add_subdirectory(utils)
-add_subdirectory(drivers)
+#add_subdirectory(drivers)
 add_subdirectory(external)
 add_subdirectory(algo)
 add_subdirectory(processes)
@@ -112,4 +125,4 @@ file(COPY ${CMAKE_SOURCE_DIR}/etc/images   DESTINATION ${CMAKE_INSTALL_PREFIX}/e
 file(COPY ${CMAKE_SOURCE_DIR}/etc/ref-geom DESTINATION ${CMAKE_INSTALL_PREFIX}/etc)
 file(COPY ${CMAKE_SOURCE_DIR}/etc/video    DESTINATION ${CMAKE_INSTALL_PREFIX}/etc)
 configure_file(${CMAKE_SOURCE_DIR}/drivers/schema_examples/schema_examples.py ${CMAKE_INSTALL_PREFIX}/python/schema_examples.py COPYONLY)
-configure_file(${CMAKE_SOURCE_DIR}/drivers/system_script/diva_system.py       ${CMAKE_INSTALL_PREFIX}/python/diva_system.py COPYONLY)
+configure_file(${CMAKE_SOURCE_DIR}/drivers/system_script/diva_system.py       ${CMAKE_INSTALL_PREFIX}/python/diva_system.py COPYONLY) 

@@ -3,9 +3,11 @@ if( OpenCV_VERSION VERSION_LESS "3.0" )
   message( FATAL_ERROR "OpenCV version must be at least 3.0" )
 endif()
 
+find_package(kwiver REQUIRED)
+
 set(SOURCE "optical_flow.cpp")
 include_directories("${CMAKE_BINARY_DIR}")
-include_directories("${KWIVER_INCLUDE_DIRS}")
+include_directories("${KWIVER_INCLUDE_DIR}")
 add_executable(optical_flow ${SOURCE})
 target_link_libraries(optical_flow
                       kwiversys
