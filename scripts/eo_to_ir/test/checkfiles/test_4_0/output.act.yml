@@ -1,0 +1,5 @@
+- { meta: { team: Kitware } }
+- { meta: "Casing_Facility 1 instances" }
+- { meta: "Exit_Facility 1 instances" }
+- { act: { act2: { Casing_Facility: 1 }, id2: 1, timespan: [{ tsr0: [2108, 2628] }], src_status: refiner_agreement, actors: [{ id1: 1, timespan: [{ tsr0: [2108, 2628] }] }] } }
+- { act: { act2: { Exit_Facility: 1 }, id2: 2, timespan: [{ tsr0: [2672, 2713] }], src_status: refiner_agreement, actors: [{ id1: 2, timespan: [{ tsr0: [2672, 2713] }] }] } }
