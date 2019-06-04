@@ -9,6 +9,8 @@ from functools import reduce
 import yaml
 
 from lib.homography import load_homography_file, apply_homography
+from lib.camera_io import load_camera_krtd_file
+from lib.view import view_to_view
 
 
 def load_yaml(path):
@@ -158,6 +160,28 @@ def _build_time_shifter(frame_offset, framerate):
     return _apply_offset
 
 
+def _build_cam_to_cam_mapper(src_cam_file, dest_cam_file):
+    src_cam = load_camera_krtd_file(src_cam_file)
+    dest_cam = load_camera_krtd_file(dest_cam_file)
+
+    def _apply_cam_to_cam_map(geom_rec):
+        new_bounds = view_to_view(
+            src_cam,
+            dest_cam,
+            [float(b) for b in geom_rec.get('g0').split(' ')])
+
+        if new_bounds is None:
+            new_bounds = (-1, -1, -1, -1)
+
+        geom_rec['g0'] = ' '.join(map(str, new_bounds))
+
+        # geom_rect is modified in place, so returning here is just a
+        # convenience
+        return geom_rec
+
+    return _apply_cam_to_cam_map
+
+
 def compose(f, g):
     def _h(*args):
         return f(g(*args))
@@ -211,6 +235,14 @@ def main(args):
         geom_mapper_fns.append(
             _build_time_shifter(args.frame_offset,
                                 args.framerate))
+
+    if args.camera_to_camera is not None:
+        src_cam_file, dest_cam_file =\
+            map(str.strip, args.camera_to_camera.split(':'))
+
+        geom_mapper_fns.append(
+            _build_cam_to_cam_mapper(src_cam_file,
+                                     dest_cam_file))
 
     geom_mapper_fn = reduce(compose, geom_mapper_fns, lambda x: x)
     crop_bounds = map(float, args.crop_bounds.split('x'))
@@ -344,5 +376,9 @@ if __name__ == "__main__":
     parser.add_argument("-f", "--frame-offset",
                         type=int,
                         help="Number of frames to shift each geom record")
+    parser.add_argument("-C", "--camera-to-camera",
+                        type=str,
+                        help="Two KRTD camera file paths (colon-separated)"
+                        "being the source:destination cameras")
 
     main(parser.parse_args())
