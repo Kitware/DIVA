@@ -66,6 +66,24 @@ def parse_geom_yaml(path):
     return yaml_geom, non_geom_records, geoms_by_actor
 
 
+def parse_type_yaml(path):
+    yaml_types = load_yaml(path)
+    record_by_actor = {}
+    for item in yaml_types:
+        if 'types' in item:
+            actor_id = item.get('types', {}).get('id1')
+            if actor_id is not None:
+                record_by_actor[actor_id] = item
+
+    return yaml_types, record_by_actor
+
+
+def abort_if_file_exists(path):
+    if os.path.isfile(path):
+        print(f"File '{path}' already exists, aborting!")
+        exit(1)
+
+
 def kpf_yaml_dump(obj):
     if isinstance(obj, dict):
         kv_strs = []
@@ -188,9 +206,7 @@ def compose(f, g):
     return _h
 
 
-def dump_geoms_as_kw18(geoms, num_track_frames_lookup, outdir):
-    outpath = os.path.join(outdir, "output.geom.kw18")
-
+def dump_geoms_as_kw18(geoms, num_track_frames_lookup, outpath):
     with open(outpath, 'w') as of:
         for geom in geoms:
             track_id = geom.get('id1')
@@ -226,6 +242,9 @@ def main(args):
     yaml_geoms, non_geom_records, geoms_by_actor =\
         parse_geom_yaml(args.input_geom)
 
+    yaml_types, yaml_type_by_actor =\
+        parse_type_yaml(args.input_types)
+
     geom_mapper_fns = []
     if args.homography_file is not None:
         geom_mapper_fns.append(
@@ -255,7 +274,17 @@ def main(args):
 
     # This is needed for when we dump out the kw18
     num_frames_per_actor = {}
-    with open(os.path.join(args.output_dir, "output.geom.yml"), 'w') as of:
+
+    # Useful for generating our output "types" file
+    surviving_actors = set()
+
+    # Since we're using the input basename for our output filename,
+    # want to prevent ourselves from accidently overwriting the input
+    # file if we're not careful when specifying our output directory
+    out_geom_path = os.path.join(
+        args.output_dir, os.path.basename(args.input_geom))
+    abort_if_file_exists(out_geom_path)
+    with open(out_geom_path, 'w') as of:
         # Write out non-geom records preserved from the original/input
         # geoms file
         for non_geom_rec in non_geom_records:
@@ -270,6 +299,7 @@ def main(args):
                     activity['actors'] = [a for a in activity.get('actors', [])
                                           if a.get('id1') != actor_id]
             else:
+                surviving_actors.add(actor_id)
                 min_ts0, max_ts0 = float('inf'), 0.0
                 for geom_rec in geom_recs:
                     min_ts0 = min(geom_rec.get('ts0', min_ts0), min_ts0)
@@ -288,11 +318,17 @@ def main(args):
                             timespan['tsr0'] = [min_ts0, max_ts0]
 
     # Dump kw18 of geoms
+    kw18_base, _ = os.path.splitext(args.input_geom)
+    kw18_outpath = os.path.join(args.output_dir, f"{kw18_base}.kw18")
+    abort_if_file_exists(kw18_outpath)
     dump_geoms_as_kw18(itertools.chain(*cropped_geoms_by_actor.values()),
                        num_frames_per_actor,
-                       args.output_dir)
+                       kw18_outpath)
 
-    with open(os.path.join(args.output_dir, "output.act.yml"), 'w') as of:
+    out_act_path = os.path.join(
+        args.output_dir, os.path.basename(args.input_activities))
+    abort_if_file_exists(out_act_path)
+    with open(out_act_path, 'w') as of:
         out_meta_records = []
         out_activity_records = []
         activity_counts = {}
@@ -344,6 +380,19 @@ def main(args):
         for out_activity_rec in out_activity_records:
             print(f"- {kpf_yaml_dump(out_activity_rec)}", file=of)
 
+    out_types_path = os.path.join(
+        args.output_dir, os.path.basename(args.input_types))
+    abort_if_file_exists(out_types_path)
+    with open(out_types_path, 'w') as of:
+        for type_rec in yaml_types:
+            # Preserving "meta" records
+            if 'meta' in type_rec:
+                print(f"- {kpf_yaml_dump(type_rec)}", file=of)
+
+        for actor_id in sorted(surviving_actors):
+            type_rec = yaml_type_by_actor[actor_id]
+            print(f"- {kpf_yaml_dump(type_rec)}", file=of)
+
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(
@@ -358,6 +407,10 @@ if __name__ == "__main__":
                         type=str,
                         required=True,
                         help="Path to input activity KPF YAML")
+    parser.add_argument("-t", "--input-types",
+                        type=str,
+                        required=True,
+                        help="Path to input types KPF YAML")
     parser.add_argument("-H", "--homography-file",
                         type=str,
                         help="Path to homography text file")

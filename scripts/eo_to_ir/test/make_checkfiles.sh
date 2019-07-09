@@ -2,6 +2,8 @@
 
 source integration_tests.sh
 
+rm "${checkfiles_dir}"/test_{1..7}_0/*
+
 test_1_0 "$checkfiles_dir/test_1_0" >"$checkfiles_dir/test_1_0/test_1_0.log"
 test_2_0 "$checkfiles_dir/test_2_0" >"$checkfiles_dir/test_2_0/test_2_0.log"
 test_3_0 "$checkfiles_dir/test_3_0" >"$checkfiles_dir/test_3_0/test_3_0.log"
