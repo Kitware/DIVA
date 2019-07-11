@@ -2,12 +2,8 @@
 
 source integration_tests.sh
 
-rm "${checkfiles_dir}"/test_{1..7}_0/*
+for tst in test_{1..8}_0; do
+    rm "${checkfiles_dir}/${tst}/"*
 
-test_1_0 "$checkfiles_dir/test_1_0" >"$checkfiles_dir/test_1_0/test_1_0.log"
-test_2_0 "$checkfiles_dir/test_2_0" >"$checkfiles_dir/test_2_0/test_2_0.log"
-test_3_0 "$checkfiles_dir/test_3_0" >"$checkfiles_dir/test_3_0/test_3_0.log"
-test_4_0 "$checkfiles_dir/test_4_0" >"$checkfiles_dir/test_4_0/test_4_0.log"
-test_5_0 "$checkfiles_dir/test_5_0" >"$checkfiles_dir/test_5_0/test_5_0.log"
-test_6_0 "$checkfiles_dir/test_6_0" >"$checkfiles_dir/test_6_0/test_6_0.log"
-test_7_0 "$checkfiles_dir/test_7_0" >"$checkfiles_dir/test_7_0/test_7_0.log"
+    $tst "$checkfiles_dir/$tst" >"$checkfiles_dir/$tst/$tst.log"
+done

@@ -6,103 +6,20 @@ import re
 import itertools
 from functools import reduce
 
-import yaml
-
 from lib.homography import load_homography_file, apply_homography
 from lib.camera_io import load_camera_krtd_file
 from lib.view import view_to_view
-
-
-def load_yaml(path):
-    with open(path, 'r') as inf:
-        try:
-            return yaml.safe_load(inf)
-        except yaml.YAMLError as exc:
-            print(exc)
-            exit(1)
-
-
-def load_yaml_list(path):
-    out_recs = []
-    with open(path, 'rb') as inf:
-        for line in inf:
-            try:
-                out_recs.extend(yaml.safe_load(line))
-            except yaml.YAMLError as exc:
-                print(exc)
-                exit(1)
-
-    return out_recs
-
-
-def parse_activities_yaml(path):
-    yaml_activities = load_yaml(path)
-    actor_lookup = {}
-    for item in yaml_activities:
-        if 'act' not in item:
-            continue
-
-        # Build an actor lookup table so that we can update their time
-        # extents more easily ("id1" is is the actor ID)
-        for actor_rec in item.get('act').get('actors', []):
-            actor_lookup.setdefault(actor_rec.get('id1'), []).append(
-                item.get('act'))
-
-    return yaml_activities, actor_lookup
-
-
-def parse_geom_yaml(path):
-    yaml_geom = load_yaml_list(path)
-    geoms_by_actor = {}
-    non_geom_records = []
-    for item in yaml_geom:
-        if 'geom' not in item:
-            non_geom_records.append(item)
-            continue
-
-        geom_rec = item.get('geom')
-        geoms_by_actor.setdefault(geom_rec.get('id1'), []).append(geom_rec)
-
-    return yaml_geom, non_geom_records, geoms_by_actor
-
-
-def parse_type_yaml(path):
-    yaml_types = load_yaml(path)
-    record_by_actor = {}
-    for item in yaml_types:
-        if 'types' in item:
-            actor_id = item.get('types', {}).get('id1')
-            if actor_id is not None:
-                record_by_actor[actor_id] = item
-
-    return yaml_types, record_by_actor
-
-
-def abort_if_file_exists(path):
-    if os.path.isfile(path):
-        print(f"File '{path}' already exists, aborting!")
-        exit(1)
-
-
-def kpf_yaml_dump(obj):
-    if isinstance(obj, dict):
-        kv_strs = []
-        for k, v in obj.items():
-            k_str = kpf_yaml_dump(k)
-            bare_v_str = kpf_yaml_dump(v)
-            if k_str == "meta" and isinstance(v, str):
-                v_str = f"\"{bare_v_str}\""
-            else:
-                v_str = bare_v_str
-
-            kv_strs.append(f"{k_str}: {v_str}")
-
-        return "{{ {} }}".format(
-            ", ".join(kv_strs))
-    elif isinstance(obj, list):
-        return "[{}]".format(', '.join(map(kpf_yaml_dump, obj)))
-    else:
-        return str(obj)
+from lib.utils import (parse_activities_yaml,
+                       parse_geom_yaml,
+                       parse_type_yaml,
+                       abort_if_file_exists,
+                       kpf_yaml_dump,
+                       dump_geoms_as_kw18,
+                       area_of_bounds)
+from lib.transduce import (xd_map,
+                           xd_filter,
+                           appender,
+                           xd)
 
 
 def _build_cropper(crop_bounds):
@@ -120,30 +37,53 @@ def _build_cropper(crop_bounds):
     return _f
 
 
-def map_and_crop_geoms(geoms_by_actor, crop_bounds, map_fn=None):
-    # The map_fn (function) parameter function, should modify the
-    # geom_rec in place
+def _build_geom_cropper(crop_bounds):
     cropper_fn = _build_cropper(crop_bounds)
 
-    def _geom_reducer(init, geom_rec):
-        if map_fn is not None:
-            map_fn(geom_rec)
+    def _geom_cropper(geom):
+        orig_bounds = tuple(map(float, geom.get('g0').split(' ')))
+        cropped_bounds = cropper_fn(orig_bounds)
+        x0, y0, x1, y1 = cropped_bounds
 
-        x0, y0, x1, y1 = cropper_fn(map(float, geom_rec.get('g0').split(' ')))
+        geom['g0'] = ' '.join(map(str, cropped_bounds))
+        # Keep track of how much of the bounding box remains after
+        # cropping
+        geom['_ov0'] = (area_of_bounds(cropped_bounds) /
+                        area_of_bounds(orig_bounds))
 
-        # Only keep geoms with bounding boxes that have a non-zero
-        # area (i.e. that haven't been cropped to nothing)
-        if x0 != x1 and y0 != y1:
-            geom_rec['g0'] = ' '.join(map(str, (x0, y0, x1, y1)))
-            init.append(geom_rec)
+        return geom
 
-        return init
+    return _geom_cropper
 
-    cropped_geoms_by_actor = {}
-    for actor_id, geom_recs in geoms_by_actor.items():
-        cropped_geoms_by_actor[actor_id] = reduce(_geom_reducer, geom_recs, [])
 
-    return cropped_geoms_by_actor
+def geom_0area_filter(geom):
+    x0, y0, x1, y1 = tuple(map(float, geom.get('g0').split(' ')))
+
+    return x0 != x1 and y0 != y1
+
+
+def strip_geom_internal_fields(geom):
+    # Any field with a leading underscore should be stripped off prior
+    # to dumping
+    to_remove = []
+    for k in geom.keys():
+        if k.startswith('_'):
+            to_remove.append(k)
+
+    for k in to_remove:
+        del geom[k]
+
+    return geom
+
+
+def _build_offscreen_flagger(min_overlap):
+    def _offscreen_flagger(geom):
+        if geom.get('_ov0', float('Inf')) < min_overlap:
+            geom["occlusion"] = "off-screen"
+
+        return geom
+
+    return _offscreen_flagger
 
 
 def _build_homography_mapper(homography_file):
@@ -200,41 +140,6 @@ def _build_cam_to_cam_mapper(src_cam_file, dest_cam_file):
     return _apply_cam_to_cam_map
 
 
-def compose(f, g):
-    def _h(*args):
-        return f(g(*args))
-    return _h
-
-
-def dump_geoms_as_kw18(geoms, num_track_frames_lookup, outpath):
-    with open(outpath, 'w') as of:
-        for geom in geoms:
-            track_id = geom.get('id1')
-            x0, y0, x1, y1 = map(float, geom.get('g0').split())
-            cx = (x0 + x1) / 2
-            cy = (y0 + y1) / 2
-            kw18_rec = (track_id,
-                        num_track_frames_lookup.get(track_id, 0),
-                        geom.get('ts0'),
-                        cx,
-                        cy,
-                        0.0,
-                        0.0,
-                        cx,
-                        cy,
-                        x0,
-                        y0,
-                        x1,
-                        y1,
-                        (x1 - x0) * (y1 - y0),
-                        0.0,
-                        0.0,
-                        0.0,
-                        geom.get('ts1'))
-
-            print(" ".join(map(str, kw18_rec)), file=of)
-
-
 def main(args):
     yaml_activities, actor_activity_lookup =\
         parse_activities_yaml(args.input_activities)
@@ -246,29 +151,42 @@ def main(args):
         parse_type_yaml(args.input_types)
 
     geom_mapper_fns = []
+
+    # Pre-crop mapping
     if args.homography_file is not None:
         geom_mapper_fns.append(
-            _build_homography_mapper(args.homography_file))
+            xd_map(_build_homography_mapper(args.homography_file)))
 
     if args.frame_offset is not None:
         geom_mapper_fns.append(
-            _build_time_shifter(args.frame_offset,
-                                args.framerate))
+            xd_map(_build_time_shifter(args.frame_offset,
+                                       args.framerate)))
 
     if args.camera_to_camera is not None:
         src_cam_file, dest_cam_file =\
             map(str.strip, args.camera_to_camera.split(':'))
 
         geom_mapper_fns.append(
-            _build_cam_to_cam_mapper(src_cam_file,
-                                     dest_cam_file))
+            xd_map(_build_cam_to_cam_mapper(src_cam_file,
+                                            dest_cam_file)))
 
-    geom_mapper_fn = reduce(compose, geom_mapper_fns, lambda x: x)
     crop_bounds = map(float, args.crop_bounds.split('x'))
-    cropped_geoms_by_actor = map_and_crop_geoms(
-        geoms_by_actor,
-        crop_bounds,
-        map_fn=geom_mapper_fn)
+    geom_mapper_fns.append(
+        xd_map(_build_geom_cropper(crop_bounds)))
+
+    # Post-crop mapping
+    if args.min_spatial_overlap is not None:
+        geom_mapper_fns.append(
+            xd_map(_build_offscreen_flagger(args.min_spatial_overlap)))
+
+    geom_pipeline = xd(*geom_mapper_fns,
+                       xd_filter(geom_0area_filter),
+                       xd_map(strip_geom_internal_fields))
+
+    cropped_geoms_by_actor = {}
+    for actor, actor_geoms in geoms_by_actor.items():
+        cropped_geoms_by_actor[actor] =\
+            reduce(geom_pipeline(appender), actor_geoms, [])
 
     os.makedirs(args.output_dir, exist_ok=True)
 
@@ -433,5 +351,10 @@ if __name__ == "__main__":
                         type=str,
                         help="Two KRTD camera file paths (colon-separated)"
                         "being the source:destination cameras")
+    parser.add_argument("--min-spatial-overlap",
+                        type=float,
+                        help='Minimum spatial overlap (as a ratio of post to '
+                        'pre-crop area) required to not be considered '
+                        'occluded ("off-screen")')
 
     main(parser.parse_args())

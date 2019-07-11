@@ -107,3 +107,14 @@ test_7_0() {
 	   -f "12" \
 	   -o "$1"
 }
+
+test_8_0() {
+    python ../eo_to_ir.py \
+	   -g "test_4.geom.yml" \
+	   -a "test_2.act.yml" \
+	   -t "test_2.types.yml" \
+	   -b "16x16" \
+	   -H "test_homography_1.txt" \
+	   --min-spatial-overlap 0.5 \
+	   -o "$1"
+}
