@@ -34,4 +34,7 @@ def compose(f, g):
 
 
 def xd(*components):
-    return reduce(compose, components)
+    if len(components) == 0:
+        return lambda x: x
+    else:
+        return reduce(compose, components)

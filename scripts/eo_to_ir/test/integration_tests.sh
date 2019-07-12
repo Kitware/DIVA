@@ -118,3 +118,12 @@ test_8_0() {
 	   --min-spatial-overlap 0.5 \
 	   -o "$1"
 }
+
+test_9_0() {
+    python ../eo_to_ir.py \
+	   -g "test_5.geom.yml" \
+	   -a "test_5.act.yml" \
+	   -t "test_2.types.yml" \
+	   -b "8x8" \
+	   -o "$1"
+}

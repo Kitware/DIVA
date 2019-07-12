@@ -27,18 +27,15 @@ def load_yaml_list(path):
 
 def parse_activities_yaml(path):
     yaml_activities = load_yaml(path)
-    actor_lookup = {}
+    activity_records = []
+    non_activity_records = []
     for item in yaml_activities:
-        if 'act' not in item:
-            continue
+        if 'act' in item:
+            activity_records.append(item.get('act'))
+        else:
+            non_activity_records.append(item)
 
-        # Build an actor lookup table so that we can update their time
-        # extents more easily ("id1" is is the actor ID)
-        for actor_rec in item.get('act').get('actors', []):
-            actor_lookup.setdefault(actor_rec.get('id1'), []).append(
-                item.get('act'))
-
-    return yaml_activities, actor_lookup
+    return yaml_activities, activity_records, non_activity_records
 
 
 def parse_geom_yaml(path):
