@@ -7,7 +7,7 @@ find_package(kwiver REQUIRED)
 
 set(SOURCE "optical_flow.cpp")
 include_directories("${CMAKE_BINARY_DIR}")
-include_directories("${KWIVER_INCLUDE_DIR}")
+include_directories("${KWIVER_INCLUDE_DIRS}")
 add_executable(optical_flow ${SOURCE})
 target_link_libraries(optical_flow
                       kwiversys
