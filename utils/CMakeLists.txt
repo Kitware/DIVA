@@ -68,8 +68,8 @@ target_link_libraries( diva_utils
 )
 
 add_custom_command(TARGET diva_utils POST_BUILD
-                   COMMAND ${CMAKE_COMMAND} -E copy $<TARGET_FILE:diva_utils> ${CMAKE_INSTALL_PREFIX}/lib)
-install(TARGETS diva_utils DESTINATION ${CMAKE_INSTALL_PREFIX}/lib)
+                   COMMAND ${CMAKE_COMMAND} -E copy $<TARGET_FILE:diva_utils> ${CMAKE_INSTALL_PREFIX}/lib/)
+install(TARGETS diva_utils DESTINATION ${CMAKE_INSTALL_PREFIX}/lib/)
 
 
 if(WIN32)
