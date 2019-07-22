@@ -12,15 +12,16 @@ option(DIVA_SUPERBUILD  "Enable DIVA superbuild" ON)
 #       variable by the same name.
 option(DIVA_BUILD_DOCUMENTATION "Build DIVA documentation using Doxygen and Sphinx" OFF)
 option(DIVA_ENABLE_PYTHON "Build python bindings for DIVA" ON)
+option(DIVA_ENABLE_PROCESS "Build DIVA processes" OFF)
+option(DIVA_BUILD_WITH_CUDA "Build with CUDA support" FALSE)
+
 
 # Common paths include
 set(DIVA_CMAKE_DIR ${DIVA_SOURCE_DIR}/CMake)
 set(DIVA_STAMP_DIR ${DIVA_BINARY_DIR}/DIVA-ExternalProject-Stamps)
-
 set(CMAKE_MODULE_PATH ${DIVA_CMAKE_DIR} ${CMAKE_MODULE_PATH})
 
 # Option for CUDA
-option(DIVA_BUILD_WITH_CUDA "Build with CUDA support" FALSE)
 if (DIVA_BUILD_WITH_CUDA)
   find_package( CUDA QUIET REQUIRED )
 # Option for CUDNN
@@ -29,6 +30,7 @@ if (DIVA_BUILD_WITH_CUDA)
     set( CUDNN_TOOLKIT_ROOT_DIR "" CACHE PATH "CUDNN root folder" )
     find_package( CUDNN QUIET REQUIRED)
   endif()
+
 elseif(DIVA_BUILD_WITH_CUDNN)
   unset(DIVA_BUILD_WITH_CUDNN CACHE)
   message(WARNING "Disabling DIVA_BUILD_WITH_CUDNN, You must have DIVA_BUILD_WITH_CUDA enabled for this to be enabled")
@@ -61,28 +63,39 @@ include(kwiver-utils)
 include(kwiver-flags)
 include(kwiver-configcheck)
 set(kwiver_python_output_path  "${CMAKE_BINARY_DIR}/${python_lib_subdir}")
-
 ##
 # Documentation for DIVA
-if(DIVA_BUILD_DOCUMENTATION)   
+if(DIVA_BUILD_DOCUMENTATION)
     kwiver_create_doxygen( diva "${CMAKE_CURRENT_LIST_DIR}" )
-    add_subdirectory( doc )    
+    add_subdirectory( doc )
 endif()
 
 find_package( fletch REQUIRED )
 
+cmake_dependent_option(DIVA_ENABLE_OPTICAL_FLOW
+                       "Enable gpu based optical flow algorithm"
+                       ON
+                       "fletch_BUILT_WITH_CUDA;fletch_ENABLED_OpenCV;DIVA_BUILD_WITH_CUDA"
+                       OFF)
 
-###
-# Set location for process plugins
-set( diva_plugin_process_subdir diva/processes )
-set( diva_plugin_module_subdir  diva/modules )
 
 # DIVA specific code (inner build)
+add_subdirectory(drivers)
 add_subdirectory(utils)
-#add_subdirectory(drivers)
 add_subdirectory(external)
-add_subdirectory(algo)
-add_subdirectory(processes)
+
+
+if (DIVA_ENABLE_OPTICAL_FLOW)
+    add_subdirectory(algo)
+endif()
+
+if(DIVA_ENABLE_PROCESS)
+  ###
+  # Set location for process plugins
+  set( diva_plugin_process_subdir diva/processes )
+  set( diva_plugin_module_subdir  diva/modules )
+  add_subdirectory(processes)
+endif()
 
 
 set(LIBRARY_PATH_VAR "LD_LIBRARY_PATH")
