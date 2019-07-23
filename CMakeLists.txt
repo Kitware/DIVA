@@ -85,8 +85,8 @@ add_subdirectory(utils)
 add_subdirectory(external)
 
 
-if (DIVA_ENABLE_OPTICAL_FLOW)
-    add_subdirectory(algo)
+if(DIVA_ENABLE_OPTICAL_FLOW)
+  add_subdirectory(algo)
 endif()
 
 if(DIVA_ENABLE_PROCESS)

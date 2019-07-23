@@ -15,7 +15,7 @@ target_link_libraries(schema_examples
                       vital_exceptions
                       vital_vpm)
 if(NOT EXISTS ${CMAKE_INSTALL_PREFIX}/bin/)
-  file(make_directory ${CMAKE_INSTALL_PREFIX}/bin)
+  file(MAKE_DIRECTORY ${CMAKE_INSTALL_PREFIX}/bin)
 endif()
 add_custom_command(TARGET schema_examples POST_BUILD
                    COMMAND ${CMAKE_COMMAND} -E copy $<TARGET_FILE:schema_examples> ${CMAKE_INSTALL_PREFIX}/bin)
