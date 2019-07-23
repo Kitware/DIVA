@@ -83,7 +83,9 @@ cmake_dependent_option(DIVA_ENABLE_OPTICAL_FLOW
 add_subdirectory(drivers)
 add_subdirectory(utils)
 add_subdirectory(external)
-
+if(DIVA_ENABLE_PYTHON)
+  add_subdirectory(scripts)
+endif()
 
 if(DIVA_ENABLE_OPTICAL_FLOW)
   add_subdirectory(algo)
