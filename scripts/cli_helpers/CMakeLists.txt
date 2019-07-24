@@ -6,10 +6,6 @@ kwiver_add_python_module( ${CMAKE_CURRENT_SOURCE_DIR}/generate_experiments.py
                           diva/scripts/cli_helpers
                           generate_experiments )
 
-kwiver_add_python_module( ${CMAKE_CURRENT_SOURCE_DIR}/chunk_runner.py
-                          diva/scripts/cli_helpers
-                          chunk_runner )
-
 kwiver_add_python_module( ${CMAKE_CURRENT_SOURCE_DIR}/merge_videos.py
                           diva/scripts/cli_helpers
                           merge_videos )
