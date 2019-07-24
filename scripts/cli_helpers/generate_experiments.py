@@ -77,9 +77,7 @@ def main(args):
         raise OSError("Invalid path {0} provided for data root".format(args.data_root))
 
     all_videos = os.listdir(args.data_root)
-
     chunks = json.load(open(args.chunk_json, 'r'))
-    chunk_key = "Chunk" + str(args.chunk_id)
 
     if not os.path.exists(args.experiment_root):
         print("{0} not found. Creating {0}.".format(args.experiment_root))
@@ -89,8 +87,8 @@ def main(args):
             print("{0} not found. Creating {0}.".format(args.imagelist_root))
             os.makedirs(args.imagelist_root)
 
-    if chunk_key in chunks.keys():
-        chunk_files = chunks[chunk_key]["files"]
+    if args.chunk_id in chunks.keys():
+        chunk_files = chunks[args.chunk_id]["files"]
         for video_name in chunk_files:
             if args.use_videos:
                 if video_name not in all_videos:
@@ -114,7 +112,7 @@ def main(args):
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
-    parser.add_argument("--chunk-id", type=int,
+    parser.add_argument("--chunk-id",
                 help="Chunk id for which experiment file would be generated")
     parser.add_argument("--chunk-json", help="JSON file with all the chunks")
     parser.add_argument("--data-root", help="Root folder for image directory")
