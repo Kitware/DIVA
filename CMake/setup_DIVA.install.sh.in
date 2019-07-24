@@ -1,6 +1,6 @@
 source @KWIVER_INSTALL_PATH@/setup_KWIVER.sh
 
-export PYTHONPATH=@CMAKE_INSTALL_PREFIX@/lib/python@DIVA_PYTHON_MAJOR_VERSION@/dist-packages:$PYTHONPATH
+export PYTHONPATH=@CMAKE_INSTALL_PREFIX@/@python_lib_subdir@/@python_sitename@:$PYTHONPATH
 export @LIBRARY_PATH_VAR@=@CMAKE_INSTALL_PREFIX@/lib:$@LIBRARY_PATH_VAR@
 export KWIVER_PLUGIN_PATH=@CMAKE_INSTALL_PREFIX@/lib/@diva_plugin_process_subdir@:@CMAKE_INSTALL_PREFIX@/lib/@diva_plugin_module_subdir@:$KWIVER_PLUGIN_PATH
 export SPROKIT_PYTHON_MODULES=DIVA.processes:DIVA.processes.act:DIVA.processes.rc3d:$SPROKIT_PYTHON_MODULES
