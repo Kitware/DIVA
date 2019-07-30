@@ -19,7 +19,8 @@ kwiver_add_python_library(utils
   diva_python_input.cxx
 )
 
-kwiver_create_python_init(diva)
+kwiver_create_python_init(diva
+  utils)
 
 
 target_link_libraries(python-diva-utils
