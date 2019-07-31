@@ -7,18 +7,15 @@ RUN apt-get update && \
                     libexpat1-dev \
                     libgtk2.0-dev \ 
                     liblapack-dev \
-                    python2.7-dev \
                     git \
                     vim \
                     wget \
                     cmake-curses-gui \
-                    python-dev \
-                    python-numpy \
-                    python-pip \
-                    python-setuptools \
-                    python-scipy \
-                    libssl-dev
-
+                    libssl-dev \
+                    python2.7-dev \
+                    python3-dev \
+                    python3-pip \
+                    && pip3 install numpy scipy setuptools
 
 ENV DIVA_BASE=/diva
 ENV DIVA_INSTALL=/opt/diva
@@ -47,6 +44,7 @@ ADD external ${DIVA_SRC}/external
 ADD etc ${DIVA_SRC}/etc
 ADD processes ${DIVA_SRC}/processes
 ADD utils ${DIVA_SRC}/utils
+ADD scripts ${DIVA_SRC}/scripts
 ADD CMakeLists.txt ${DIVA_SRC}/CMakeLists.txt
 
 
