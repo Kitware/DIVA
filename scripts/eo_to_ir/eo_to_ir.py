@@ -66,6 +66,12 @@ def geom_0area_filter(geom):
     return x0 != x1 and y0 != y1
 
 
+def geom_negative_framenum_filter(geom):
+    ts0 = int(geom.get('ts0'))
+
+    return ts0 >= 0
+
+
 def strip_geom_internal_fields(geom):
     # Any field with a leading underscore should be stripped off prior
     # to dumping
@@ -230,6 +236,10 @@ def main(args):
         geom_mapper_fns.append(
             xd_map(_build_time_shifter(args.frame_offset,
                                        args.framerate)))
+        # Go ahead and add the negative framenum filter here so that
+        # we don't have to process the geom further if filtered
+        geom_mapper_fns.append(
+            xd_filter(geom_negative_framenum_filter))
         activity_mapper_fns.append(
             xd_map(_build_activity_time_shifter(args.frame_offset)))
 
@@ -291,7 +301,7 @@ def main(args):
                     # Write out the geom record
                     print(f"- {kpf_yaml_dump({'geom': geom_rec})}", file=of)
 
-                num_frames_per_actor[actor_id] = max_ts0 - min_ts0
+                num_frames_per_actor[actor_id] = (max_ts0 - min_ts0) + 1
 
     # Dump kw18 of geoms
     kw18_base, _ = os.path.splitext(args.input_geom)
