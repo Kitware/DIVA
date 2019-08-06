@@ -1,0 +1,3 @@
+- { meta: { team: Kitware } }
+- { meta: "Casing_Facility 1 instances" }
+- { act: { act2: { Casing_Facility: 1 }, id2: 1, timespan: [{ tsr0: [2098, 2664] }], src_status: refiner_agreement, actors: [{ id1: 1, timespan: [{ tsr0: [2098, 2100] }] }, { id1: 2, timespan: [{ tsr0: [2662, 2664] }] }] } }

@@ -183,9 +183,16 @@ def _build_activity_timespan_adjuster(geoms_by_actor_by_ts0,
                 max_ts0 = max(max_a_ts0, max_ts0)
 
         if max_ts0 - min_ts0 >= 0:
-            # Adjust the activity timespan
-            activity_rec['timespan'][0]['tsr0'] = [min_ts0, max_ts0]
-            out_activities.append(activity_rec)
+            if len(activity_rec.get('actors', [])) != len(adjusted_actors):
+                # Don't output the activity if any constituent actors
+                # are filtered out
+                return out_activities
+            else:
+                # Replace the actors rec in the activity
+                activity_rec['actors'] = adjusted_actors
+                # Adjust the activity timespan
+                activity_rec['timespan'][0]['tsr0'] = [min_ts0, max_ts0]
+                out_activities.append(activity_rec)
 
         return out_activities
 

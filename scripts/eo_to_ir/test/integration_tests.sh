@@ -149,3 +149,26 @@ test_10_0() {
 	   -f "-2099" \
 	   -o "$1"
 }
+
+test_11_0() {
+    # Test multi-actor activities
+    python ../eo_to_ir.py \
+	   -g "test_2.geom.yml" \
+	   -a "test_11.act.yml" \
+	   -t "test_2.types.yml" \
+	   -b "352x240" \
+	   -p "test_11_0" \
+	   -o "$1"
+}
+
+test_11_1() {
+    # Test multi-actor activities, drop activity if any constituent
+    # actor is filtered out
+    python ../eo_to_ir.py \
+	   -g "test_2.geom.yml" \
+	   -a "test_11.act.yml" \
+	   -t "test_2.types.yml" \
+	   -b "8x8" \
+	   -p "test_11_1" \
+	   -o "$1"
+}
