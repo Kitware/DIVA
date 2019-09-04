@@ -46,6 +46,7 @@ test_1_0() {
 	   -a "test_1.act.yml" \
 	   -t "test_1.types.yml" \
 	   -b "352x240" \
+	   -p "test_1" \
 	   -o "$1"
 }
 
@@ -55,6 +56,7 @@ test_2_0() {
 	   -a "test_2.act.yml" \
 	   -t "test_2.types.yml" \
 	   -b "8x8" \
+	   -p "test_2" \
 	   -o "$1"
 }
 
@@ -64,6 +66,7 @@ test_3_0() {
 	   -a "test_3.act.yml" \
 	   -t "test_3.types.yml" \
 	   -b "8x8" \
+	   -p "test_3" \
 	   -o "$1"
 }
 
@@ -73,6 +76,7 @@ test_4_0() {
 	   -a "test_1.act.yml" \
 	   -t "test_1.types.yml" \
 	   -b "352x240" \
+	   -p "test_4" \
 	   -o "$1" \
 	   -f "10"
 }
@@ -84,6 +88,7 @@ test_5_0() {
 	   -t "test_2.types.yml" \
 	   -b "16x16" \
 	   -H "test_homography_1.txt" \
+	   -p "test_5" \
 	   -o "$1"
 }
 
@@ -94,6 +99,7 @@ test_6_0() {
 	   -t "test_2.types.yml" \
 	   -b "16x16" \
 	   -H "test_homography_2.txt" \
+	   -p "test_6" \
 	   -o "$1"
 }
 
@@ -105,6 +111,7 @@ test_7_0() {
 	   -b "16x16" \
 	   -H "test_homography_2.txt" \
 	   -f "12" \
+	   -p "test_7" \
 	   -o "$1"
 }
 
@@ -115,6 +122,7 @@ test_8_0() {
 	   -t "test_2.types.yml" \
 	   -b "16x16" \
 	   -H "test_homography_1.txt" \
+	   -p "test_8" \
 	   --min-spatial-overlap 0.5 \
 	   -o "$1"
 }
@@ -125,5 +133,42 @@ test_9_0() {
 	   -a "test_5.act.yml" \
 	   -t "test_2.types.yml" \
 	   -b "8x8" \
+	   -p "test_9" \
+	   -o "$1"
+}
+
+
+test_10_0() {
+    # Test negative frame number filtering
+    python ../eo_to_ir.py \
+	   -g "test_2.geom.yml" \
+	   -a "test_2.act.yml" \
+	   -t "test_2.types.yml" \
+	   -p "test_10" \
+	   -b "8x8" \
+	   -f "-2099" \
+	   -o "$1"
+}
+
+test_11_0() {
+    # Test multi-actor activities
+    python ../eo_to_ir.py \
+	   -g "test_2.geom.yml" \
+	   -a "test_11.act.yml" \
+	   -t "test_2.types.yml" \
+	   -b "352x240" \
+	   -p "test_11_0" \
+	   -o "$1"
+}
+
+test_11_1() {
+    # Test multi-actor activities, drop activity if any constituent
+    # actor is filtered out
+    python ../eo_to_ir.py \
+	   -g "test_2.geom.yml" \
+	   -a "test_11.act.yml" \
+	   -t "test_2.types.yml" \
+	   -b "8x8" \
+	   -p "test_11_1" \
 	   -o "$1"
 }

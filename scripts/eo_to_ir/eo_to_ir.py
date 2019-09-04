@@ -44,12 +44,17 @@ def _build_geom_cropper(crop_bounds):
         orig_bounds = tuple(map(float, geom.get('g0').split(' ')))
         cropped_bounds = cropper_fn(orig_bounds)
         x0, y0, x1, y1 = cropped_bounds
+        x0 = int(x0)
+        y0 = int(y0)
+        x1 = int(x1)
+        y1 = int(y1)
 
         geom['g0'] = ' '.join(map(str, cropped_bounds))
         # Keep track of how much of the bounding box remains after
         # cropping
+        orig_area = area_of_bounds(orig_bounds)
         geom['_ov0'] = (area_of_bounds(cropped_bounds) /
-                        area_of_bounds(orig_bounds))
+                        orig_area) if orig_area > 0 else 0.0
 
         return geom
 
@@ -60,6 +65,12 @@ def geom_0area_filter(geom):
     x0, y0, x1, y1 = tuple(map(float, geom.get('g0').split(' ')))
 
     return x0 != x1 and y0 != y1
+
+
+def geom_negative_framenum_filter(geom):
+    ts0 = int(geom.get('ts0'))
+
+    return ts0 >= 0
 
 
 def strip_geom_internal_fields(geom):
@@ -173,9 +184,16 @@ def _build_activity_timespan_adjuster(geoms_by_actor_by_ts0,
                 max_ts0 = max(max_a_ts0, max_ts0)
 
         if max_ts0 - min_ts0 >= 0:
-            # Adjust the activity timespan
-            activity_rec['timespan'][0]['tsr0'] = [min_ts0, max_ts0]
-            out_activities.append(activity_rec)
+            if len(activity_rec.get('actors', [])) != len(adjusted_actors):
+                # Don't output the activity if any constituent actors
+                # are filtered out
+                return out_activities
+            else:
+                # Replace the actors rec in the activity
+                activity_rec['actors'] = adjusted_actors
+                # Adjust the activity timespan
+                activity_rec['timespan'][0]['tsr0'] = [min_ts0, max_ts0]
+                out_activities.append(activity_rec)
 
         return out_activities
 
@@ -226,6 +244,10 @@ def main(args):
         geom_mapper_fns.append(
             xd_map(_build_time_shifter(args.frame_offset,
                                        args.framerate)))
+        # Go ahead and add the negative framenum filter here so that
+        # we don't have to process the geom further if filtered
+        geom_mapper_fns.append(
+            xd_filter(geom_negative_framenum_filter))
         activity_mapper_fns.append(
             xd_map(_build_activity_time_shifter(args.frame_offset)))
 
@@ -268,7 +290,7 @@ def main(args):
     # want to prevent ourselves from accidently overwriting the input
     # file if we're not careful when specifying our output directory
     out_geom_path = os.path.join(
-        args.output_dir, os.path.basename(args.input_geom))
+        args.output_dir, "%s.geom.yml" % args.ir_prefix)
     abort_if_file_exists(out_geom_path)
     with open(out_geom_path, 'w') as of:
         # Write out non-geom records preserved from the original/input
@@ -287,11 +309,11 @@ def main(args):
                     # Write out the geom record
                     print(f"- {kpf_yaml_dump({'geom': geom_rec})}", file=of)
 
-                num_frames_per_actor[actor_id] = max_ts0 - min_ts0
+                num_frames_per_actor[actor_id] = (max_ts0 - min_ts0) + 1
 
     # Dump kw18 of geoms
     kw18_base, _ = os.path.splitext(args.input_geom)
-    kw18_outpath = os.path.join(args.output_dir, f"{kw18_base}.kw18")
+    kw18_outpath = os.path.join(args.output_dir, "%s.kw18" % args.ir_prefix)
     abort_if_file_exists(kw18_outpath)
     dump_geoms_as_kw18(itertools.chain(
         *[v.values() for v in cropped_geoms_by_actor_by_ts0.values()]),
@@ -300,7 +322,7 @@ def main(args):
 
     activity_pipeline = xd(*activity_mapper_fns)
     out_act_path = os.path.join(
-        args.output_dir, os.path.basename(args.input_activities))
+        args.output_dir, "%s.activities.yml" % args.ir_prefix)
     abort_if_file_exists(out_act_path)
     with open(out_act_path, 'w') as of:
         out_meta_records = []
@@ -339,7 +361,7 @@ def main(args):
             print(f"- {kpf_yaml_dump({'act': out_activity_rec})}", file=of)
 
     out_types_path = os.path.join(
-        args.output_dir, os.path.basename(args.input_types))
+        args.output_dir, "%s.types.yml" % args.ir_prefix)
     abort_if_file_exists(out_types_path)
     with open(out_types_path, 'w') as of:
         for type_rec in yaml_types:
@@ -391,6 +413,10 @@ if __name__ == "__main__":
                         type=str,
                         help="Two KRTD camera file paths (colon-separated)"
                         "being the source:destination cameras")
+    parser.add_argument("-p", "--ir-prefix",
+                        type=str,
+                        required=True,
+                        help="IR clip prefix for output")
     parser.add_argument("--min-spatial-overlap",
                         type=float,
                         help='Minimum spatial overlap (as a ratio of post to '
