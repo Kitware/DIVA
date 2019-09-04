@@ -52,8 +52,9 @@ def _build_geom_cropper(crop_bounds):
         geom['g0'] = ' '.join(map(str, cropped_bounds))
         # Keep track of how much of the bounding box remains after
         # cropping
+        orig_area = area_of_bounds(orig_bounds)
         geom['_ov0'] = (area_of_bounds(cropped_bounds) /
-                        area_of_bounds(orig_bounds))
+                        orig_area) if orig_area > 0 else 0.0
 
         return geom
 
