@@ -8,6 +8,7 @@ setup(name='diva',
       packages=find_packages(),
       setup_requires=[
           'setuptools',
+          'scikit-build'
       ],
       install_requires=[
           'kwiver',
@@ -16,7 +17,7 @@ setup(name='diva',
           '-DCMAKE_BUILD_TYPE=Release',
           '-DKWIVER_PYTHON_MAJOR_VERSION=3',
           '-DDIVA_SUPERBUILD=OFF',
-          '-DDIVA_BUILD_SHARED_LIBS=OFF',
+          '-DDIVA_BUILD_SHARED=OFF',
           '-DDIVA_BUILD_WITH_CUDA=OFF',
           '-DDIVA_BUILD_WITH_CUDNN=OFF',
       ],

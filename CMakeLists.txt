@@ -14,7 +14,7 @@ option(DIVA_BUILD_DOCUMENTATION "Build DIVA documentation using Doxygen and Sphi
 option(DIVA_ENABLE_PYTHON "Build python bindings for DIVA" ON)
 option(DIVA_ENABLE_PROCESS "Build DIVA processes" OFF)
 option(DIVA_BUILD_WITH_CUDA "Build with CUDA support" FALSE)
-option(DIVA_BUILD_SHARED_LIBS "Build DIVA and dependencies with shared libs" ON)
+option(DIVA_BUILD_SHARED "Build DIVA and dependencies with shared libs" ON)
 
 # Common paths include
 set(DIVA_CMAKE_DIR ${DIVA_SOURCE_DIR}/CMake)
