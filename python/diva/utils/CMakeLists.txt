@@ -8,7 +8,7 @@ include_directories(${pybind11_INCLUDE_DIR})
 include_directories(${KWIVER_INCLUDE_DIR})
 
 kwiver_add_python_library(utils
-  diva
+  utils
   diva_python_utils.cxx
   diva_python_packet.cxx
   diva_python_label.cxx
@@ -18,14 +18,14 @@ kwiver_add_python_library(utils
   diva_python_input.cxx
 )
 
-kwiver_create_python_init(diva
+kwiver_create_python_init(utils
   utils)
 
 
-target_link_libraries(python-diva-utils
+target_link_libraries(python-utils-utils
   PUBLIC ${PYTHON_LIBRARIES}
   PRIVATE diva_utils )
 
 if(WIN32)
-  target_compile_definitions(python-diva-utils PRIVATE YAML_CPP_DLL)
+  target_compile_definitions(python-utils-utils PRIVATE YAML_CPP_DLL)
 endif()
