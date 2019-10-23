@@ -85,6 +85,7 @@ add_subdirectory(utils)
 add_subdirectory(external)
 if(DIVA_ENABLE_PYTHON)
   add_subdirectory(scripts)
+  add_subdirectory(python)
 endif()
 
 if(DIVA_ENABLE_OPTICAL_FLOW)

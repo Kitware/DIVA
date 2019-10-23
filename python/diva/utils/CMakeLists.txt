@@ -1,4 +1,3 @@
-
 find_package(fletch REQUIRED)
 find_package(pybind11 CONFIG REQUIRED)
 find_package(kwiver REQUIRED)
