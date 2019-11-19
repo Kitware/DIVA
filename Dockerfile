@@ -46,12 +46,12 @@ ADD processes ${DIVA_SRC}/processes
 ADD utils ${DIVA_SRC}/utils
 ADD scripts ${DIVA_SRC}/scripts
 ADD CMakeLists.txt ${DIVA_SRC}/CMakeLists.txt
-ADD setup.py ${DIVA_SRC}/setup.py
+ADD python ${DIVA_SRC}/python
 
 WORKDIR ${DIVA_BUILD}
 RUN cmake ${DIVA_SRC} -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=${DIVA_INSTALL} \
                     -DDIVA_BUILD_WITH_CUDA=OFF -DDIVA_BUILD_WITH_CUDNN=OFF \
-                    -DDIVA_SUPERBUILD=ON -DDIVA_BUILD_SHARED_LIBS=OFF
+                    -DDIVA_SUPERBUILD=ON -DDIVA_BUILD_SHARED=OFF
 
 RUN make -j8
 

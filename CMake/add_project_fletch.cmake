@@ -20,7 +20,7 @@ endif()
 ExternalProject_Add(fletch
   PREFIX ${DIVA_BINARY_DIR}
   GIT_REPOSITORY "git://github.com/dmjoy/fletch.git"
-  GIT_TAG 2870ee93aa499f0f270b1005aa78d6d2c3a2e6ae
+  GIT_TAG fa9c1044ffda2693ce7ae385f850b2162b703c83
   SOURCE_DIR fletch
   BINARY_DIR fletch-build
   STAMP_DIR ${DIVA_STAMP_DIR}
@@ -33,7 +33,7 @@ ExternalProject_Add(fletch
     -Dfletch_ENABLE_Caffe:BOOL=OFF
     -Dfletch_ENABLE_Ceres:BOOL=OFF
     -Dfletch_ENABLE_Darknet:BOOL=ON
-    -Dfletch_ENABLE_Darknet_OpenCV:BOOL=ON
+    -Dfletch_ENABLE_Darknet_OpenCV:BOOL=OFF
     -Dfletch_ENABLE_Eigen:BOOL=ON
     -Dfletch_ENABLE_FFmpeg:BOOL=ON
     -Dfletch_ENABLE_GDAL:BOOL=OFF

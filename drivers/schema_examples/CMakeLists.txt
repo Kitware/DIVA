@@ -13,7 +13,9 @@ target_link_libraries(schema_examples
                       vital_logger
                       vital_util
                       vital_exceptions
-                      vital_vpm)
+                      vital_vpm
+                      kpf_yaml
+                      yaml-cpp)
 if(NOT EXISTS ${CMAKE_INSTALL_PREFIX}/bin/)
   file(MAKE_DIRECTORY ${CMAKE_INSTALL_PREFIX}/bin)
 endif()

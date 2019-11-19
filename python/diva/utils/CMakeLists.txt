@@ -18,13 +18,11 @@ kwiver_add_python_library(utils
   diva_python_input.cxx
 )
 
-kwiver_create_python_init(utils
-  utils)
-
-
 target_link_libraries(python-utils-utils
   PUBLIC ${PYTHON_LIBRARIES}
-  PRIVATE diva_utils )
+  PRIVATE diva_utils
+          kpf_yaml
+          yaml-cpp)
 
 if(WIN32)
   target_compile_definitions(python-utils-utils PRIVATE YAML_CPP_DLL)

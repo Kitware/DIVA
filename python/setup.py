@@ -20,12 +20,13 @@ setup(name='diva',
           '-DDIVA_BUILD_SHARED=OFF',
           '-DDIVA_BUILD_WITH_CUDA=OFF',
           '-DDIVA_BUILD_WITH_CUDNN=OFF',
+          '-DDIVA_ENABLE_PROCESS=ON',
       ],
       cmake_install_dir='diva',
       cmake_source_dir=diva_source_dir,
       entry_points={
           'kwiver.cpp_search_paths': [
-              'diva_processes=processes.register_cpp_processes:get_cpp_path']},
+              'diva_processes=diva.processes.register_cpp_processes:get_cpp_path']},
       scripts=[
           '{}/scripts/cli_helpers/cleanup_chunk.py'.format(diva_source_dir),
           '{}/scripts/cli_helpers/cleanup_experiment.py'.format(diva_source_dir),

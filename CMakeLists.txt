@@ -95,8 +95,13 @@ endif()
 if(DIVA_ENABLE_PROCESS)
   ###
   # Set location for process plugins
-  set( diva_plugin_process_subdir diva/processes )
-  set( diva_plugin_module_subdir  diva/modules )
+  if(SKBUILD)
+    set( diva_plugin_process_subdir processes )
+    set( diva_plugin_module_subdir  modules )
+  else()
+    set( diva_plugin_process_subdir diva/processes )
+    set( diva_plugin_module_subdir  diva/modules )
+  endif()
   add_subdirectory(processes)
 endif()
 
