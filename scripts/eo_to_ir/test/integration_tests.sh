@@ -172,3 +172,17 @@ test_11_1() {
 	   -p "test_11_1" \
 	   -o "$1"
 }
+
+test_11_2() {
+    # Test multi-actor activities, drop activity if any constituent
+    # actor is filtered out; With --include-orphans don't remove geom
+    # or type records for actors no longer belonging to an activty
+    python ../eo_to_ir.py \
+	   -g "test_2.geom.yml" \
+	   -a "test_11.act.yml" \
+	   -t "test_2.types.yml" \
+	   -b "8x8" \
+	   -p "test_11_2" \
+	   -o "$1" \
+       --include-orphans
+}

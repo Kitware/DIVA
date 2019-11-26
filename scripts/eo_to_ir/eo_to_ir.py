@@ -280,45 +280,8 @@ def main(args):
 
     os.makedirs(args.output_dir, exist_ok=True)
 
-    # This is needed for when we dump out the kw18
-    num_frames_per_actor = {}
-
-    # Useful for generating our output "types" file
+    # Useful for filtering out orphaned actors
     surviving_actors = set()
-
-    # Since we're using the input basename for our output filename,
-    # want to prevent ourselves from accidently overwriting the input
-    # file if we're not careful when specifying our output directory
-    out_geom_path = os.path.join(
-        args.output_dir, "%s.geom.yml" % args.ir_prefix)
-    abort_if_file_exists(out_geom_path)
-    with open(out_geom_path, 'w') as of:
-        # Write out non-geom records preserved from the original/input
-        # geoms file
-        for non_geom_rec in non_geom_records:
-            print(f"- {kpf_yaml_dump(non_geom_rec)}", file=of)
-
-        for actor_id, geom_recs_by_ts0 in cropped_geoms_by_actor_by_ts0.items():
-            geom_recs = geom_recs_by_ts0.values()
-            if len(geom_recs) > 0:
-                surviving_actors.add(actor_id)
-                min_ts0, max_ts0 = float('inf'), 0.0
-                for geom_rec in geom_recs:
-                    min_ts0 = min(geom_rec.get('ts0', min_ts0), min_ts0)
-                    max_ts0 = max(geom_rec.get('ts0', max_ts0), max_ts0)
-                    # Write out the geom record
-                    print(f"- {kpf_yaml_dump({'geom': geom_rec})}", file=of)
-
-                num_frames_per_actor[actor_id] = (max_ts0 - min_ts0) + 1
-
-    # Dump kw18 of geoms
-    kw18_base, _ = os.path.splitext(args.input_geom)
-    kw18_outpath = os.path.join(args.output_dir, "%s.kw18" % args.ir_prefix)
-    abort_if_file_exists(kw18_outpath)
-    dump_geoms_as_kw18(itertools.chain(
-        *[v.values() for v in cropped_geoms_by_actor_by_ts0.values()]),
-                       num_frames_per_actor,
-                       kw18_outpath)
 
     activity_pipeline = xd(*activity_mapper_fns)
     out_act_path = os.path.join(
@@ -345,6 +308,10 @@ def main(args):
             [])
 
         for activity in out_activity_records:
+            # Keep track of surviving actors
+            for actor_rec in activity.get('actors', []):
+                surviving_actors.add(actor_rec['id1'])
+
             # Count the instances for out meta counts
             for activity_name, count in activity.get('act2', {}).items():
                 activity_counts[activity_name] =\
@@ -359,6 +326,48 @@ def main(args):
 
         for out_activity_rec in out_activity_records:
             print(f"- {kpf_yaml_dump({'act': out_activity_rec})}", file=of)
+
+    # This is needed for when we dump out the kw18
+    num_frames_per_actor = {}
+
+    # Since we're using the input basename for our output filename,
+    # want to prevent ourselves from accidently overwriting the input
+    # file if we're not careful when specifying our output directory
+    out_geom_path = os.path.join(
+        args.output_dir, "%s.geom.yml" % args.ir_prefix)
+    abort_if_file_exists(out_geom_path)
+    with open(out_geom_path, 'w') as of:
+        # Write out non-geom records preserved from the original/input
+        # geoms file
+        for non_geom_rec in non_geom_records:
+            print(f"- {kpf_yaml_dump(non_geom_rec)}", file=of)
+
+        for actor_id, geom_recs_by_ts0 in cropped_geoms_by_actor_by_ts0.items():
+            geom_recs = geom_recs_by_ts0.values()
+            if len(geom_recs) > 0:
+                if args.include_orphans:
+                    surviving_actors.add(actor_id)
+                elif actor_id not in surviving_actors:
+                    continue
+
+                min_ts0, max_ts0 = float('inf'), 0.0
+                for geom_rec in geom_recs:
+                    min_ts0 = min(geom_rec.get('ts0', min_ts0), min_ts0)
+                    max_ts0 = max(geom_rec.get('ts0', max_ts0), max_ts0)
+                    # Write out the geom record
+                    print(f"- {kpf_yaml_dump({'geom': geom_rec})}", file=of)
+
+                num_frames_per_actor[actor_id] = (max_ts0 - min_ts0) + 1
+
+    # Dump kw18 of geoms
+    kw18_base, _ = os.path.splitext(args.input_geom)
+    kw18_outpath = os.path.join(args.output_dir, "%s.kw18" % args.ir_prefix)
+    abort_if_file_exists(kw18_outpath)
+    dump_geoms_as_kw18(itertools.chain(
+        *[v.values() for k, v in cropped_geoms_by_actor_by_ts0.items()
+          if args.include_orphans or k in surviving_actors]),
+                       num_frames_per_actor,
+                       kw18_outpath)
 
     out_types_path = os.path.join(
         args.output_dir, "%s.types.yml" % args.ir_prefix)
@@ -422,5 +431,10 @@ if __name__ == "__main__":
                         help='Minimum spatial overlap (as a ratio of post to '
                         'pre-crop area) required to not be considered '
                         'occluded ("off-screen")')
+    parser.add_argument("--include-orphans",
+                        action='store_true',
+                        help="Include geom and type records for actors"
+                        "that no longer belong to an activity but have"
+                        "otherwise not been filtered out")
 
     main(parser.parse_args())
