@@ -34,14 +34,18 @@
 #include <yaml-cpp/yaml.h>
 #include <vital/types/image.h>
 #include <vital/types/image_container.h>
-#include <vital/algo/video_input.h>
-#include <vital/algo/image_io.h>
 #include <vital/util/data_stream_reader.h>
 #include <vital/config/config_block.h>
 #include <vital/config/config_block_io.h>
 #include <vital/logger/logger.h>
 #include <kwiversys/SystemTools.hxx>
 #include <kwiversys/RegularExpression.hxx>
+#include <arrows/ocv/image_container.h>
+#include <arrows/ffmpeg/ffmpeg_video_input_impl.h>
+
+#include <opencv2/core/core.hpp>
+#include <opencv2/imgproc/imgproc.hpp>
+#include <opencv2/highgui/highgui.hpp>
 
 typedef kwiversys::SystemTools ST;
 
@@ -60,11 +64,9 @@ public:
   kwiver::vital::timestamp::time_t      default_frame_time_step_usec;
   kwiver::vital::metadata_vector        metadata;
   kwiver::vital::metadata_vector        last_metadata;
+  typedef std::shared_ptr<kwiver::arrows::ffmpeg::ffmpeg_video_input_impl> video_reader_sptr_t;
+  video_reader_sptr_t video_reader;
 
-  kwiver::vital::algo::video_input_sptr video_reader;
-  kwiver::vital::algorithm_capabilities video_traits;
-
-  kwiver::vital::algo::image_io_sptr    image_reader;
   std::vector < kwiver::vital::path_t > files;
   std::vector < kwiver::vital::path_t >::const_iterator current_file;
 
@@ -305,14 +307,12 @@ diva_input::type diva_input::get_source() const
 }
 
 // ----------------------------------------------------------------------------
-#include "vital/plugin_loader/plugin_manager.h"
 bool diva_input::set_image_list_source(const std::string& source_dir, const std::string& list_file)
 {
   clear_source();
-  kwiver::vital::plugin_manager::instance().load_all_plugins();
   std::vector< std::string > search_paths;
   search_paths.push_back(source_dir);
-  _pimpl->image_reader = kwiver::vital::algo::image_io::create("ocv");
+  //_pimpl->image_reader = kwiver::vital::algo::image_io::create("ocv");
 
   // open file and read lines
   std::ifstream ifs(source_dir + "/" + list_file);
@@ -368,16 +368,14 @@ std::string diva_input::get_image_list_source_dir() const
   return _pimpl->source_dir;
 }
 
-#include "vital/plugin_loader/plugin_manager.h"
 bool diva_input::set_video_file_source(const std::string& source_dir, const std::string& video_file)
 {
   clear_source();
-  kwiver::vital::plugin_manager::instance().load_all_plugins();
-  _pimpl->video_reader = kwiver::vital::algo::video_input::create("vidl_ffmpeg");
-  _pimpl->video_reader->set_configuration(_pimpl->video_reader->get_configuration());// This will default the configuration
+  _pimpl->video_reader =
+    std::make_shared<kwiver::arrows::ffmpeg::ffmpeg_video_input_impl>();
   try
   {
-    _pimpl->video_reader->open(source_dir + "/" + video_file);//ST::JoinPath(std::vector<std::string>({source_dir, video_file}))); // throws
+    _pimpl->video_reader->open(source_dir + "/" + video_file);
   }
   catch (std::exception& ex)
   {
@@ -386,12 +384,10 @@ bool diva_input::set_video_file_source(const std::string& source_dir, const std:
   }
 
   // Get the capabilities for the currently opened video.
-  _pimpl->video_traits = _pimpl->video_reader->get_implementation_capabilities();
-
   _pimpl->type = type::video_file;
   _pimpl->source = video_file;
   _pimpl->source_dir = source_dir;
-  _pimpl->frame_rate_Hz = _pimpl->video_reader->frame_rate();
+  //_pimpl->frame_rate_Hz = _pimpl->video_reader->frame_rate();
   _pimpl->default_frame_time_step_usec = static_cast<kwiver::vital::timestamp::time_t>(.3333 * 1e6); // in usec;
   _pimpl->config->set_value<std::string>("input:type", "video_file");
   _pimpl->config->set_value<std::string>("input:source", video_file);
@@ -410,13 +406,11 @@ std::string diva_input::get_video_file_source_dir() const
   return _pimpl->source_dir;
 }
 
-#include "vital/plugin_loader/plugin_manager.h"
 bool diva_input::set_rtsp_source(const std::string& url)
 {
   clear_source();
-  kwiver::vital::plugin_manager::instance().load_all_plugins();
-  _pimpl->video_reader = kwiver::vital::algo::video_input::create("vidl_ffmpeg");
-  _pimpl->video_reader->set_configuration(_pimpl->video_reader->get_configuration());// This will default the configuration
+  _pimpl->video_reader =
+    std::make_shared<kwiver::arrows::ffmpeg::ffmpeg_video_input_impl>();
   try
   {
     _pimpl->video_reader->open( url ); // throws
@@ -428,7 +422,6 @@ bool diva_input::set_rtsp_source(const std::string& url)
   }
 
   // Get the capabilities for the currently opened video.
-  _pimpl->video_traits = _pimpl->video_reader->get_implementation_capabilities();
 
   _pimpl->type = type::rtsp;
   _pimpl->source = url;
@@ -468,7 +461,10 @@ kwiver::vital::image_container_sptr diva_input::get_next_frame()
     case diva_input::type::image_list:
     {
       std::string a_file = *_pimpl->current_file;
-      frame = _pimpl->image_reader->load(a_file);
+      cv::Mat img = cv::imread(a_file.c_str(), -1);
+      frame = kwiver::vital::image_container_sptr(
+                 new kwiver::arrows::ocv::image_container(img,
+                               kwiver::arrows::ocv::image_container::BGR_COLOR));
       // update timestamp
       kwiversys::RegularExpression frame_num_re("([0-9]+)\\.[^\\.]+$");
       if (!frame_num_re.find(a_file))
@@ -485,34 +481,17 @@ kwiver::vital::image_container_sptr diva_input::get_next_frame()
       // TODO meta data?
       break;
     }
-    // rtsp is using the same vidl ffmpeg 
     case diva_input::type::rtsp:
     case diva_input::type::video_file:
     {
-      if (!_pimpl->video_traits.capability(kwiver::vital::algo::video_input::HAS_FRAME_DATA))
-      {
-        VITAL_THROW( kwiver::vital::video_stream_exception, "Video reader selected does not supply image data.");
-      }
       frame = _pimpl->video_reader->frame_image();
-
-      // Compute the frame number if its not in the timestamp
-      if (!_pimpl->video_traits.capability(kwiver::vital::algo::video_input::HAS_FRAME_NUMBERS))
-      {
-        ++_pimpl->frame_number;
-        _pimpl->ts.set_frame(_pimpl->frame_number);
-      }
-
-      // Compute a frame time if its not in the time stamp
-      if (!_pimpl->video_traits.capability(kwiver::vital::algo::video_input::HAS_FRAME_TIME))
-      {
-        // If the video does not know its frame time step, compute with the experiment request
-        _pimpl->ts.set_time_usec(_pimpl->frame_number * _pimpl->default_frame_time_step_usec);
-      }
-
+      ++_pimpl->frame_number;
+      _pimpl->ts.set_frame(_pimpl->frame_number);
+      _pimpl->ts.set_time_usec(_pimpl->frame_number * _pimpl->default_frame_time_step_usec);
       // If this reader/video does not have any metadata, we will just
       // return an empty vector.  That is all handled by the algorithm
       // implementation.
-      _pimpl->metadata = _pimpl->video_reader->frame_metadata();
+      _pimpl->metadata = _pimpl->video_reader->current_metadata();
       // Since we want to try to always return valid metadata for this
       // frame - if the returned metadata is empty, then use the last
       // one we received.  The requirement is to always provide the best
