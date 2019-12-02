@@ -5,6 +5,7 @@ project( diva_processes )
 
 find_package(kwiver REQUIRED)
 find_package(Boost REQUIRED COMPONENTS system chrono)
+find_package(GFlags COMPONENTS static)
 
 set( sources
   register_processes.cxx
@@ -34,4 +35,6 @@ kwiver_add_plugin( diva_processes
                    vital vital_vpm vital_logger vital_config
                    ${OpenCV_LIBS}
                    boost_thread boost_chrono boost_system
+                   gflags_static
+                   "-Wl,-Bsymbolic"
 )

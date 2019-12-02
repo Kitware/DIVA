@@ -5,7 +5,7 @@ if( OpenCV_VERSION VERSION_LESS "2.4" )
 endif()
 include_directories(${OpenCV_INCLUDE_DIRS})
 
-find_package( GFlags COMPONENTS shared )
+find_package( GFlags COMPONENTS static )
 
 set(SOURCE "basic_experiment.cpp")
 include_directories("${CMAKE_BINARY_DIR}")
@@ -14,7 +14,9 @@ include_directories("${KWIVER_INCLUDE_DIRS}")
 add_executable(basic_experiment ${SOURCE})
 target_link_libraries(basic_experiment 
                       diva_utils
+                      kwiver_ocv_image_container
                       kwiver_algo_ocv
+                      kwiver_algo_ffmpeg_impl
                       kwiversys
                       vital
                       vital_algo
@@ -24,7 +26,7 @@ target_link_libraries(basic_experiment
                       vital_exceptions
                       vital_vpm
                       ${OpenCV_LIBS}
-                      gflags_shared)
+                      gflags_static)
 link_directories(${OpenCV_LIB_DIR})
 
 add_custom_command(TARGET basic_experiment POST_BUILD

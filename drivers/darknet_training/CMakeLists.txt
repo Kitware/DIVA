@@ -3,7 +3,7 @@ if( OpenCV_VERSION VERSION_LESS "2.4" )
   message( FATAL_ERROR "OpenCV version must be at least 2.4" )
 endif()
 
-find_package( GFlags COMPONENTS shared )
+find_package( GFlags COMPONENTS static )
 
 set(SOURCE "darknet_training.cpp")
 include_directories("${CMAKE_BINARY_DIR}")
@@ -15,7 +15,7 @@ target_link_libraries(darknet_training
                       kwiversys
                       kpf_yaml
                       ${OpenCV_LIBS}
-                      gflags_shared)
+                      gflags_static)
 link_directories(${OpenCV_LIB_DIR})
 
 add_custom_command(TARGET darknet_training POST_BUILD
