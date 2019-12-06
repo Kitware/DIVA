@@ -144,7 +144,7 @@ if __name__ == '__main__':
     elif args.verb == 'load':
         exp = diva_python_utils.experiment()
         exp.read_experiment(args.expfn)
-        print exp.to_string(),
+        print(exp.to_string())
     else:
         sys.stderr.write( 'Logic error: unhandled verb %s\n' % (args.verb) )
 

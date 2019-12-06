@@ -1,4 +1,4 @@
-FROM nvidia/cuda:9.0-cudnn7-devel-ubuntu16.04
+FROM kitware/kwiver:create-kwiver-wheel
 
 RUN apt-get update && \
     apt-get install -y --no-install-recommends \
@@ -12,25 +12,16 @@ RUN apt-get update && \
                     wget \
                     cmake-curses-gui \
                     libssl-dev \
-                    python2.7-dev \
                     python3-dev \
                     python3-pip \
-                    && pip3 install numpy scipy setuptools
+                    && pip3 install numpy scipy setuptools six
 
 ENV DIVA_BASE=/diva
 ENV DIVA_INSTALL=/opt/diva
+ENV KWIVER_INSTALL=/usr/local/lib/kwiver
 ENV DIVA_SRC=${DIVA_BASE}/src
 ENV DIVA_BUILD=${DIVA_BASE}/build
 ENV DIVA_TEMP=${DIVA_BASE}/tmp
-
-
-
-
-# install cmake
-WORKDIR ${DIVA_TEMP}
-RUN wget -O cmake-3.12.3.tar.gz https://cmake.org/files/v3.12/cmake-3.12.3.tar.gz && \
-    tar xvzf cmake-3.12.3.tar.gz && cd cmake-3.12.3 && \
-    ./bootstrap && make -j8 && make install
 
 WORKDIR ${DIVA_BASE}
 
@@ -47,33 +38,38 @@ ADD utils ${DIVA_SRC}/utils
 ADD scripts ${DIVA_SRC}/scripts
 ADD CMakeLists.txt ${DIVA_SRC}/CMakeLists.txt
 
+RUN mkdir -p ${DIVA_BUILD}
+WORKDIR ${DIVA_BUILD}
 
-RUN mkdir -p ${DIVA_BUILD} && cd ${DIVA_BUILD}
-RUN cmake ${DIVA_SRC} -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=${DIVA_INSTALL} \
-                    -DDIVA_BUILD_WITH_CUDA=ON -DDIVA_BUILD_WITH_CUDNN=ON \
-                    -DDIVA_SUPERBUILD=ON
+RUN cmake ${DIVA_SRC} \
+    -DCMAKE_BUILD_TYPE=Release \
+    -DCMAKE_INSTALL_PREFIX=${DIVA_INSTALL} \
+    -DKWIVER_PYTHON_MAJOR_VERSION=3 \
+    -DDIVA_PYTHON_MAJOR_VERSION=3 \
+    -DDIVA_BUILD_WITH_CUDA=ON \
+    -DDIVA_BUILD_WITH_CUDNN=ON \
+    -DDIVA_ENABLE_PROCESS=ON \
+    -DDIVA_SUPERBUILD=OFF
 RUN make -j8
-
-# clean up
-RUN rm -rf ${DIVA_SRC}
-RUN rm -rf ${DIVA_BUILD}
-
+RUN make install
+WORKDIR /
 
 # Setup_kwiver env variables
 ENV VG_PLUGIN_PATH=${DIVA_INSTALL}
 ENV PATH=${DIVA_INSTALL}/bin:${PATH}
-ENV LD_LIBRARY_PATH=${DIVA_INSTALL}/lib:${LD_LIBRARY_PATH}
-ENV KWIVER_PLUGIN_PATH=${DIVA_INSTALL}/lib/kwiver/modules:${DIVA_INSTALL}/lib/kwiver/processes:${KWIVER_PLUGIN_PATH}
+ENV LD_LIBRARY_PATH=${DIVA_INSTALL}/lib:/usr/local/lib:${LD_LIBRARY_PATH}
+ENV KWIVER_PLUGIN_PATH=${KWIVER_INSTALL}/modules:${KWIVER_INSTALL}/processes:${KWIVER_PLUGIN_PATH}
 # Append here
-ENV VITAL_LOGGER_FACTORY=${DIVA_INSTALL}/lib/kwiver/modules/vital_log4cplus_logger
-ENV LOG4CPLUS_CONFIGURATION=${DIVA_INSTALL}/log4cplus.properties
+ENV VITAL_LOGGER_FACTORY=${KWIVER_INSTALL}/modules/vital_log4cplus_logger
+ENV LOG4CPLUS_CONFIGURATION=/usr/local/log4cplus.properties
 # Python environment
-ENV PYTHON_LIBRARY="/usr/lib/x86_64-linux-gnu/libpython2.7.so"
-ENV PYTHONPATH=${DIVA_INSTALL}/lib/python2.7/dist-packages:${PYTHONPATH}
-ENV PYTHONPATH=${DIVA_INSTALL}/lib/site-packages:${PYTHONPATH}
+ENV PYTHON_LIBRARY="/usr/lib/x86_64-linux-gnu/libpython3.5m.so"
+ENV PYTHONPATH=${DIVA_INSTALL}/lib/python3/dist-packages/diva:${PYTHONPATH}
+ENV PYTHONPATH=/usr/local/lib/python3/dist-packages/kwiver:${PYTHONPATH}
+ENV PYTHONPATH=/usr/local/lib/python3/dist-packages:${PYTHONPATH}
 ENV SPROKIT_PYTHON_MODULES=kwiver.processes
 
 # Setup_diva env variables
 ENV PYTHONPATH=${DIVA_INSTALL}/lib:${PYTHONPATH}
 ENV KWIVER_PLUGIN_PATH=${DIVA_INSTALL}/lib/diva/processes:${DIVA_INSTALL}/lib/diva/modules:${KWIVER_PLUGIN_PATH}
-ENV SPROKIT_PYTHON_MODULES=DIVA.processes:${SPROKIT_PYTHON_MODULES}
+ENV SPROKIT_PYTHON_MODULES=DIVA.processes:DIVA.processes.rc3d:DIVA.processs.act:${SPROKIT_PYTHON_MODULES}
