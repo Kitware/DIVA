@@ -44,6 +44,19 @@ provided by Kwiver.
                 :linenos:
                 :language: c++
 
+The DIVA framework also provides processes (via Kwiver) for mapping annotations
+between cameras and rendering the results.  The following example pipeline
+demonstrates how to ingest KPF formatted annotations, map them between two
+cameras, and draw the resulting annotations.
+
+.. content-tabs::
+
+   .. tab-container:: tab1
+           :title: Plaintext
+
+           .. literalinclude:: pipelines/example_annotation_visualization.pipe
+               :linenos:
+
 Although, Sprokit implicitly supports multi-threaded pipelines, the pipelines are
 restricted to a single machine. The framework relies on `ZeroMQ` for providing distributed 
 pipelines. These pipelines use ``zeromq_transport_send`` and 
@@ -80,6 +93,10 @@ Object Detection
 Optical Flow
 ^^^^^^^^^^^^
 .. graphviz:: _pipe/optical_flow.dot
+
+Annotation Transfer and Visualization
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.. graphviz:: _pipe/example_annotation_visualization.dot
 
 ZeroMQ Pipelines
 ----------------
