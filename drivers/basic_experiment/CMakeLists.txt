@@ -5,8 +5,6 @@ if( OpenCV_VERSION VERSION_LESS "2.4" )
 endif()
 include_directories(${OpenCV_INCLUDE_DIRS})
 
-find_package( GFlags COMPONENTS static )
-
 set(SOURCE "basic_experiment.cpp")
 include_directories("${CMAKE_BINARY_DIR}")
 include_directories("${CMAKE_SOURCE_DIR}/utils")
@@ -25,8 +23,7 @@ target_link_libraries(basic_experiment
                       vital_util
                       vital_exceptions
                       vital_vpm
-                      ${OpenCV_LIBS}
-                      gflags_static)
+                      ${OpenCV_LIBS})
 link_directories(${OpenCV_LIB_DIR})
 
 add_custom_command(TARGET basic_experiment POST_BUILD

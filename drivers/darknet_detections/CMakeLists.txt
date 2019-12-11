@@ -4,8 +4,6 @@ if( OpenCV_VERSION VERSION_LESS "2.4" )
   message( FATAL_ERROR "OpenCV version must be at least 2.4" )
 endif()
 
-find_package( GFlags COMPONENTS static )
-
 set(SOURCE "darknet_detections.cpp")
 
 include_directories(${OpenCV_INCLUDE_DIRS})
@@ -29,8 +27,7 @@ target_link_libraries(darknet_detections
                       yaml-cpp
 # The next 2 lines (and 'kwiver_algo_ocv' above) are needed for the optional image display logic in some examples
                       ${OpenCV_LIBS}
-                      ${Boost_LIBS}
-                      gflags_static)
+                      ${Boost_LIBS})
 link_directories(${OpenCV_LIB_DIR})
 add_custom_command(TARGET darknet_detections POST_BUILD
                    COMMAND ${CMAKE_COMMAND} -E copy $<TARGET_FILE:darknet_detections> ${CMAKE_INSTALL_PREFIX}/bin)

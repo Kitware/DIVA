@@ -1,7 +1,6 @@
 find_package(fletch REQUIRED)
 find_package(pybind11 CONFIG REQUIRED)
 find_package(kwiver REQUIRED)
-find_package(GFlags COMPONENTS static)
 
 include_directories("${CMAKE_BINARY_DIR}")
 include_directories("${CMAKE_SOURCE_DIR}/utils")
@@ -25,7 +24,6 @@ target_link_libraries(python-utils-utils
           vital_config
           kpf_yaml
           yaml-cpp
-          gflags_static
           "-Wl,-Bsymbolic")
 
 if(WIN32)

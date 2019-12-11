@@ -1,5 +1,3 @@
-find_package(GFlags COMPONENTS static)
-
 set(SOURCE "schema_examples.cpp")
 include_directories("${CMAKE_BINARY_DIR}")
 include_directories("${CMAKE_SOURCE_DIR}/utils")
@@ -16,8 +14,7 @@ target_link_libraries(schema_examples
                       vital_exceptions
                       vital_vpm
                       kpf_yaml
-                      yaml-cpp
-                      gflags_static)
+                      yaml-cpp)
 if(NOT EXISTS ${CMAKE_INSTALL_PREFIX}/bin/)
   file(MAKE_DIRECTORY ${CMAKE_INSTALL_PREFIX}/bin)
 endif()
