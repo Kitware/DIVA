@@ -16,6 +16,7 @@ setup(name='diva',
       cmake_args=[
           '-DCMAKE_BUILD_TYPE=Release',
           '-DKWIVER_PYTHON_MAJOR_VERSION=3',
+          '-DDIVA_PYTHON_MAJOR_VERSION=3',
           '-DDIVA_SUPERBUILD=OFF',
           '-DDIVA_BUILD_SHARED=OFF',
           '-DDIVA_BUILD_WITH_CUDA=OFF',

@@ -2,10 +2,8 @@
 
 if(DIVA_PYTHON_MAJOR_VERSION STREQUAL "2")
   find_package(PythonInterp 2)
-elseif(DIVA_PYTHON_MAJOR_VERSION STREQUAL "3")
-  find_package(PythonInterp 3)
 else()
-  find_package(PythonInterp)
+  find_package(PythonInterp 3)
 endif()
 
 function(py_compile filename rel_path)
