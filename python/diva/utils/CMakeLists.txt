@@ -23,7 +23,6 @@ target_link_libraries(python-utils-utils
   PRIVATE diva_utils
           vital_config
           kpf_yaml
-          yaml-cpp
           "-Wl,-Bsymbolic")
 
 if(WIN32)

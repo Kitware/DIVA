@@ -13,8 +13,7 @@ target_link_libraries(schema_examples
                       vital_util
                       vital_exceptions
                       vital_vpm
-                      kpf_yaml
-                      yaml-cpp)
+                      kpf_yaml)
 if(NOT EXISTS ${CMAKE_INSTALL_PREFIX}/bin/)
   file(MAKE_DIRECTORY ${CMAKE_INSTALL_PREFIX}/bin)
 endif()

@@ -68,8 +68,8 @@ target_link_libraries( diva_utils
                        vital_util
                        vital_exceptions
                        kwiversys
-                       yaml-cpp
                        kpf_yaml
+                       yaml-cpp
                        ${OpenCV_LIBS}
 )
 

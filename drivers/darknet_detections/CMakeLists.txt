@@ -23,8 +23,6 @@ target_link_libraries(darknet_detections
                       vital_util
                       vital_exceptions
                       vital_vpm
-                      kpf_yaml
-                      yaml-cpp
 # The next 2 lines (and 'kwiver_algo_ocv' above) are needed for the optional image display logic in some examples
                       ${OpenCV_LIBS}
                       ${Boost_LIBS})
