@@ -7,6 +7,9 @@ include_directories("${CMAKE_SOURCE_DIR}/utils")
 include_directories(${pybind11_INCLUDE_DIR})
 include_directories(${KWIVER_INCLUDE_DIR})
 
+kwiver_create_python_init(utils
+  utils)
+
 kwiver_add_python_library(utils
   utils
   diva_python_utils.cxx

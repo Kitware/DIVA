@@ -16,6 +16,10 @@ RUN apt-get update && \
                     python3-pip \
                     && pip3 install numpy scipy setuptools six
 
+# Ensure python3 is the default
+WORKDIR /usr/bin
+RUN ln -sf python3 python
+
 ENV DIVA_BASE=/diva
 ENV DIVA_INSTALL=/opt/diva
 ENV KWIVER_INSTALL=/usr/local/lib/kwiver
@@ -65,12 +69,11 @@ ENV VITAL_LOGGER_FACTORY=${KWIVER_INSTALL}/modules/vital_log4cplus_logger
 ENV LOG4CPLUS_CONFIGURATION=/usr/local/log4cplus.properties
 # Python environment
 ENV PYTHON_LIBRARY="/usr/lib/x86_64-linux-gnu/libpython3.5m.so"
-ENV PYTHONPATH=${DIVA_INSTALL}/lib/python3/dist-packages/diva:${PYTHONPATH}
+ENV PYTHONPATH=${DIVA_INSTALL}/lib/python3/dist-packages:${PYTHONPATH}
 ENV PYTHONPATH=/usr/local/lib/python3/dist-packages/kwiver:${PYTHONPATH}
 ENV PYTHONPATH=/usr/local/lib/python3/dist-packages:${PYTHONPATH}
 ENV SPROKIT_PYTHON_MODULES=kwiver.processes
 
 # Setup_diva env variables
-ENV PYTHONPATH=${DIVA_INSTALL}/lib:${PYTHONPATH}
 ENV KWIVER_PLUGIN_PATH=${DIVA_INSTALL}/lib/diva/processes:${DIVA_INSTALL}/lib/diva/modules:${KWIVER_PLUGIN_PATH}
 ENV SPROKIT_PYTHON_MODULES=DIVA.processes:DIVA.processes.rc3d:DIVA.processs.act:${SPROKIT_PYTHON_MODULES}
