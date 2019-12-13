@@ -1,4 +1,3 @@
-
 set(SOURCE "schema_examples.cpp")
 include_directories("${CMAKE_BINARY_DIR}")
 include_directories("${CMAKE_SOURCE_DIR}/utils")
@@ -13,7 +12,8 @@ target_link_libraries(schema_examples
                       vital_logger
                       vital_util
                       vital_exceptions
-                      vital_vpm)
+                      vital_vpm
+                      kpf_yaml)
 if(NOT EXISTS ${CMAKE_INSTALL_PREFIX}/bin/)
   file(MAKE_DIRECTORY ${CMAKE_INSTALL_PREFIX}/bin)
 endif()

@@ -12,6 +12,9 @@ include_directories("${KWIVER_INCLUDE_DIRS}")
 add_executable(basic_experiment ${SOURCE})
 target_link_libraries(basic_experiment 
                       diva_utils
+                      kwiver_ocv_image_container
+                      kwiver_algo_ocv
+                      kwiver_algo_ffmpeg_impl
                       kwiversys
                       vital
                       vital_algo
@@ -20,7 +23,6 @@ target_link_libraries(basic_experiment
                       vital_util
                       vital_exceptions
                       vital_vpm
-                      kwiver_algo_ocv
                       ${OpenCV_LIBS})
 link_directories(${OpenCV_LIB_DIR})
 

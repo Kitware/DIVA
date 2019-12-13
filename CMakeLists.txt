@@ -14,7 +14,7 @@ option(DIVA_BUILD_DOCUMENTATION "Build DIVA documentation using Doxygen and Sphi
 option(DIVA_ENABLE_PYTHON "Build python bindings for DIVA" ON)
 option(DIVA_ENABLE_PROCESS "Build DIVA processes" OFF)
 option(DIVA_BUILD_WITH_CUDA "Build with CUDA support" FALSE)
-
+option(DIVA_BUILD_SHARED "Build DIVA and dependencies with shared libs" ON)
 
 # Common paths include
 set(DIVA_CMAKE_DIR ${DIVA_SOURCE_DIR}/CMake)
@@ -85,6 +85,7 @@ add_subdirectory(utils)
 add_subdirectory(external)
 if(DIVA_ENABLE_PYTHON)
   add_subdirectory(scripts)
+  add_subdirectory(python)
 endif()
 
 if(DIVA_ENABLE_OPTICAL_FLOW)
@@ -94,8 +95,13 @@ endif()
 if(DIVA_ENABLE_PROCESS)
   ###
   # Set location for process plugins
-  set( diva_plugin_process_subdir diva/processes )
-  set( diva_plugin_module_subdir  diva/modules )
+  if(SKBUILD)
+    set( diva_plugin_process_subdir processes )
+    set( diva_plugin_module_subdir  modules )
+  else()
+    set( diva_plugin_process_subdir diva/processes )
+    set( diva_plugin_module_subdir  diva/modules )
+  endif()
   add_subdirectory(processes)
 endif()
 

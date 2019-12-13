@@ -20,13 +20,13 @@ endif()
 ExternalProject_Add(fletch
   PREFIX ${DIVA_BINARY_DIR}
   GIT_REPOSITORY "git://github.com/Kitware/fletch.git"
-  GIT_TAG 5e6920b4db5ae203e6197b17b12642a9b0fd8032 
+  GIT_TAG f008d7e3e5c2d21a9717a964a677315cbfedce05
   SOURCE_DIR fletch
   BINARY_DIR fletch-build
   STAMP_DIR ${DIVA_STAMP_DIR}
   CMAKE_CACHE_ARGS
-    -DBUILD_SHARED_LIBS:BOOL=ON
     -Dfletch_BUILD_CXX11:BOOL=ON
+    -DBUILD_SHARED_LIBS:BOOL=${DIVA_BUILD_SHARED}
     -Dfletch_BUILD_WITH_PYTHON:BOOL=${DIVA_ENABLE_PYTHON}
     -Dfletch_PYTHON_MAJOR_VERSION:STRING=${DIVA_PYTHON_MAJOR_VERSION}
     -Dfletch_ENABLE_Boost:BOOL=ON
@@ -52,7 +52,7 @@ ExternalProject_Add(fletch
     -Dfletch_ENABLE_OpenCV_FFmpeg:BOOL=ON
     -Dfletch_ENABLE_OpenCV_contrib:BOOL=ON
     -Dfletch_ENABLE_OpenCV_highgui:BOOL=ON
-    -Dfletch_ENABLE_OpenCV_CUDA:BOOL=ON
+    -Dfletch_ENABLE_OpenCV_CUDA:BOOL=${DIVA_BUILD_WITH_CUDA}
     -Dfletch_ENABLE_PNG:BOOL=ON
     -Dfletch_ENABLE_PROJ4:BOOL=ON
     -Dfletch_ENABLE_PostgresSQL:BOOL=OFF
@@ -62,7 +62,7 @@ ExternalProject_Add(fletch
     -Dfletch_ENABLE_Qt:BOOL=OFF
     -Dfletch_ENABLE_Snappy:BOOL=${CAFFE_SUPPORT}
     -Dfletch_ENABLE_SuiteSparse:BOOL=OFF
-    -Dfletch_ENABLE_TinyXML:BOOL=ON
+    -Dfletch_ENABLE_TinyXML1:BOOL=ON
     -Dfletch_ENABLE_VTK:BOOL=OFF
     -Dfletch_ENABLE_VXL:BOOL=ON
     -Dfletch_ENABLE_YAMLcpp:BOOL=ON

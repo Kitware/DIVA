@@ -1,4 +1,3 @@
-
 find_package(fletch REQUIRED)
 find_package(pybind11 CONFIG REQUIRED)
 find_package(kwiver REQUIRED)
@@ -8,8 +7,11 @@ include_directories("${CMAKE_SOURCE_DIR}/utils")
 include_directories(${pybind11_INCLUDE_DIR})
 include_directories(${KWIVER_INCLUDE_DIR})
 
+kwiver_create_python_init(utils
+  utils)
+
 kwiver_add_python_library(utils
-  diva
+  utils
   diva_python_utils.cxx
   diva_python_packet.cxx
   diva_python_label.cxx
@@ -19,14 +21,13 @@ kwiver_add_python_library(utils
   diva_python_input.cxx
 )
 
-kwiver_create_python_init(diva
-  utils)
-
-
-target_link_libraries(python-diva-utils
+target_link_libraries(python-utils-utils
   PUBLIC ${PYTHON_LIBRARIES}
-  PRIVATE diva_utils )
+  PRIVATE diva_utils
+          vital_config
+          kpf_yaml
+          "-Wl,-Bsymbolic")
 
 if(WIN32)
-  target_compile_definitions(python-diva-utils PRIVATE YAML_CPP_DLL)
+  target_compile_definitions(python-utils-utils PRIVATE YAML_CPP_DLL)
 endif()

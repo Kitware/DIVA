@@ -13,6 +13,8 @@ include_directories("${KWIVER_INCLUDE_DIRS}")
 add_executable(darknet_detections ${SOURCE})
 target_link_libraries(darknet_detections 
                       diva_utils
+                      kwiver_algo_ocv
+                      kwiver_algo_ffmpeg_impl
                       kwiversys
                       vital
                       vital_algo
@@ -21,8 +23,7 @@ target_link_libraries(darknet_detections
                       vital_util
                       vital_exceptions
                       vital_vpm
-# The next 3 lines are needed for the optional image display logic in some examples
-                      kwiver_algo_ocv
+# The next 2 lines (and 'kwiver_algo_ocv' above) are needed for the optional image display logic in some examples
                       ${OpenCV_LIBS}
                       ${Boost_LIBS})
 link_directories(${OpenCV_LIB_DIR})

@@ -71,7 +71,7 @@ if(NOT kwiver_FOUND)
   include(CMake/add_project_kwiver.cmake)
 endif()
 
-include(CMake/add_project_kwant.cmake)
+# include(CMake/add_project_kwant.cmake)
 
 # Support ccache
 if( CMAKE_VERSION VERSION_LESS 3.4 )
@@ -95,8 +95,7 @@ ExternalProject_Add(DIVA
   STAMP_DIR ${DIVA_STAMP_DIR}
   CMAKE_CACHE_ARGS
     -Dkwiver_DIR:PATH=${kwiver_DIR}
-    -Dkwant_DIR:PATH=${kwant_DIR}
-    -DBUILD_SHARED_LIBS:BOOL=ON
+    -DDIVA_BUILD_SHARED:BOOL=${DIVA_BUILD_SHARED}
     -DDIVA_SUPERBUILD:BOOL=OFF
     -DCMAKE_PREFIX_PATH:STRING=${CMAKE_PREFIX_PATH}
     -DCMAKE_INSTALL_PREFIX:STRING=${CMAKE_INSTALL_PREFIX}

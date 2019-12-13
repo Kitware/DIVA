@@ -2,14 +2,18 @@ if(fletch_ENABLED_YAMLCPP) #KWIVER_ENABLE_KPF)
   find_package( yaml-cpp REQUIRED )
   find_package( Boost REQUIRED )#Until yaml's next release..
 else()
-  message(FATAL_ERROR "DIVA requires the KWIVER KPF arrow, please enable it and rebuild kwiver")
+  message(FATAL_ERROR "DIVA utils requires yaml cpp and boost")
 endif()
 find_package( kwiver REQUIRED)
 find_package( Eigen3 REQUIRED )
 
+if(NOT fletch_ENABLED_OpenCV)
+  message(FATAL_ERROR "DIVA input requires opencv, please enable it and rebuild kwiver")
+endif()
+find_package( OpenCV REQUIRED )
 
 set( DIVA_BUILD_PYTHON_BINDINGS ON CACHE PATH "Generate Python Bindings" )
-
+include_directories(${KWIVER_INCLUDE_DIRS})
 set( sources
   diva_exceptions.cxx
   diva_experiment.cxx
@@ -56,16 +60,19 @@ target_include_directories(diva_utils PRIVATE ${KWIVER_INCLUDE_DIR})
 target_include_directories(diva_utils PRIVATE ${EIGEN3_INCLUDE_DIR})
 
 target_link_libraries( diva_utils
-  PRIVATE              vital
-                       vital_algo
-                       vital_config
+  PRIVATE              kwiver_ocv_image_container
+                       kwiver_algo_ffmpeg_impl
+                       vital_klv
+                       vital
                        vital_logger
                        vital_util
                        vital_exceptions
-                       vital_vpm
                        kwiversys
-                 yaml-cpp kpf_yaml
+                       kpf_yaml
+                       yaml-cpp
+                       ${OpenCV_LIBS}
 )
+
 if(NOT EXISTS ${CMAKE_INSTALL_PREFIX}/lib)
   file(MAKE_DIRECTORY ${CMAKE_INSTALL_PREFIX}/lib)
 endif()
@@ -76,8 +83,4 @@ install(TARGETS diva_utils DESTINATION ${CMAKE_INSTALL_PREFIX}/lib)
 
 if(WIN32)
   target_compile_definitions(diva_utils PRIVATE YAML_CPP_DLL)
-endif()
-
-if(DIVA_ENABLE_PYTHON)
-  add_subdirectory(python)
 endif()
