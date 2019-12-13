@@ -40,6 +40,21 @@ or build the DIVA image using the dockerfile::
 
  "docker build -t diva:tagname ."
 
+DIVA Python wheel
+=================
+
+Kitware also provides a pared down DIVA build as a Python 3 wheel.
+
+Install the wheel::
+
+  "pip3 install kwiver diva"
+
+Verify the installation::
+
+  "plugin_explorer --proc diva"
+
+The plugin `diva_experiment` should be listed in the output.
+
 Building DIVA
 =============
 
