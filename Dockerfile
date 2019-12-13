@@ -1,4 +1,6 @@
-FROM kitware/kwiver:create-kwiver-wheel
+# ** NOTE ** Currently this Dockerfile depends on a non-public Kwiver
+# Docker image (due to pending changes in Kwiver)
+FROM kitware/kwiver:_latest
 
 RUN apt-get update && \
     apt-get install -y --no-install-recommends \
