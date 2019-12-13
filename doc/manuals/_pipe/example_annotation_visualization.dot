@@ -1,0 +1,105 @@
+strict digraph "unnamed" {
+clusterrank=local;
+
+subgraph "cluster_frame_list_input" {
+color=white;style=filled;fillcolor=white;fontsize=10;rank=same;
+
+"frame_list_input_main" [label="frames\n::frame_list_input",shape=ellipse];
+
+"frame_list_file" [label="image_list_file",shape=box];
+"frame_list_path" [label="path",shape=box];
+"frame_list_image_reader_type" [label="image_reader:type",shape=box];
+"frame_list_image_output" [label="image",shape=invhouse];
+
+{ "frame_list_file" "frame_list_path" "frame_list_image_reader_type" } -> "frame_list_input_main" [arrowhead=none];
+"frame_list_input_main" -> "frame_list_image_output" [arrowhead=none];
+}
+
+subgraph "cluster_cam2cam" {
+color=white;style=filled;fillcolor=white;fontsize=10;rank=same;
+
+"cam2cam_main" [label="camera2camera\n::detected_object_filter",shape=ellipse];
+
+"cam2cam_src_cam" [label="src_camera_krtd_file_name",shape=box];
+"cam2cam_dest_cam" [label="dest_camera_krtd_file_name",shape=box];
+"cam2cam_detected_obj_set_in" [label="detected_object_set",shape=house]
+"cam2cam_detected_obj_set_out" [label="detected_object_set",shape=invhouse];
+
+{ "cam2cam_src_cam" "cam2cam_dest_cam" "cam2cam_detected_obj_set_in" } -> "cam2cam_main" [arrowhead=none];
+"cam2cam_main" -> "cam2cam_detected_obj_set_out" [arrowhead=none];
+}
+
+subgraph "cluster_kpf_in" {
+color=white;style=filled;fillcolor=white;fontsize=10;rank=same;
+
+"kpf_in_main" [label="kpf_in\n::detected_object_input",shape=ellipse];
+
+"kpf_in_file" [label="file_name",shape=box]
+"kpf_in_reader_type" [label="reader:type",shape=box]
+"kpf_in_detected_obj_set_out" [label="detected_object_set",shape=invhouse];
+
+{ "kpf_in_file" "kpf_in_reader_type" } -> "kpf_in_main" [arrowhead=none];
+"kpf_in_main" -> "kpf_in_detected_obj_set_out" [arrowhead=none];
+}
+
+subgraph "cluster_shift" {
+color=white;style=filled;fillcolor=white;fontsize=10;rank=same;
+
+"shift_main" [label="shift\n::shift_detected_object_set",shape=ellipse];
+
+"shift_offset" [label="offset",shape=box];
+"shift_detected_obj_set_in" [label="detected_object_set",shape=house]
+"shift_detected_obj_set_out" [label="detected_object_set",shape=invhouse];
+
+{ "shift_offset" "shift_detected_obj_set_in" } -> "shift_main" [arrowhead=none];
+"shift_main" -> "shift_detected_obj_set_out" [arrowhead=none];
+}
+
+subgraph "cluster_draw" {
+color=white;style=filled;fillcolor=white;fontsize=10;rank=same;
+
+"draw_main" [label="draw\n::draw_detected_object_set",shape=ellipse];
+
+"draw_image_in" [label="image",shape=house]
+"draw_detected_obj_set_in" [label="detected_object_set",shape=house]
+"draw_image_out" [label="image",shape=invhouse];
+
+{ "draw_image_in" "draw_detected_obj_set_in" } -> "draw_main" [arrowhead=none];
+"draw_main" -> "draw_image_out" [arrowhead=none];
+}
+
+subgraph "cluster_csv_out" {
+color=white;style=filled;fillcolor=white;fontsize=10;rank=same;
+
+"csv_out_main" [label="csv_out\n::detected_object_output",shape=ellipse];
+
+"csv_out_file" [label="file_name",shape=box];
+"csv_out_type" [label="writer:type",shape=box];
+"csv_out_detected_obj_set_in" [label="detected_object_set",shape=house];
+"csv_file_out" [label="csv file",shape=invtrapezium];
+
+{ "csv_out_file" "csv_out_type" "csv_out_detected_obj_set_in" } -> "csv_out_main" [arrowhead=none];
+"csv_out_main" -> "csv_file_out" [arrowhead=none];
+}
+
+subgraph "cluster_image_write" {
+color=white;style=filled;fillcolor=white;fontsize=10;rank=same;
+
+"image_write_main" [label="imagewriter\n::image_writer",shape=ellipse];
+
+"image_write_file_template" [label="file_name_template",shape=box];
+"image_write_type" [label="writer:type",shape=box];
+"image_write_image_in" [label="image",shape=house];
+"image_write_images_out" [label="images",shape=invtrapezium];
+
+{ "image_write_file_template" "image_write_type" "image_write_image_in" } -> "image_write_main" [arrowhead=none];
+"image_write_main" -> "image_write_images_out" [arrowhead=none];
+}
+
+"kpf_in_detected_obj_set_out" -> "shift_detected_obj_set_in" [minlen=1,weight=1];
+"shift_detected_obj_set_out" -> "cam2cam_detected_obj_set_in" [minlen=1,weight=1];
+"cam2cam_detected_obj_set_out" -> "draw_detected_obj_set_in" [minlen=1,weight=1];
+"frame_list_image_output" -> "draw_image_in" [minlen=1,weight=1];
+"cam2cam_detected_obj_set_out" -> "csv_out_detected_obj_set_in" [minlen=1,weight=1];
+"draw_image_out" -> "image_write_image_in" [minlen=1,weight=1];
+}
