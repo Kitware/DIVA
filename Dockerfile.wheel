@@ -1,6 +1,6 @@
 # ** NOTE ** Currently this Dockerfile depends on a non-public Kwiver
 # Docker image (due to pending changes in Kwiver)
-FROM kitware/kwiver:_wheel-env
+FROM kitware/kwiver:_wheel
 
 RUN pip3 install numpy scipy setuptools scikit-build
 

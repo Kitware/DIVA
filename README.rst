@@ -43,11 +43,15 @@ or build the DIVA image using the dockerfile::
 DIVA Python wheel
 =================
 
-Kitware also provides a pared down DIVA build as a Python 3 wheel.
+Kitware also provides a pared down DIVA build as a Python 3 wheel.  The DIVA wheel depends on the Kwiver wheel, and the following system dependencies (installed via apt-get in this example)::
 
-Install the wheel::
+  # The following example uses the Ubuntu apt-get package manager
+  # These command may differ depending on your Linux flavor and package manager
+  sudo apt-get install libgl1-mesa-dev libexpat1-dev libgtk2.0-dev liblapack-dev python3.5 python3-pip
 
-  "pip3 install kwiver diva"
+Install the wheels::
+
+  "pip3 install kwiver diva-framework"
 
 Verify the installation::
 

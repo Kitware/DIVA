@@ -3,7 +3,7 @@ from setuptools import find_packages
 from skbuild import setup
 
 diva_source_dir = ".."
-setup(name='diva',
+setup(name='diva-framework',
       version='0.0.1',
       packages=find_packages(),
       setup_requires=[
