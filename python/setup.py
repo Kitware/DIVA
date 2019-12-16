@@ -5,6 +5,13 @@ from skbuild import setup
 diva_source_dir = ".."
 setup(name='diva-framework',
       version='0.0.1',
+      author='Kitware Inc.',
+      author_email='diva-framework@kitware.com',
+      url='https://github.com/Kitware/DIVA',
+      license='BSD 3-Clause',
+      description='The DIVA Framework is a software framework designed'
+      'to provide an architecture and a set of software modules which'
+      'will facilitate the development of DIVA analytics',
       packages=find_packages(),
       setup_requires=[
           'setuptools',
@@ -36,5 +43,10 @@ setup(name='diva-framework',
           '{}/scripts/eo_to_ir/eo_to_ir.py'.format(diva_source_dir)],
       classifiers=[
           'Development Status :: 3 - Alpha',
-          'Topics :: Test',
-      ])
+          'Programming Language :: Python :: 3.5',
+          'Operating System :: Unix',
+          'Intended Audience :: Developers',
+          'Intended Audience :: Science/Research',
+          'Topic :: Scientific/Engineering :: Artificial Intelligence'],
+      platforms=['linux', 'Unix'],
+      python_requires='>=3.5')
