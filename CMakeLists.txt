@@ -16,6 +16,11 @@ option(DIVA_ENABLE_PROCESS "Build DIVA processes" OFF)
 option(DIVA_BUILD_WITH_CUDA "Build with CUDA support" FALSE)
 option(DIVA_BUILD_SHARED "Build DIVA and dependencies with shared libs" ON)
 
+if(SKBUILD)
+  set(CMAKE_C_FLAGS_RELEASE "${CMAKE_C_FLAGS_RELEASE} -s")
+  set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} -s")
+endif()
+
 # Common paths include
 set(DIVA_CMAKE_DIR ${DIVA_SOURCE_DIR}/CMake)
 set(DIVA_STAMP_DIR ${DIVA_BINARY_DIR}/DIVA-ExternalProject-Stamps)
@@ -80,7 +85,9 @@ cmake_dependent_option(DIVA_ENABLE_OPTICAL_FLOW
 
 
 # DIVA specific code (inner build)
-add_subdirectory(drivers)
+if(NOT SKBUILD)
+  add_subdirectory(drivers)
+endif()
 add_subdirectory(utils)
 add_subdirectory(external)
 if(DIVA_ENABLE_PYTHON)
