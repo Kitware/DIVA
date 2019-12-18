@@ -50,6 +50,7 @@ Kitware also provides a pared down DIVA build as a Python 3 wheel.  The DIVA whe
   sudo apt-get install libgl1-mesa-dev libexpat1-dev libgtk2.0-dev liblapack-dev python3.6 python3-pip
 
 Upgrade PIP if older than version 19.3.1::
+  
   pip3 install -U pip
 
 Install the wheels::

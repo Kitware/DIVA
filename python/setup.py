@@ -7,7 +7,7 @@ with open('../README.rst') as f:
 
 diva_source_dir = ".."
 setup(name='diva-framework',
-      version='0.0.1a1.dev2',
+      version='0.0.1',
       author='Kitware, Inc.',
       author_email='diva-framework@kitware.com',
       url='https://github.com/Kitware/DIVA',
@@ -22,7 +22,7 @@ setup(name='diva-framework',
           'scikit-build'
       ],
       install_requires=[
-          'kwiver==1.4.1a1.dev1',
+          'kwiver==1.4.1',
       ],
       cmake_args=[
           '-DCMAKE_BUILD_TYPE=Release',
