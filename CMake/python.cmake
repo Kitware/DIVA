@@ -14,7 +14,7 @@ function(py_compile filename rel_path)
     file(REMOVE "${BINARY_DIR}/${rel_path}/${filename}c")
   endif()
   get_filename_component(basename "${filename}" NAME_WE)
-  file(RENAME "${SOURCE_DIR}/${rel_path}/__pycache__/${basename}.cpython-35.pyc" "${BINARY_DIR}/${rel_path}/${filename}c")
+  file(RENAME "${SOURCE_DIR}/${rel_path}/__pycache__/${basename}.cpython-36.pyc" "${BINARY_DIR}/${rel_path}/${filename}c")
 endfunction()
 
 py_compile(schema_examples.py "drivers/schema_examples")

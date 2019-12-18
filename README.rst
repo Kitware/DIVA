@@ -32,13 +32,36 @@ The Dockerfile used to build the image can be found `here <Dockerfile>`_.
 
 Pull the image from Dockerhub::
 
- "docker pull kitware/diva:latest"
+ docker pull kitware/diva:latest
 
 (`https://hub.docker.com/r/kitware/diva <https://hub.docker.com/r/kitware/diva>`_)
 
 or build the DIVA image using the dockerfile::
 
- "docker build -t diva:tagname ."
+ docker build -t diva:tagname .
+
+DIVA Python wheel
+=================
+
+Kitware also provides a pared down DIVA build as a Python 3 wheel.  The DIVA wheel depends on the Kwiver wheel, and the following system dependencies (installed via apt-get in this example)::
+
+  # The following example uses the Ubuntu apt-get package manager
+  # These command may differ depending on your Linux flavor and package manager
+  sudo apt-get install libgl1-mesa-dev libexpat1-dev libgtk2.0-dev liblapack-dev python3.6 python3-pip
+
+Upgrade PIP if older than version 19.3.1::
+  
+  pip3 install -U pip
+
+Install the wheels::
+
+  pip install kwiver diva-framework
+
+Verify the installation::
+
+  plugin_explorer --proc diva
+
+The plugin `diva_experiment` should be listed in the output.
 
 Building DIVA
 =============
