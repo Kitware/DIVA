@@ -26,7 +26,7 @@ This document describes the process of transfering DIVA annotations from one cam
 
 **NOTE** -- This annotation transfer pipeline is intended as an infrastructure demonstration, rather than a complete algorithmic solution for the annotation transfer task. It uses simple camera-to-camera geometric transfer, with no 3D model information or content-based refinement. In particular, note that transferred boxes may be above or below the ground plane implied by the camera models.
   
-The Pipeline File
+The pipeline file
 -----------------
 
 We include the pipeline file inline here as a convenience, it can also be found at: `example_annotation_transfer.pipe`_
@@ -104,7 +104,7 @@ The pipeline::
   
   # -- end of file --
 
-Running The Pipeline
+Running the pipeline
 --------------------
 
 In the same directory where we've copied down the input files, first we make a directory for the annotated output frames:
