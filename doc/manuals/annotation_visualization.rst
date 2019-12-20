@@ -23,7 +23,7 @@ We include the pipeline file inline here as a convenience, it can also be found 
 
 .. code-block:: bash
 
-  curl https://github.com/Kitware/DIVA/blob/master/doc/manuals/pipelines/example_annotation_visualization.pipe > example_annotation_visualization.pipe
+  curl https://raw.githubusercontent.com/Kitware/DIVA/master/doc/manuals/pipelines/example_annotation_visualization.pipe > example_annotation_visualization.pipe
 
 The pipeline::
 
