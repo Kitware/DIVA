@@ -22,7 +22,7 @@ This document describes the process of transfering DIVA annotations from one cam
   curl https://gitlab.kitware.com/meva/meva-data-repo/raw/master/metadata/camera-models/2018-03/cameras/G436.krtd > G436.krtd
   curl https://gitlab.kitware.com/meva/meva-data-repo/raw/master/metadata/camera-models/2018-03/cameras/G336.krtd > G336.krtd
 
-* A frame offset, i.e. how many frames ahead is the destination camera relative to the source camera.  In this case we'll use the value `-228`
+* A frame offset, i.e. how many frames ahead is the destination camera relative to the source camera.  In this case we'll use the value ``-228``
 
 **NOTE** -- This annotation transfer pipeline is intended as an infrastructure demonstration, rather than a complete algorithmic solution for the annotation transfer task. It uses simple camera-to-camera geometric transfer, with no 3D model information or content-based refinement. In particular, note that transferred boxes may be above or below the ground plane implied by the camera models.
   
@@ -113,7 +113,7 @@ In the same directory where we've copied down the input files, first we make a d
 
   mkdir G436_output_frames
 
-Next, we call `kwiver runner` on the pipeline file:
+Next, we call ``kwiver runner`` on the pipeline file:
 
 .. code-block:: bash
 
@@ -121,9 +121,9 @@ Next, we call `kwiver runner` on the pipeline file:
 
 The process may take a few minutes to finish, though the annotated output frames will be generated as the pipeline runs.
 
-Once it finishes, you can find the annotated output frames in the `G436_output_frames` directory.
+Once it finishes, you can find the annotated output frames in the ``G436_output_frames`` directory.
 
-We can then reconstitute the output frames into a video file using `ffmpeg`:
+We can then reconstitute the output frames into a video file using ``ffmpeg``:
 
 .. code-block:: bash
 
