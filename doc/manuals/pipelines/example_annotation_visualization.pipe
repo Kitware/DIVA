@@ -1,51 +1,22 @@
 # This example pipeline demonstrates how take annotations (in KPF
-# format) from one camera and map them into another; while also
-# visually annotating the destination camera's video frames and
-# writing the mapped detections to a csv file
+# format) and the corresponding video, and render the annotations onto
+# the video frames
 
 # ================================================================
-process frames
-  :: frame_list_input
+process video
+  :: video_input
 
-  # Ordered list of images corresponding to the frames of the video
-  image_list_file = /path/to/video_frames.txt
-  image_reader:type = ocv
-  # Directory containing the per-frame images, as listed in
-  # video_frames.txt above
-  path = /path/to/video_frames/
-
-# ================================================================
-process camera2camera
-  :: detected_object_filter
-
-  filter:type = transform_detected_object_set
-  filter:transform_detected_object_set:src_camera_krtd_file_name = /path/to/src_camera.krtd
-  filter:transform_detected_object_set:dest_camera_krtd_file_name = /path/to/dest_camera.krtd
+  # File path to the input video
+  video_filename = G336.avi
+  video_reader:type = ffmpeg
 
 # ================================================================
 process kpf_in
   :: detected_object_input
 
-  # KPF formatted detections from the source camera
-  file_name = /path/to/kpf.geom.yml
+  # KPF formatted annotation file path
+  file_name = G336.geom.yml
   reader:type = kpf_input
-
-# ================================================================
-process shift
-  :: shift_detected_object_set
-
-  # Frame offset between the source and destination cameras; a value
-  # of 160 here means that frame 1 in the source video corresponds to
-  # frame 161 in the destination camera
-  offset = 160
-
-# ================================================================
-process csv_out
-  :: detected_object_output
-
-  # Destination filepath for the mapped detections output
-  file_name = /path/for/output.csv
-  writer:type = csv
 
 # ================================================================
 process draw
@@ -58,29 +29,21 @@ process draw
 process imagewriter
   :: image_writer
 
-  # Our annotated output frames will be written to the following path
-  # using the specified format string
-  file_name_template = /path/for/output_frames/image%05d.jpg
+  # Writes out the annotated video frames from the destination
+  # camera, starting from image00001.jpg.  Note that frames will
+  # only be written out while there are annotations to consume
+  file_name_template = G336_output_frames/image%05d.jpg
   image_writer:type = ocv
 
 # ================================================================
 # connections
-connect from frames.image
- 	to draw.image
+connect from video.image
+        to draw.image
 
 connect from kpf_in.detected_object_set
-        to shift.detected_object_set
-
-connect from shift.detected_object_set
-        to camera2camera.detected_object_set
-
-connect from camera2camera.detected_object_set
-	to draw.detected_object_set
-
-connect from camera2camera.detected_object_set
-	to csv_out.detected_object_set
+        to draw.detected_object_set
 
 connect from draw.image
-	to imagewriter.image
+        to imagewriter.image
 
 # -- end of file --
