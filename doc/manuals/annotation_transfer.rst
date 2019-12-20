@@ -123,8 +123,12 @@ The process may take a few minutes to finish, though the annotated output frames
 
 Once it finishes, you can find the annotated output frames in the `G436_output_frames` directory.
 
-We can then reconstitute the output frames into a video file `ffmpeg`:
+We can then reconstitute the output frames into a video file using `ffmpeg`:
 
 .. code-block:: bash
 
   ffmpeg -r 30 -i G436_output_frames/image%05d.jpg G336-to-G436.avi
+
+.. Appendix 1: Links
+
+.. _example_annotation_transfer.pipe: pipelines/example_annotation_transfer.pipe
