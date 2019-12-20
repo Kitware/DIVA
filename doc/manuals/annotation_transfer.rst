@@ -33,7 +33,7 @@ We include the pipeline file inline here as a convenience, it can also be found 
 
 .. code-block:: bash
 
-  curl https://raw.githubusercontent.com/dmjoy/DIVA/dev/annotation-transfer-demo/doc/manuals/pipelines/example_annotation_transfer.pipe > example_annotation_transfer_pipe
+  curl https://github.com/Kitware/DIVA/blob/master/doc/manuals/pipelines/example_annotation_transfer.pipe > example_annotation_transfer.pipe
 
 The pipeline::
 

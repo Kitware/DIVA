@@ -19,7 +19,11 @@ This document describes the process of visualizing DIVA annotations from a given
 The pipeline file
 -----------------
 
-We include the pipeline file inline here as a convenience, it can also be found at: `example_annotation_visualization.pipe`_
+We include the pipeline file inline here as a convenience, it can also be found at: `example_annotation_visualization.pipe`_ or downloaded via curl:
+
+.. code-block:: bash
+
+  curl https://github.com/Kitware/DIVA/blob/master/doc/manuals/pipelines/example_annotation_visualization.pipe > example_annotation_visualization.pipe
 
 The pipeline::
 
@@ -85,6 +89,13 @@ Next, we call ``kwiver runner`` on the pipeline file:
   kwiver runner example_annotation_visualization.pipe
 
 The process may take a few minutes to finish, though the annotated output frames will be generated as the pipeline runs.
+
+You may see messages along the lines of::
+
+    DEBUG - [h264 @ 0x195d180] nal_unit_type: 1, nal_ref_idc: 3
+    WARN - [swscaler @ 0x7f794c080f00] deprecated pixel format used, make sure you did set range correctly
+
+...these are normal.
 
 Once it finishes, you can find the annotated output frames in the ``G336_output_frames`` directory.
 
