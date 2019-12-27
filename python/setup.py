@@ -7,7 +7,7 @@ with open('../README.rst') as f:
 
 diva_source_dir = ".."
 setup(name='diva-framework',
-      version='0.0.2',
+      version='0.0.3',
       author='Kitware, Inc.',
       author_email='diva-framework@kitware.com',
       url='https://github.com/Kitware/DIVA',
@@ -22,7 +22,7 @@ setup(name='diva-framework',
           'scikit-build'
       ],
       install_requires=[
-          'kwiver==1.4.2',
+          'kwiver>=1.4.2',
       ],
       cmake_args=[
           '-DCMAKE_BUILD_TYPE=Release',
@@ -46,10 +46,13 @@ setup(name='diva-framework',
           '{}/scripts/cli_helpers/merge_videos.py'.format(diva_source_dir)],
       classifiers=[
           'Development Status :: 3 - Alpha',
+          'Programming Language :: Python :: 3.5',
           'Programming Language :: Python :: 3.6',
+          'Programming Language :: Python :: 3.7',
+          'Programming Language :: Python :: 3.8',
           'Operating System :: Unix',
           'Intended Audience :: Developers',
           'Intended Audience :: Science/Research',
           'Topic :: Scientific/Engineering :: Artificial Intelligence'],
       platforms=['linux', 'Unix'],
-      python_requires='>=3.6')
+      python_requires='>=3.5')
