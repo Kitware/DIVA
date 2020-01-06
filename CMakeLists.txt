@@ -85,9 +85,6 @@ cmake_dependent_option(DIVA_ENABLE_OPTICAL_FLOW
 
 
 # DIVA specific code (inner build)
-if(NOT SKBUILD)
-  add_subdirectory(drivers)
-endif()
 add_subdirectory(utils)
 add_subdirectory(external)
 if(DIVA_ENABLE_PYTHON)
