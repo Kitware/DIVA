@@ -1,3 +1,5 @@
+#!/usr/bin/env python3
+
 import diva.utils as du
 import os
 import argparse
