@@ -1,3 +1,5 @@
+#!/usr/bin/env python3
+
 import diva.utils as du
 import os
 import argparse
@@ -15,12 +17,14 @@ def _generate_dummy_output(diva_experiment):
     diva_experiment.set_algorithm_executable("./bin/darknet_detections -r $expfn")
     return diva_experiment
 
-def generate_experiment_file_from_videos(video_root, experiment_root, video_name):
+def generate_experiment_file_from_videos(video_root, experiment_root, video_name, \
+                                         relative_video_path):
     """
     Generate experiment files from video
     :param video_root: Root folder of the videos
     :param experiment_root: Root folder where experiment specification would be stored in yml file
     :param video_name: Name of the video
+    :param relative_video_path: Path of video relative to the video_root
     :return None
     """
     experiment_file_name = os.path.splitext(video_name)[0] + "_experiment.yml"
@@ -29,7 +33,8 @@ def generate_experiment_file_from_videos(video_root, experiment_root, video_name
     diva_input = diva_experiment.get_input()
     diva_input.set_dataset_id(video_name)
     diva_input.set_frame_rate_Hz(30)
-    diva_input.set_video_file_source(video_root, video_name)
+    video_path = os.path.join(video_root, os.path.dirname(relative_video_path))
+    diva_input.set_video_file_source(video_path, video_name)
     _generate_dummy_output(diva_experiment)
     if diva_experiment.is_valid():
         diva_experiment.write_experiment(os.path.join(experiment_root, experiment_file_name))
@@ -76,8 +81,9 @@ def main(args):
     if not os.path.exists(args.data_root):
         raise OSError("Invalid path {0} provided for data root".format(args.data_root))
 
-    all_videos = os.listdir(args.data_root)
     chunks = json.load(open(args.chunk_json, 'r'))
+
+    file_index = json.load(open(args.file_index, 'r'))
 
     if not os.path.exists(args.experiment_root):
         print("{0} not found. Creating {0}.".format(args.experiment_root))
@@ -90,13 +96,15 @@ def main(args):
     if args.chunk_id in chunks.keys():
         chunk_files = chunks[args.chunk_id]["files"]
         for video_name in chunk_files:
+            video_path = file_index[video_name]["filename"]
             if args.use_videos:
-                if video_name not in all_videos:
+                if not os.path.exists(os.path.join(args.data_root, video_path)):
                     raise OSError("{0} is not present in {1}".format(video_name,
                                                                      args.data_root))
                 generate_experiment_file_from_videos(args.data_root,
                                                      args.experiment_root,
-                                                     video_name)
+                                                     video_name,
+                                                     video_path)
             else:
                 video_folder, _ = os.path.splitext(video_name)
                 if video_folder not in all_videos:
@@ -115,6 +123,7 @@ if __name__ == "__main__":
     parser.add_argument("--chunk-id",
                 help="Chunk id for which experiment file would be generated")
     parser.add_argument("--chunk-json", help="JSON file with all the chunks")
+    parser.add_argument("--file-index", help="File index for all the videos")
     parser.add_argument("--data-root", help="Root folder for image directory")
     parser.add_argument("--experiment-root", help="Root folder where experiment.yml would be stored")
     parser.add_argument("--imagelist-root", help="Root folder where imagelist.txt would be stored")
