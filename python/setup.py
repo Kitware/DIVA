@@ -23,7 +23,7 @@ setup(name='diva-framework',
       ],
       install_requires=[
           'kwiver>=1.4.2',
-          'python-opencv'
+          'opencv-python'
       ],
       cmake_args=[
           '-DCMAKE_BUILD_TYPE=Release',
