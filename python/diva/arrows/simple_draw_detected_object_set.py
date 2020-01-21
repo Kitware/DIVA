@@ -33,6 +33,9 @@ from kwiver.vital.types import DetectedObjectSet, DetectedObject, BoundingBox
 from kwiver.vital.types import ImageContainer
 
 import cv2
+import math
+
+SUPPORTED_BBOX_SHAPE = ["rectangle", "circle"]
 
 class SimpleDrawDetectedObjectSet(DrawDetectedObjectSet):
     """
@@ -46,6 +49,7 @@ class SimpleDrawDetectedObjectSet(DrawDetectedObjectSet):
         self.bbox_color = (255, 0, 0)
         self.font_scale = 0.6
         self.font_thickness = 2
+        self.bbox_shape = "rectangle"
         self.font = cv2.FONT_HERSHEY_SIMPLEX
 
     def get_configuration(self):
@@ -56,6 +60,7 @@ class SimpleDrawDetectedObjectSet(DrawDetectedObjectSet):
                                                           self.bbox_color[2]) )
         cfg.set_value( "font_scale", str(self.font_scale))
         cfg.set_value( "font_thickness", str(self.font_thickness))
+        cfg.set_value( "bbox_shape", str(self.bbox_shape))
         return cfg
 
     def set_configuration( self, cfg_in ):
@@ -68,6 +73,9 @@ class SimpleDrawDetectedObjectSet(DrawDetectedObjectSet):
         self.bbox_color = self.bbox_color[::-1]
         self.font_scale = float(cfg.get_value("font_scale"))
         self.font_thickness = int(cfg.get_value("font_thickness"))
+        self.bbox_shape = cfg.get_value("bbox_shape")
+        assert self.bbox_shape in SUPPORTED_BBOX_SHAPE, \
+                "Unsupported bounding box shape specified"
 
     def check_configuration( self, cfg):
         return True
@@ -77,11 +85,24 @@ class SimpleDrawDetectedObjectSet(DrawDetectedObjectSet):
         for detected_object in detected_object_set:
             bbox = detected_object.bounding_box()
             confidence = detected_object.confidence()
-            u_image = cv2.rectangle(u_image,
-                          (int(bbox.min_x()), int(bbox.min_y())),
-                          (int(bbox.max_x()), int(bbox.max_y())),
-                          self.bbox_color,
-                          self.bbox_thickness)
+            if self.bbox_shape == "rectangle":
+                u_image = cv2.rectangle(u_image,
+                              (int(bbox.min_x()), int(bbox.min_y())),
+                              (int(bbox.max_x()), int(bbox.max_y())),
+                              self.bbox_color,
+                              self.bbox_thickness)
+                text_origin = (int(bbox.min_x()),int(bbox.min_y()-self.bbox_thickness))
+            else:
+                center = ((int(bbox.min_x()) + int(bbox.max_x()))//2,
+                          (int(bbox.min_y()) + int(bbox.max_y()))//2)
+                radius = int(math.sqrt(math.pow(float(bbox.max_y()) - \
+                                                float(bbox.min_y()), 2) + \
+                                       math.pow(float(bbox.max_x()) - \
+                                                float(bbox.min_x()), 2)))
+                u_image = cv2.circle(u_image, center, radius, self.bbox_color,
+                                     self.bbox_thickness)
+                text_origin = (center[0]-radius, center[1]-radius-self.bbox_thickness)
+
             types = detected_object.type()
             if types is None:
                 label = "{0}".format(confidence)
@@ -90,7 +111,7 @@ class SimpleDrawDetectedObjectSet(DrawDetectedObjectSet):
                                           types.get_most_likely_score())
             u_image = cv2.putText(u_image,
                         label,
-                        (int(bbox.min_x()),int(bbox.min_y()-self.bbox_thickness)),
+                        text_origin,
                         self.font, self.font_scale, self.bbox_color, self.font_thickness)
         u_image = cv2.cvtColor(u_image, cv2.COLOR_BGR2RGB)
         image_container = ImageContainer.fromarray(u_image)
@@ -99,7 +120,7 @@ class SimpleDrawDetectedObjectSet(DrawDetectedObjectSet):
 def __vital_algorithm_register__():
     from kwiver.vital.algo import algorithm_factory
     # Register Algorithm
-    implementation_name  = "SimpleDrawDetectedObjectset"
+    implementation_name  = "SimpleDrawDetectedObjectSet"
     if algorithm_factory.has_algorithm_impl_name(
                                 SimpleDrawDetectedObjectSet.static_type_name(),
                                 implementation_name):
