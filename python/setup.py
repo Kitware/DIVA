@@ -7,7 +7,7 @@ with open('../README.rst') as f:
 
 diva_source_dir = ".."
 setup(name='diva-framework',
-      version='0.0.4',
+      version='0.0.5',
       author='Kitware, Inc.',
       author_email='diva-framework@kitware.com',
       url='https://github.com/Kitware/DIVA',
