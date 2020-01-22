@@ -5,4 +5,4 @@ cd @DIVA_BINARY_DIR@
 export PYTHONPATH=@DIVA_BINARY_DIR@/@python_lib_subdir@/@python_sitename@:$PYTHONPATH
 export @LIBRARY_PATH_VAR@=$this_dir/lib:$@LIBRARY_PATH_VAR@
 export KWIVER_PLUGIN_PATH=@DIVA_BINARY_DIR@/lib/@diva_plugin_process_subdir@:@DIVA_BINARY_DIR@/lib/@diva_plugin_module_subdir@:$KWIVER_PLUGIN_PATH
-export SPROKIT_PYTHON_MODULES=DIVA.processes:DIVA.processes.rc3d:DIVA.processs.act:$SPROKIT_PYTHON_MODULES
+export SPROKIT_PYTHON_MODULES=diva.processes:diva.arrows:$SPROKIT_PYTHON_MODULES

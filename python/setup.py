@@ -7,7 +7,7 @@ with open('../README.rst') as f:
 
 diva_source_dir = ".."
 setup(name='diva-framework',
-      version='0.0.4',
+      version='0.0.5',
       author='Kitware, Inc.',
       author_email='diva-framework@kitware.com',
       url='https://github.com/Kitware/DIVA',
@@ -23,6 +23,7 @@ setup(name='diva-framework',
       ],
       install_requires=[
           'kwiver>=1.4.2',
+          'opencv-python'
       ],
       cmake_args=[
           '-DCMAKE_BUILD_TYPE=Release',
@@ -37,6 +38,10 @@ setup(name='diva-framework',
       cmake_install_dir='diva',
       cmake_source_dir=diva_source_dir,
       entry_points={
+          'kwiver.python_plugin_registration' : [
+              'simple_draw_detected_object_set=diva.arrows.simple_draw_detected_object_set',
+              'image_viewer_process=diva.processes.image_viewer_process',
+              'simple_detector_process=diva.processes.simple_detector_process'],
           'kwiver.cpp_search_paths': [
               'diva_processes=diva.processes.register_cpp_processes:get_cpp_path']},
       scripts=[
