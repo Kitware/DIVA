@@ -7,7 +7,7 @@ This document describes the process of transfering DIVA annotations from one cam
 
 .. code-block:: bash
 
-  curl https://gitlab.kitware.com/meva/meva-data-repo/raw/master/annotation/DIVA-phase-2/MEVA/meva-annotations/2018-03-11/16/2018-03-11.16-15-01.16-20-01.school.G336.geom.yml > G336.geom.yml
+  curl https://gitlab.kitware.com/meva/meva-data-repo/-/raw/master/annotation/DIVA-phase-2/MEVA/kitware/2018-03-11/16/2018-03-11.16-15-01.16-20-01.school.G336.geom.yml > G336.geom.yml
 
 * Video footage from the destination camera:
 
@@ -19,8 +19,8 @@ This document describes the process of transfering DIVA annotations from one cam
 
 .. code-block:: bash
 
-  curl https://gitlab.kitware.com/meva/meva-data-repo/raw/master/metadata/camera-models/2018-03/cameras/G436.krtd > G436.krtd
-  curl https://gitlab.kitware.com/meva/meva-data-repo/raw/master/metadata/camera-models/2018-03/cameras/G336.krtd > G336.krtd
+  curl https://gitlab.kitware.com/meva/meva-data-repo/-/raw/master/metadata/camera-models/old/2018-03/cameras/G436.krtd > G436.krtd
+  curl https://gitlab.kitware.com/meva/meva-data-repo/-/raw/master/metadata/camera-models/old/2018-03/cameras/G336.krtd > G336.krtd
 
 * A frame offset, i.e. how many frames ahead is the destination camera relative to the source camera.  In this case we'll use the value ``-228``
 
