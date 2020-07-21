@@ -12,6 +12,9 @@ import diva_python_utils
 
 can_plot = 0
 try:
+    import matplotlib
+    if os.environ.get('DISPLAY','') == '':
+        matplotlib.use('Agg')
     import matplotlib.pyplot as plt
     import numpy as np
     can_plot = 1
